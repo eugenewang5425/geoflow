@@ -66,7 +66,7 @@
         <article class="panel"><div class="panel-heading"><div><h2>TOP OD 列表</h2><p>区域级流向热度</p></div></div><div id="od-list" class="rank-list"></div></article>
       </div>
       <div class="analysis-grid">
-        <article class="panel"><div class="panel-heading"><div><h2>机场进出流量</h2><p>JFK / LaGuardia / Newark 全年进出</p></div><span class="tag">AIRPORT</span></div><div id="chart-airport" class="chart tall"></div></article>
+        <article class="panel"><div class="panel-heading"><div><h2>机场进出流量</h2><p>JFK / LaGuardia / Newark 全年进出</p></div><span class="tag">AIRPORT</span></div><div id="chart-airport" class="chart tall"></div><p id="od-note" class="od-note"></p></article>
         <article class="panel"><div class="panel-heading"><div><h2>行政区 OD 矩阵</h2><p>年度累计</p></div></div><div id="chart-borough" class="chart tall"></div></article>
       </div>
     </section>
@@ -106,7 +106,7 @@
         <article><span>一致性校验</span><strong id="exc-exact">—</strong><small>独立聚合逐键比对</small><div class="kpi-icon purple">✓</div></article>
       </div>
       <div class="analysis-grid">
-        <article class="panel"><div class="panel-heading"><div><h2>作业记录</h2><p>YARN 作业与运行状态</p></div><span class="tag">RUNS</span></div><div id="runs" class="table"></div></article>
+        <article class="panel"><div class="panel-heading"><div><h2>作业记录</h2><p>YARN 作业与运行状态</p></div><span class="tag">RUNS</span></div><div class="table-wrap"><table id="runs" class="table"></table></div></article>
         <article class="panel"><div class="panel-heading"><div><h2>验证证据</h2><p>顺序参考 vs Hadoop 输出</p></div></div><div id="evidence" class="evidence-grid"></div></article>
       </div>
     </section>
@@ -114,13 +114,15 @@
     <section id="architecture" class="view" hidden>
       <div class="analysis-grid">
         <article class="panel"><div class="panel-heading"><div><h2>集群状态</h2><p>HDFS 与 YARN 实时指标</p></div></div><div id="cluster" class="cluster-grid"></div></article>
-        <article class="panel"><div class="panel-heading"><div><h2>数据管线</h2><p>公开数据 → 分布式统计 → 可视化与预测</p></div></div><pre class="pipe">TLC Parquet ─→ CSV 分片(manif时+SHA256) ─→ HDFS /geoflow/raw/<月>/<指纹>
-                                                              │
-                                                    MapReduce(Streaming) ─→ YARN 调度 × 2 NM
-                                                              │
-                                              Z|zone|hour · D|day · O|od · T|day|zone|hour
-                                                              │
-                                  守恒校验 + 独立逐键验证 ──→ 结果发布 → API → Web / 3D / 预测</pre></article>
+        <article class="panel"><div class="panel-heading"><div><h2>数据管线</h2><p>公开数据 → 分布式统计 → 可视化与预测</p></div></div><pre class="pipe">TLC Parquet ─→ CSV 分片（manifest + SHA-256） ─→ HDFS /geoflow/raw/&lt;月&gt;/&lt;指纹&gt;
+        │
+MapReduce Streaming ─→ YARN 调度 × 2 NodeManager（6 vCore / 6 GB）
+        │
+Z|zone|hour · D|day · O|od · T|day|zone|hour（日粒度 → 预测特征）
+        │
+守恒校验（四维计数对账） ─→ 独立逐键验证 ─→ 结果发布 ─→ API
+        │
+Web 仪表盘 · 3D 地形图 · 需求预测（日历 + 天气 + 滞后特征）</pre></article>
       </div>
     </section>
   </div>
