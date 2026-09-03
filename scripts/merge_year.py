@@ -70,8 +70,8 @@ def main():
         for odrec in result["od"]:
             od_year[(odrec["origin"], odrec["destination"])] += odrec["values"][0]
 
-        dist_km = sum(v[1] for v in z_h.values()) / 1000 * 1.609344
-        amt = sum(v[3] for v in z_h.values()) / 100
+        dist_km = sum(r["values"][1] for r in zone_hours) / 1000 * 1.609344
+        amt = sum(r["values"][3] for r in zone_hours) / 100
         month_stats.append({"month": month, "status": "ok", "run_id": run_dir.name,
                             "trips": trip_total, "rejected": result["rejected_rows"],
                             "distance_km": round(dist_km), "revenue_usd": round(amt),

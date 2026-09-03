@@ -80,12 +80,15 @@ def main():
             "mapreduce.shuffle.port": 19562 + (index - 1) * 10,
             "mapreduce.application.classpath": cp,
             "mapreduce.map.memory.mb": 512,
-            "mapreduce.map.java.opts": "-Xmx384m",
+            # Temurin 11 C2 JIT crashes with SIGABRT (fatal signal 6) on WSL2
+            # kernel 6.18 (dmesg: C2 CompilerThre); C1-only compilation removes
+            # this crash class with negligible cost for I/O-bound streaming tasks.
+            "mapreduce.map.java.opts": "-Xmx384m -XX:TieredStopAtLevel=1",
             "mapreduce.reduce.memory.mb": 768,
-            "mapreduce.reduce.java.opts": "-Xmx512m",
+            "mapreduce.reduce.java.opts": "-Xmx512m -XX:TieredStopAtLevel=1",
             "yarn.app.mapreduce.am.resource.mb": 768,
-            "yarn.app.mapreduce.am.command-opts": "-Xmx512m",
-            "mapreduce.map.maxattempts": 2,
+            "yarn.app.mapreduce.am.command-opts": "-Xmx512m -XX:TieredStopAtLevel=1",
+            "mapreduce.map.maxattempts": 4,
             "mapreduce.map.speculative": "false",
             "mapreduce.reduce.speculative": "false",
             "mapreduce.jobhistory.address": "127.0.0.1:11020",

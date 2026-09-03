@@ -1,10 +1,10 @@
 {
-  "run_id": "20260903T193136-446209",
-  "input_rows": 3475226,
-  "compared_keys": 37137,
+  "run_id": "20260903T205850-fff456",
+  "input_rows": 4305006,
+  "compared_keys": 167969,
   "exact_match": true,
-  "reference_seconds": 24.151,
-  "hadoop_end_to_end_seconds": 231.352,
-  "hadoop_job_seconds": null,
+  "reference_seconds": 34.708,
+  "hadoop_end_to_end_seconds": 249.309,
+  "hadoop_job_seconds": 37.262,
   "scope": "Identical validation rules, independent sequential aggregation; all integer sums exact"
 }

@@ -23,7 +23,7 @@ from geoflow.io import atomic_json, read_json
 TRAIN_END = date(2025, 10, 31)
 VALID_END = date(2025, 11, 30)
 WEATHER_VARS = ["temperature_2m", "apparent_temperature", "precipitation", "snowfall",
-                "wind_speed_10m", "relative_humidity_2m", "cloud_cover", "visibility"]
+                "wind_speed_10m", "relative_humidity_2m", "cloud_cover"]
 DAILY_VARS = ["temperature_2m_max", "temperature_2m_min", "precipitation_sum",
               "snowfall_sum", "wind_speed_10m_max", "sunshine_duration"]
 
@@ -57,6 +57,7 @@ def load_daily_grid(runs):
         raise RuntimeError("no daily.tsv found")
     df = pd.concat(frames, ignore_index=True)
     df["date"] = pd.to_datetime(df["day"])
+    df = df.drop(columns=["day"])
     dates = pd.date_range("2025-01-01", "2025-12-31", freq="D")
     index = pd.MultiIndex.from_product([sorted(zones), range(24), dates],
                                        names=["zone", "hour", "date"])
@@ -103,10 +104,10 @@ def main():
         model = LGBMRegressor(n_estimators=800, learning_rate=0.06, num_leaves=63,
                               min_child_samples=40, subsample=0.85, subsample_freq=1,
                               colsample_bytree=0.85, n_jobs=-1, random_state=42, verbose=-1)
-        model.fit(train[feats], train["trips"],
-                  eval_set=[(valid[feats], valid["trips"])],
+        model.fit(train[feats], np.log1p(train["trips"].to_numpy()),
+                  eval_set=[(valid[feats], np.log1p(valid["trips"].to_numpy()))],
                   callbacks=[early_stopping(40, verbose=False)])
-        pred = model.predict(test[feats])
+        pred = np.maximum(np.expm1(model.predict(test[feats])), 0.0)
         importance = dict(sorted(zip(feats, model.feature_importances_.tolist()),
                                  key=lambda kv: -kv[1]))
         model_name = "LightGBM"
@@ -114,8 +115,8 @@ def main():
         from sklearn.ensemble import HistGradientBoostingRegressor
         model_name = "HistGradientBoosting (sklearn fallback)"
         model = HistGradientBoostingRegressor(max_iter=500, random_state=42)
-        model.fit(train[feats], train["trips"])
-        pred = model.predict(test[feats])
+        model.fit(train[feats], np.log1p(train["trips"].to_numpy()))
+        pred = np.expm1(model.predict(test[feats]))
         importance = {}
 
     test = test.reset_index(drop=True)
@@ -129,7 +130,10 @@ def main():
         rmse = float(np.sqrt(np.mean((a - p) ** 2)))
         mae = float(np.mean(np.abs(a - p)))
         mape = float(np.mean(np.abs(a - p) / np.maximum(a, 1))) * 100
-        return {"rmse": round(rmse, 2), "mae": round(mae, 2), "mape_pct": round(mape, 2)}
+        hi = a >= 5
+        mape_hi = float(np.mean(np.abs(a[hi] - p[hi]) / np.maximum(a[hi], 1))) * 100 if hi.any() else None
+        return {"rmse": round(rmse, 2), "mae": round(mae, 2), "mape_pct": round(mape, 2),
+                "mape_high_demand_pct": round(mape_hi, 2) if mape_hi is not None else None}
 
     report = {
         "model": model_name,
@@ -146,7 +150,7 @@ def main():
                 "n_dry": int((test["precipitation"].to_numpy() == 0).sum()),
                 "n_wet": int((test["precipitation"].to_numpy() > 0).sum())},
             "snow_hours": int((test["snowfall"].to_numpy() > 0).sum()),
-            "snow_days": int((test["snowfall_sum"].to_numpy() > 0).sum()),
+            "snow_days": int(test.loc[test["snowfall_sum"] > 0, "date"].nunique()),
             "temp_bins": [],
             "feature_importance": dict(list(importance.items())[:25]),
         },
@@ -166,6 +170,7 @@ def main():
     zone_agg = test.groupby("zone").agg(actual=("trips", "sum"),
                                         predicted=("pred", "sum")).reset_index()
     zone_agg["error_pct"] = (zone_agg["predicted"] - zone_agg["actual"]) / zone_agg["actual"] * 100
+    zone_agg["error_pct"] = zone_agg["error_pct"].replace([np.inf, -np.inf], 0).fillna(0.0)
     zones_info = read_json(DATA / "zones.geojson")["features"]
     name_map = {f["properties"]["id"]: f["properties"]["name"] for f in zones_info}
     borough_map = {f["properties"]["id"]: f["properties"]["borough"] for f in zones_info}

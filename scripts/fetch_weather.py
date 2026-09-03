@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BASE = "https://archive-api.open-meteo.com/v1/archive"
 COORDS = {"latitude": 40.7812, "longitude": -73.9665}
 HOURLY = ("temperature_2m,apparent_temperature,precipitation,snowfall,"
-          "wind_speed_10m,relative_humidity_2m,cloud_cover,visibility")
+          "wind_speed_10m,relative_humidity_2m,cloud_cover")
 DAILY = ("temperature_2m_max,temperature_2m_min,precipitation_sum,"
          "snowfall_sum,wind_speed_10m_max,sunshine_duration")
 ARGS = {"start_date": "2025-01-01", "end_date": "2025-12-31",

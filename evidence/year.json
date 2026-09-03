@@ -1,0 +1,199 @@
+{
+  "months": [
+    "2025-01",
+    "2025-02",
+    "2025-03",
+    "2025-04",
+    "2025-05",
+    "2025-06",
+    "2025-07",
+    "2025-08",
+    "2025-09",
+    "2025-10",
+    "2025-11",
+    "2025-12"
+  ],
+  "total_trips": 45400745,
+  "month_stats": [
+    {
+      "month": "2025-01",
+      "status": "ok",
+      "run_id": "20260903T201704-f49104",
+      "trips": 3288166,
+      "rejected": 187060,
+      "distance_km": 16521748,
+      "revenue_usd": 85433820,
+      "job_id": "job_1788463846024_0009",
+      "elapsed_seconds": 65.701,
+      "job_elapsed_seconds": 36.93
+    },
+    {
+      "month": "2025-02",
+      "status": "ok",
+      "run_id": "20260903T201810-125d16",
+      "trips": 3389345,
+      "rejected": 188198,
+      "distance_km": 16826194,
+      "revenue_usd": 86606325,
+      "job_id": "job_1788463846024_0010",
+      "elapsed_seconds": 215.447,
+      "job_elapsed_seconds": 35.125
+    },
+    {
+      "month": "2025-03",
+      "status": "ok",
+      "run_id": "20260903T202147-3414a5",
+      "trips": 3918222,
+      "rejected": 227035,
+      "distance_km": 20768942,
+      "revenue_usd": 105115763,
+      "job_id": "job_1788463846024_0011",
+      "elapsed_seconds": 244.342,
+      "job_elapsed_seconds": 40.6
+    },
+    {
+      "month": "2025-04",
+      "status": "ok",
+      "run_id": "20260903T202552-56956c",
+      "trips": 3738862,
+      "rejected": 231691,
+      "distance_km": 19971691,
+      "revenue_usd": 101754109,
+      "job_id": "job_1788463846024_0012",
+      "elapsed_seconds": 243.152,
+      "job_elapsed_seconds": 48.365
+    },
+    {
+      "month": "2025-05",
+      "status": "ok",
+      "run_id": "20260903T202956-461d44",
+      "trips": 4240494,
+      "rejected": 351351,
+      "distance_km": 23807014,
+      "revenue_usd": 117422225,
+      "job_id": "job_1788463846024_0013",
+      "elapsed_seconds": 264.478,
+      "job_elapsed_seconds": 44.02
+    },
+    {
+      "month": "2025-06",
+      "status": "ok",
+      "run_id": "20260903T203422-4308bf",
+      "trips": 4009409,
+      "rejected": 313551,
+      "distance_km": 22937101,
+      "revenue_usd": 111760825,
+      "job_id": "job_1788463846024_0014",
+      "elapsed_seconds": 256.392,
+      "job_elapsed_seconds": 43.778
+    },
+    {
+      "month": "2025-07",
+      "status": "ok",
+      "run_id": "20260903T203839-8cfbe7",
+      "trips": 3608855,
+      "rejected": 290108,
+      "distance_km": 20715154,
+      "revenue_usd": 99160194,
+      "job_id": "job_1788463846024_0015",
+      "elapsed_seconds": 230.76,
+      "job_elapsed_seconds": 37.883
+    },
+    {
+      "month": "2025-08",
+      "status": "ok",
+      "run_id": "20260903T204231-8eea41",
+      "trips": 3299926,
+      "rejected": 274165,
+      "distance_km": 19947716,
+      "revenue_usd": 89735696,
+      "job_id": "job_1788463846024_0016",
+      "elapsed_seconds": 217.828,
+      "job_elapsed_seconds": 37.848
+    },
+    {
+      "month": "2025-09",
+      "status": "ok",
+      "run_id": "20260903T204610-a68ef1",
+      "trips": 3954792,
+      "rejected": 296223,
+      "distance_km": 22745654,
+      "revenue_usd": 111750176,
+      "job_id": "job_1788463846024_0017",
+      "elapsed_seconds": 253.47,
+      "job_elapsed_seconds": 44.587
+    },
+    {
+      "month": "2025-10",
+      "status": "ok",
+      "run_id": "20260903T205025-35a316",
+      "trips": 4092695,
+      "rejected": 336004,
+      "distance_km": 23235207,
+      "revenue_usd": 113519734,
+      "job_id": "job_1788463846024_0018",
+      "elapsed_seconds": 260.36,
+      "job_elapsed_seconds": 44.502
+    },
+    {
+      "month": "2025-11",
+      "status": "ok",
+      "run_id": "20260903T205446-5776d4",
+      "trips": 3852663,
+      "rejected": 328781,
+      "distance_km": 21582059,
+      "revenue_usd": 101850490,
+      "job_id": "job_1788463846024_0019",
+      "elapsed_seconds": 242.24,
+      "job_elapsed_seconds": 38.171
+    },
+    {
+      "month": "2025-12",
+      "status": "ok",
+      "run_id": "20260903T205850-fff456",
+      "trips": 4007316,
+      "rejected": 297690,
+      "distance_km": 22371576,
+      "revenue_usd": 123944896,
+      "job_id": "job_1788463846024_0020",
+      "elapsed_seconds": 249.309,
+      "job_elapsed_seconds": 37.262
+    }
+  ],
+  "runs": [
+    "20260903T201704-f49104",
+    "20260903T201810-125d16",
+    "20260903T202147-3414a5",
+    "20260903T202552-56956c",
+    "20260903T202956-461d44",
+    "20260903T203422-4308bf",
+    "20260903T203839-8cfbe7",
+    "20260903T204231-8eea41",
+    "20260903T204610-a68ef1",
+    "20260903T205025-35a316",
+    "20260903T205446-5776d4",
+    "20260903T205850-fff456"
+  ],
+  "od_pair_count": 54415,
+  "airports": [
+    {
+      "id": 1,
+      "name": "Newark Airport",
+      "inbound": 83444,
+      "outbound": 315
+    },
+    {
+      "id": 132,
+      "name": "JFK Airport",
+      "inbound": 361799,
+      "outbound": 1766137
+    },
+    {
+      "id": 138,
+      "name": "LaGuardia Airport",
+      "inbound": 431123,
+      "outbound": 1195931
+    }
+  ],
+  "generated_at": "2026-09-03T21:03:13.533847+00:00"
+}

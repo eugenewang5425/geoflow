@@ -1,0 +1,128 @@
+{
+  "model": "LightGBM",
+  "features": [
+    "zone",
+    "hour",
+    "weekday",
+    "month",
+    "is_weekend",
+    "temperature_2m",
+    "apparent_temperature",
+    "precipitation",
+    "snowfall",
+    "wind_speed_10m",
+    "relative_humidity_2m",
+    "cloud_cover",
+    "temperature_2m_max",
+    "temperature_2m_min",
+    "precipitation_sum",
+    "snowfall_sum",
+    "wind_speed_10m_max",
+    "sunshine_duration",
+    "lag_1",
+    "lag_7",
+    "lag7mean"
+  ],
+  "train_window": "2025-01-08..2025-10-31",
+  "validation_window": "2025-11-01..2025-11-30",
+  "test_window": "2025-12-01..2025-12-31",
+  "rows": {
+    "train": 1853280,
+    "valid": 187200,
+    "test": 193440
+  },
+  "metrics": {
+    "model": {
+      "rmse": 19.1,
+      "mae": 5.66,
+      "mape_pct": 48.21,
+      "mape_high_demand_pct": 37.53
+    },
+    "baseline_lag7": {
+      "rmse": 24.55,
+      "mae": 7.32,
+      "mape_pct": 65.22,
+      "mape_high_demand_pct": 49.2
+    }
+  },
+  "weather_effect": {
+    "precip_vs_dry": {
+      "dry_mean": 20.7,
+      "wet_mean": 20.5,
+      "n_dry": 169000,
+      "n_wet": 24440
+    },
+    "snow_hours": 12480,
+    "snow_days": 8,
+    "temp_bins": [
+      {
+        "range": "-20..0°C",
+        "mean": 18.7,
+        "n": 105560
+      },
+      {
+        "range": "0..10°C",
+        "mean": 23.1,
+        "n": 84240
+      },
+      {
+        "range": "10..20°C",
+        "mean": 22.0,
+        "n": 3640
+      }
+    ],
+    "feature_importance": {
+      "hour": 949,
+      "weekday": 691,
+      "lag7mean": 632,
+      "lag_7": 579,
+      "lag_1": 474,
+      "temperature_2m_max": 283,
+      "wind_speed_10m_max": 214,
+      "sunshine_duration": 206,
+      "zone": 142,
+      "temperature_2m_min": 131,
+      "apparent_temperature": 91,
+      "relative_humidity_2m": 83,
+      "wind_speed_10m": 78,
+      "month": 75,
+      "precipitation_sum": 72,
+      "precipitation": 68,
+      "temperature_2m": 66,
+      "is_weekend": 43,
+      "snowfall_sum": 34,
+      "cloud_cover": 26,
+      "snowfall": 23
+    }
+  },
+  "weather_provenance": {
+    "source": "Open-Meteo Archive API (historical weather)",
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=40.7812&longitude=-73.9665&start_date=2025-01-01&end_date=2025-12-31&hourly=temperature_2m%2Capparent_temperature%2Cprecipitation%2Csnowfall%2Cwind_speed_10m%2Crelative_humidity_2m%2Ccloud_cover&daily=temperature_2m_max%2Ctemperature_2m_min%2Cprecipitation_sum%2Csnowfall_sum%2Cwind_speed_10m_max%2Csunshine_duration&timezone=America%2FNew_York",
+    "license": "Open-Meteo: CC-BY 4.0 attribution; free for non-commercial use",
+    "station": "Central Park, NYC (40.7812, -73.9665)",
+    "period": "2025-01-01..2025-12-31",
+    "timezone": "America/New_York",
+    "hourly_variables": [
+      "temperature_2m",
+      "apparent_temperature",
+      "precipitation",
+      "snowfall",
+      "wind_speed_10m",
+      "relative_humidity_2m",
+      "cloud_cover"
+    ],
+    "daily_variables": [
+      "temperature_2m_max",
+      "temperature_2m_min",
+      "precipitation_sum",
+      "snowfall_sum",
+      "wind_speed_10m_max",
+      "sunshine_duration"
+    ],
+    "fetched_at": "2026-09-03T21:05:03.699236+00:00",
+    "sha256": "5aa94befcfad2a751c908d49b430486e34ca766554a4cb5727b345550563d421",
+    "rows_hourly": 8760,
+    "rows_daily": 365
+  },
+  "note": "One-step-ahead evaluation on the strictly temporal December test window; lag features use observed values. Baseline = same zone-hour one week earlier."
+}
