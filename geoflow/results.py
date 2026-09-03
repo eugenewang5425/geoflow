@@ -66,14 +66,16 @@ def publish(run_id, metadata):
 
 
 def summarize(result, zone_info, hour=None, borough=None):
-    selected = [r for r in result["zone_hours"]
-                if (hour is None or r["hour"] == hour)
-                and (borough is None or zone_info.get(r["zone"], {}).get("borough") == borough)]
+    # hour filter applies to zones only: the 24h profile stays city-wide by borough scope
+    scope = [r for r in result["zone_hours"]
+             if borough is None or zone_info.get(r["zone"], {}).get("borough") == borough]
+    selected = [r for r in scope if hour is None or r["hour"] == hour]
     zones = defaultdict(lambda: [0, 0, 0, 0])
     hourly = [0] * 24
+    for row in scope:
+        hourly[row["hour"]] += row["values"][0]
     for row in selected:
         zones[row["zone"]] = [a + b for a, b in zip(zones[row["zone"]], row["values"])]
-        hourly[row["hour"]] += row["values"][0]
     total = [sum(v[i] for v in zones.values()) for i in range(4)]
     def metrics(v):
         n = v[0]

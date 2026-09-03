@@ -61,3 +61,33 @@
 ::-webkit-scrollbar-thumb { background: #b9c6d6; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #98a9be; }
 ::-webkit-scrollbar-track { background: transparent; }
+
+/* ---- structured pipeline ---- */
+.pipe-flow { display: flex; flex-direction: column; gap: 0; padding: 6px 24px 12px 24px; }
+.stage { display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; background: #f8fafd; border: 1px solid #e8eef6; border-left: 4px solid #4c7dd8; border-radius: 8px; }
+.stage-ico { font-size: 18px; line-height: 1.2; }
+.stage strong { display: block; font-size: 13px; color: #2e3a4c; margin-bottom: 3px; }
+.stage span { font-size: 11.5px; color: #7286a0; line-height: 1.7; }
+.stage-next { text-align: center; color: #9db4cd; font-size: 14px; line-height: 1; padding: 3px 0; }
+/* ---- paddings & spacing fixes ---- */
+.rank-list { padding: 8px 16px 18px 16px; }
+#od-list .rank-row, #fc-importance .rank-row, #ranking .rank-row { margin: 15px 0; }
+.trend-chart { padding: 0 6px; }
+/* ---- job progress bar ---- */
+.job-bar { display: flex; flex-direction: column; gap: 5px; min-width: 180px; }
+.job-bar-track { height: 8px; background: #e6ecf4; border-radius: 5px; overflow: hidden; }
+.job-bar-track span { display: block; width: 40%; height: 100%; border-radius: 5px; background: linear-gradient(90deg, #4c7dd8, #8b6fd8, #4c7dd8); background-size: 200% 100%; animation: jobflow 1.2s linear infinite; }
+@keyframes jobflow { from { background-position: 200% 0; } to { background-position: 0 0; } }
+.job-bar small { font-size: 11px; color: #7286a0; }
+/* ---- help ---- */
+.help-btn { border: 1px solid #d9e2ee; background: #f8fafd; color: #4c7dd8; border-radius: 7px; padding: 5px 12px; font-size: 12px; cursor: pointer; }
+.help-btn:hover { background: #4c7dd8; color: #fff; }
+.help-overlay { position: fixed; inset: 0; background: rgba(18,28,42,0.5); z-index: 9998; display: flex; align-items: center; justify-content: center; }
+.help-card { width: 880px; max-width: 94vw; max-height: 84vh; overflow: auto; background: #fff; border-radius: 12px; padding: 22px 28px; }
+.help-card h3 { margin: 14px 0 6px; color: #2e3a4c; }
+.help-card h3:first-child { margin-top: 0; }
+.help-card p, .help-card li { font-size: 12.5px; line-height: 1.85; color: #4c5a6e; }
+.help-card code { background: #eef2f7; padding: 1px 6px; border-radius: 4px; }
+.help-card .close { float: right; border: 1px solid #d9e2ee; background: #f8fafd; color: #4c7dd8; padding: 5px 14px; border-radius: 6px; cursor: pointer; }
+/* ---- matrix & charts margin ---- */
+.chart { box-sizing: border-box; }

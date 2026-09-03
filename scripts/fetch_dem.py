@@ -68,7 +68,8 @@ def main():
     x_scale = (LON_MAX - LON_MIN) / (x1 - x0 + 1)
     y_scale = (LAT_MAX - LAT_MIN) / (y1 - y0 + 1)
     lons = [round(LON_MIN + x_scale * (idx + 0.5) / nx, 4) for idx in range(nx)]
-    lats = [round(LAT_MAX - y_scale * (idx + 0.5) / ny, 4) for idx in range(ny)]
+    lats = [round(LAT_MAX - y_scale * (ny - 1 - idx + 0.5) / ny, 4) for idx in range(ny)]
+    grid = list(reversed(grid))
     out = {
         "source": "Mapbox terrain-RGB tiles (AWS elevation-tiles-prod, terrarium encoding)",
         "attribution": "© Mapbox © OpenStreetMap contributors",

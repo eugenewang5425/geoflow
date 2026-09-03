@@ -137,12 +137,12 @@ def submit(payload: JobRequest, request: Request):
     if not job_lock.acquire(blocking=False):
         raise HTTPException(409, "已有任务正在执行。")
     job_state.clear()
-    job_state.update(status="RUNNING")
+    job_state.update(status="RUNNING", started_at=datetime.now(UTC).isoformat())
     def execute():
         try:
             job_state.update(run_job(payload.month, payload.reducers, payload.combiner))
         except Exception as exc:  # noqa: BLE001 - background job boundary must retain the error for polling
-            job_state.update(status="FAILED", error=str(exc))
+            job_state.update(status="FAILED", error=str(exc), finished_at=datetime.now(UTC).isoformat())
         finally:
             job_lock.release()
     executor.submit(execute)

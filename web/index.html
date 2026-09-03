@@ -18,9 +18,9 @@
   <div class="sidebar-bottom"><div class="small-label">COMPUTE ENGINE</div><strong>Apache Hadoop <span>3.4.2</span></strong><p>HDFS · YARN · MapReduce</p><div class="cluster-label"><i id="side-dot"></i><span id="side-state">正在检查集群</span></div><p class="muted">WSL2 · 单机多节点实验</p></div>
 </aside>
 <main>
-  <header><div class="breadcrumb">研究项目 <span>/</span> 城市出行分析</div><div class="header-right"><span class="public-label">公开数据</span><span class="avatar">GIS</span></div></header>
+  <header><div class="breadcrumb">研究项目 <span>/</span> 城市出行分析</div><div class="header-right"><span class="public-label">公开数据</span><button id="help-btn" class="help-btn" title="指标与图表说明">? 指标说明</button><span class="avatar">GIS</span></div></header>
   <div class="content">
-    <section class="page-title"><div><div class="eyebrow">URBAN MOBILITY OBSERVATORY</div><h1>读懂城市的出行节奏<span class="title-dot">.</span></h1><p>从数百万条行程，到每一个区域与时段的空间洞察。</p></div><div class="title-actions"><a id="export" class="btn secondary" href="/api/export">↓ 导出统计</a><button id="run" class="btn primary">↻ 重新计算</button></div></section>
+    <section class="page-title"><div><div class="eyebrow">URBAN MOBILITY OBSERVATORY</div><h1>读懂城市的出行节奏<span class="title-dot">.</span></h1><p>从数百万条行程，到每一个区域与时段的空间洞察。</p></div><div class="title-actions"><a id="export" class="btn secondary" href="/api/export">↓ 导出统计</a><button id="run" class="btn primary" title="对当前所选月份的全量数据重新运行 MapReduce 作业">↻ 重新计算当前月份</button><div id="job-bar" class="job-bar" hidden><div class="job-bar-track"><span></span></div><small id="job-prog-text">提交中…</small></div></div></section>
     <div id="notice" class="notice" role="status" hidden></div>
 
     <section id="overview" class="view">
@@ -62,7 +62,7 @@
         <article><span>最高频流向</span><strong id="odk-top">—</strong><small>区域 × 区域</small><div class="kpi-icon purple">↗</div></article>
       </div>
       <div class="analysis-grid">
-        <article class="panel"><div class="panel-heading"><div><h2>OD 流向桑基图</h2><p>全年 TOP 25 区域间流动</p></div><span class="tag">SANKEY</span></div><div id="chart-sankey" class="chart big"></div><div id="od-legend" class="leg-chips"></div></article>
+        <article class="panel"><div class="panel-heading"><div><h2>OD 流向桑基图</h2><p>全年 TOP 25 区域间流动</p></div><span class="tag">SANKEY</span></div><div id="chart-sankey" class="chart big"></div><div id="od-legend" class="leg-chips"></div><p id="od-read" class="od-note"></p></article>
         <article class="panel"><div class="panel-heading"><div><h2>TOP OD 列表</h2><p>区域级流向热度</p></div></div><div id="od-list" class="rank-list"></div></article>
       </div>
       <div class="analysis-grid">
@@ -73,9 +73,9 @@
 
     <section id="d3" class="view" hidden>
       <div class="filterbar"><div class="dataset"><span class="dataset-icon">◧</span><div><strong>3D 全景</strong><span>地形底图 DEM + 需求柱体 · 颜色 = 规模</span></div></div><div class="filters"><label>月份 <select id="d3-month"><option value="">全年</option></select></label><span class="filter-divider"></span><span id="d3-caption">全年合计 · 单位：千次</span></div></div>
-    <div class="toolbar"><label class="sync"><input type="checkbox" id="d3-sync" checked> 方向同步</label><label>预设 <select id="d3-preset"><option value="iso">等角（环视）</option><option value="top">俯视</option><option value="side">平视</option></select></label><label>方位α <input type="range" id="d3-alpha" min="0" max="360" value="50"></label><label>仰角β <input type="range" id="d3-beta" min="0" max="90" value="45"></label><label>距离 <input type="range" id="d3-dist" min="80" max="320" value="160"></label></div>
+    <div class="toolbar"><label class="sync"><input type="checkbox" id="d3-layer-dem" checked> DEM 地形</label><label class="sync"><input type="checkbox" id="d3-layer-towers" checked> 需求柱体</label><label class="sync"><input type="checkbox" id="d3-layer-flow" checked> OD 交通流</label><span class="filter-divider"></span><label class="sync"><input type="checkbox" id="d3-sync" checked> 方向同步</label><label>预设 <select id="d3-preset"><option value="iso">等角（环视）</option><option value="top">俯视</option><option value="side">平视</option></select></label><label>方位α <input type="range" id="d3-alpha" min="0" max="360" value="50"></label><label>仰角β <input type="range" id="d3-beta" min="0" max="90" value="45"></label><label>距离 <input type="range" id="d3-dist" min="80" max="320" value="160"></label></div>
       <div class="analysis-grid">
-        <article class="panel"><div class="panel-heading"><div><h2>城市需求立体映射</h2><p>分区柱体投影 · 可拖动旋转缩放</p></div><span class="tag">MAP3D + BAR</span></div><div id="chart-scatter3d" class="chart tall"></div></article>
+        <article class="panel"><div class="panel-heading"><div><h2>城市需求立体映射</h2><p>分区柱体投影 · 可拖动旋转缩放</p></div><span class="tag">MAP3D + BAR</span></div><div id="chart-scatter3d" class="chart tall"></div><div id="d3-leg" class="leg-chips"></div></article>
       </div>
       <div class="analysis-grid">
         <article class="panel"><div class="panel-heading"><div><h2>区域 × 小时 3D 矩阵</h2><p>TOP 20 热门区域</p></div></div><div id="chart-bar3d" class="chart tall"></div></article>
@@ -114,15 +114,17 @@
     <section id="architecture" class="view" hidden>
       <div class="analysis-grid">
         <article class="panel"><div class="panel-heading"><div><h2>集群状态</h2><p>HDFS 与 YARN 实时指标</p></div></div><div id="cluster" class="cluster-grid"></div></article>
-        <article class="panel"><div class="panel-heading"><div><h2>数据管线</h2><p>公开数据 → 分布式统计 → 可视化与预测</p></div></div><pre class="pipe">TLC Parquet ─→ CSV 分片（manifest + SHA-256） ─→ HDFS /geoflow/raw/&lt;月&gt;/&lt;指纹&gt;
-        │
-MapReduce Streaming ─→ YARN 调度 × 2 NodeManager（6 vCore / 6 GB）
-        │
-Z|zone|hour · D|day · O|od · T|day|zone|hour（日粒度 → 预测特征）
-        │
-守恒校验（四维计数对账） ─→ 独立逐键验证 ─→ 结果发布 ─→ API
-        │
-Web 仪表盘 · 3D 地形图 · 需求预测（日历 + 天气 + 滞后特征）</pre></article>
+        <article class="panel"><div class="panel-heading"><div><h2>数据管线</h2><p>公开数据 → 分布式统计 → 可视化与预测</p></div></div><div class="pipe-flow">
+  <div class="stage"><span class="stage-ico">🗄</span><div><strong>数据接入</strong><span>TLC 公开 Parquet → 36 个 CSV 分片/月 · manifest + SHA-256 校验 · 12 个月</span></div></div>
+  <div class="stage-next">↓</div>
+  <div class="stage"><span class="stage-ico">⛁</span><div><strong>HDFS 分布式存储</strong><span>按内容指纹建目录 /geoflow/raw/&lt;月&gt;/&lt;指纹&gt; · 16MB 块 · 双副本 · 2 DataNode</span></div></div>
+  <div class="stage-next">↓</div>
+  <div class="stage"><span class="stage-ico">⚙</span><div><strong>YARN / MapReduce Streaming</strong><span>2 NodeManager（6 vCore / 6 GB）· 35–45 个 Map 任务 · Combiner 化简</span></div></div>
+  <div class="stage-next">↓</div>
+  <div class="stage"><span class="stage-ico">✓</span><div><strong>正确性校验</strong><span>四维计数守恒（Z / D / O / T）· 独立顺序聚合逐键比对（16.8 万键 × 精确一致）</span></div></div>
+  <div class="stage-next">↓</div>
+  <div class="stage"><span class="stage-ico">▣</span><div><strong>服务与可视化</strong><span>FastAPI + Web：统计面板 · 2D 图表 · 3D 地形 · 需求预测（日历 + 天气 + 滞后特征）</span></div></div>
+</div></article>
       </div>
     </section>
   </div>
