@@ -9,3 +9,24 @@
 .map-wrap svg { width: 100%; height: auto; }
 #fc-map { display: block; width: 100%; height: auto; }
 .rank-list { max-height: 430px; overflow: auto; }
+
+/* ---- text views layout fixes (experiments / architecture) ---- */
+.view { padding-bottom: 52px; }
+.table { padding: 10px 12px; overflow-x: auto; }
+.table table { width: 100%; border-collapse: collapse; }
+.table th, .table td { padding: 11px 14px; text-align: left; font-size: 12px; line-height: 1.55; }
+.table thead th { color: #7286a0; font-weight: 600; border-bottom: 1px solid #e6ecf4; white-space: nowrap; }
+.table td { border-bottom: 1px solid #f0f4f9; color: #33404f; }
+.table td small { display: block; color: #8595ab; font-size: 10px; margin-top: 3px; }
+.table td:first-child { white-space: nowrap; }
+.pipe { margin: 14px 4px 4px; padding: 18px 22px; background: #f6f8fb; border: 1px solid #e4ebf4; border-radius: 8px; white-space: pre-wrap; word-break: break-all; overflow-x: auto; font-size: 12.5px; line-height: 1.95; color: #3c4a5e; font-family: "Cascadia Code", Consolas, "Microsoft YaHei", monospace; }
+.cluster-grid { display: flex; flex-direction: column; gap: 10px; margin: 8px 4px; }
+.cluster-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 13px 16px; background: #f8fafd; border: 1px solid #e8eef6; border-radius: 8px; font-size: 12px; }
+.cluster-item span { color: #7286a0; }
+.cluster-item strong { font-size: 14px; color: #2e3a4c; }
+.evidence-grid { margin: 12px 4px 4px; }
+.evidence-card { padding: 16px 20px; background: #f4f8ff; border: 1px solid #e3ecf9; border-radius: 7px; min-width: 180px; }
+.evidence-card strong { display: block; font-size: 18px; color: #4375c6; margin-bottom: 4px; }
+.evidence-card span { font-size: 11px; color: #8c9cb2; line-height: 1.5; }
+#runs, #cluster, #evidence { min-height: 0; }
+.panel-heading p { line-height: 1.7; }

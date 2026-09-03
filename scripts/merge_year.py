@@ -116,7 +116,43 @@ def main():
     # OD artifacts (kept separate from year.json to bound its size)
     od_pairs = [(o, de, c) for (o, de), c in od_year.items()]
     od_pairs.sort(key=lambda x: -x[2])
-    sankey_edges = [(zone_name[o], zone_name[de], c) for o, de, c in od_pairs[:25]]
+    sankey_edges = []
+    seen_dirs = set()
+    for o, de, c in od_pairs:
+        if o == de:
+            continue
+        # ECharts sankey requires an acyclic graph: keep the larger direction of
+        # each unordered pair, then reject any edge that would close a directed cycle.
+        if (de, o) in seen_dirs:
+            continue
+        edges = [(zone_name[o], zone_name[de])]
+        if o > de:
+            edges.append((zone_name[de], zone_name[o]))
+        ok = True
+        for src, dst in edges:
+            adj = {}
+            for s0, d0, _c in sankey_edges:
+                adj.setdefault(s0, []).append(d0)
+            stack = [src]
+            seen = set()
+            while stack and ok:
+                cur = stack.pop()
+                if cur in seen:
+                    continue
+                seen.add(cur)
+                for nxt in adj.get(cur, []):
+                    if nxt == dst:
+                        ok = False
+                        break
+                    stack.append(nxt)
+            if not ok:
+                break
+        if ok:
+            seen_dirs.add((o, de))
+            seen_dirs.add((de, o))
+            sankey_edges.append((zone_name[o], zone_name[de], c))
+            if len(sankey_edges) >= 25:
+                break
     airport_rows = []
     for aid in airports:
         inbound = sum(c for (o, de), c in od_year.items() if de == aid)
