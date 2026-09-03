@@ -1,0 +1,26 @@
+[project]
+name = "geoflow"
+version = "0.1.0"
+description = "Reproducible distributed geospatial analytics for NYC taxi trips"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+  "fastapi>=0.115,<1",
+  "uvicorn>=0.34,<1",
+  "httpx>=0.28,<1",
+  "pyarrow>=20,<30",
+  "shapely>=2,<3",
+  "pyproj>=3.7,<4",
+  "pyshp>=2.3,<4",
+  "pandas>=2.2,<4",
+]
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1", "pyyaml>=6,<7"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
