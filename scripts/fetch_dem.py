@@ -5,9 +5,9 @@ Elevation (terrarium): e = (R*256 + G + B/256) - 32768  (meters, SRTM-based).
 Output: data/results/dem_grid.json (downsampled grid for the 3D dashboard).
 Attribution: Mapbox / OpenStreetMap contributors (terrain tiles).
 """
+import io
 import json
 import math
-import io
 from datetime import UTC, datetime
 from pathlib import Path
 
