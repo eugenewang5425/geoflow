@@ -194,6 +194,14 @@ def months():
     return {"months": records}
 
 
+@app.get("/api/dem")
+def dem():
+    path = RESULTS / "dem_grid.json"
+    if not path.exists():
+        raise HTTPException(404, "DEM 尚未生成，请运行 fetch_dem.py。")
+    return FileResponse(path, media_type="application/json", headers={"Cache-Control": "no-store"})
+
+
 @app.get("/api/evidence")
 def evidence():
     reports = {}

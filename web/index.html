@@ -62,7 +62,7 @@
         <article><span>最高频流向</span><strong id="odk-top">—</strong><small>区域 × 区域</small><div class="kpi-icon purple">↗</div></article>
       </div>
       <div class="analysis-grid">
-        <article class="panel"><div class="panel-heading"><div><h2>OD 流向桑基图</h2><p>全年 TOP 25 区域间流动</p></div><span class="tag">SANKEY</span></div><div id="chart-sankey" class="chart big"></div></article>
+        <article class="panel"><div class="panel-heading"><div><h2>OD 流向桑基图</h2><p>全年 TOP 25 区域间流动</p></div><span class="tag">SANKEY</span></div><div id="chart-sankey" class="chart big"></div><div id="od-legend" class="leg-chips"></div></article>
         <article class="panel"><div class="panel-heading"><div><h2>TOP OD 列表</h2><p>区域级流向热度</p></div></div><div id="od-list" class="rank-list"></div></article>
       </div>
       <div class="analysis-grid">
@@ -72,7 +72,8 @@
     </section>
 
     <section id="d3" class="view" hidden>
-      <div class="filterbar"><div class="dataset"><span class="dataset-icon">◧</span><div><strong>3D 全景</strong><span>柱高 / 色彩 = 需求规模</span></div></div><div class="filters"><label>月份 <select id="d3-month"><option value="">全年</option></select></label><span class="filter-divider"></span><span id="d3-caption">全年合计 · 单位：千次</span></div></div>
+      <div class="filterbar"><div class="dataset"><span class="dataset-icon">◧</span><div><strong>3D 全景</strong><span>地形底图 DEM + 需求柱体 · 颜色 = 规模</span></div></div><div class="filters"><label>月份 <select id="d3-month"><option value="">全年</option></select></label><span class="filter-divider"></span><span id="d3-caption">全年合计 · 单位：千次</span></div></div>
+    <div class="toolbar"><label class="sync"><input type="checkbox" id="d3-sync" checked> 方向同步</label><label>预设 <select id="d3-preset"><option value="iso">等角（环视）</option><option value="top">俯视</option><option value="side">平视</option></select></label><label>方位α <input type="range" id="d3-alpha" min="0" max="360" value="50"></label><label>仰角β <input type="range" id="d3-beta" min="0" max="90" value="45"></label><label>距离 <input type="range" id="d3-dist" min="80" max="320" value="160"></label></div>
       <div class="analysis-grid">
         <article class="panel"><div class="panel-heading"><div><h2>城市需求立体映射</h2><p>分区柱体投影 · 可拖动旋转缩放</p></div><span class="tag">MAP3D + BAR</span></div><div id="chart-scatter3d" class="chart tall"></div></article>
       </div>
