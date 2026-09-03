@@ -16,6 +16,7 @@ from .io import atomic_json, read_json
 from .results import summarize
 from .runner import run_job
 
+
 def _reconcile_interrupted():
     """Runs left RUNNING by a dead wrapper/API process can never finish; mark them."""
     for path in sorted((DATA / "runs").glob("*/run.json")):

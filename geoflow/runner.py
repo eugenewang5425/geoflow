@@ -64,7 +64,9 @@ def run_job(month="2025-01", reducers=2, combiner=True, fail_first=False, run_id
                     atomic_json(folder / "history-job.json", job.json())
                     atomic_json(folder / "history-counters.json", counters.json())
                     atomic_json(folder / "history-tasks.json", tasks.json())
-                    meta["job_elapsed_seconds"] = job.json()["job"]["elapsedTime"] / 1000
+                    jbody = job.json()["job"]
+                    elapsed_ms = jbody.get("elapsedTime") or (jbody.get("finishTime", 0) - jbody.get("startTime", 0))
+                    meta["job_elapsed_seconds"] = elapsed_ms / 1000
                     meta["history_saved"] = True
                     break
                 except (httpx.HTTPError, KeyError):
