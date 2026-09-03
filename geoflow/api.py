@@ -197,7 +197,7 @@ def months():
 @app.get("/api/evidence")
 def evidence():
     reports = {}
-    for name in ("verification", "experiments"):
+    for name in ("verification", "experiments", "year", "forecast"):
         path = ROOT / "evidence" / f"{name}.json"
         if path.exists():
             reports[name] = read_json(path)
