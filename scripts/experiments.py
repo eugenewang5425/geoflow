@@ -37,7 +37,8 @@ def reference_totals(month):
                     totals[f"Q|{reason}"][0] += 1
                     continue
                 for key in (f"Z|{trip['zone']:03d}|{trip['hour']:02d}", f"D|{trip['day']}",
-                            f"O|{trip['zone']:03d}|{trip['dest']:03d}"):
+                            f"O|{trip['zone']:03d}|{trip['dest']:03d}",
+                            f"T|{trip['day']}|{trip['zone']:03d}|{trip['hour']:02d}"):
                     v = totals[key]
                     v[0] += 1
                     v[1] += trip["distance_milli_miles"]

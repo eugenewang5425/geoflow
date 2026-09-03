@@ -31,7 +31,8 @@ def main():
                     totals[f"Q|{reason}"][0] += 1
                     continue
                 keys = [f"Z|{trip['zone']:03d}|{trip['hour']:02d}", f"D|{trip['day']}",
-                        f"O|{trip['zone']:03d}|{trip['dest']:03d}"]
+                        f"O|{trip['zone']:03d}|{trip['dest']:03d}",
+                        f"T|{trip['day']}|{trip['zone']:03d}|{trip['hour']:02d}"]
                 for key in keys:
                     v = totals[key]
                     v[0] += 1

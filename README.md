@@ -50,6 +50,38 @@ wsl -d Ubuntu-24.04 -- bash scripts/hadoop.sh install
 - **独立验证**：`verify_result.py` 用不依赖 reducer/combiner 的纯顺序聚合，
   与 Hadoop 输出逐键精确比对，结果写入 `evidence/verification.json`。
 
+
+## 2025 全年扩展（数据 + 可视化 + 3D + 预测）
+
+- **数据**：12 个月 TLC 黄色出租车（2025-01..12，约 4,300 万行原始记录），每月独立
+  MapReduce 作业；Mapper 增加 `T|day|zone|hour` 日粒度维度（供时序预测），
+  结果分流到 `data/runs/<run_id>/daily.tsv`，不撑大结果 JSON。
+- **天气特征**：`scripts/fetch_weather.py` 从 Open-Meteo 历史归档 API 获取
+  Central Park 2025 逐小时气象（气温/降水/降雪/风/湿度/云量/能见度 + 日级聚合），
+  原始数据与 SIIA-256 记录在 `data/raw/weather_2025_manifest.json`。
+- **年度合并**：`scripts/merge_year.py` 将所有月结果合并为 `data/results/year.json`
+  （月×小时热力、星期×小时、区域×月矩阵、月度曲线）与 `od_year.json`
+  （TOP OD、桑基、机场进出），API：`/api/year`、`/api/od`。
+- **可视化**：年度热力图、月度趋势、工作日节律；OD 桑基图 + 行政区 OD 矩阵 +
+  机场进出（JFK/LGA/EWR）；**3D**（echarts-gl）：分区柱体城市投影、
+  区域×小时 3D 矩阵、星期×小时 3D 曲面——`web/vendor/` 本地化，离线可用。
+- **需求预测**：`scripts/forecast.py`（LightGBM + 天气 + 日历 + 滞后特征；
+  1-10 月训练、11 月验证、12 月测试，时间严格外推；基线 = 上周同期）。
+  输出 `evidence/forecast.json`（指标、特征重要性、天气影响）与
+  `data/results/forecast*.json`（区域级预测/误差、榜首区域曲线），
+  API：`/api/forecast`、`/api/forecast-curve`。
+
+```powershell
+.venv\Scripts\python.exe scripts/fetch_weather.py    # 天气（已下载可不重复）
+.venv\Scripts\python.exe -m geoflow run --month 2025-10 --reducers 2   # 月度作业（每 月一个）
+.venv\Scripts\python.exe scripts/merge_year.py       # 年度合并
+.venv\Scripts\python.exe scripts/forecast.py         # 需求预测（LightGBM）
+.venv\Scripts\python.exe scripts/verify_result.py    # 最新月独立逐键验证
+```
+
+> 天气数据来源：Open-Meteo（CC-BY 4.0 署名要求，非商业免费使用）。
+> 预测口径：单步回测；滞后特征使用观测值；模型为梯度提升而非时序状态空间模型。
+
 ## 文档
 
 - `docs/background.md`：项目背景（前期 VMware 三节点集群实验 → 本项目）

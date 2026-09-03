@@ -24,7 +24,8 @@ def test_known_trip_units_and_keys():
     assert value["cents"] == 1234
     assert list(emissions(value)) == [("Z|161|12", "1,2500,600,1234"),
                                       ("D|2025-01-02", "1,2500,600,1234"),
-                                      ("O|161|162", "1,2500,600,1234")]
+                                      ("O|161|162", "1,2500,600,1234"),
+                                      ("T|2025-01-02|161|12", "1,2500,600,1234")]
 
 
 @pytest.mark.parametrize("updates,reason", [
@@ -67,3 +68,4 @@ def test_real_streaming_protocol_and_quality_counters():
     result = dict(reduce_lines(sorted(process.stdout.splitlines())))
     assert result["Q|UnknownZone"][0] == 1
     assert result["Z|161|12"][0] == 1
+    assert result["T|2025-01-02|161|12"][0] == 1

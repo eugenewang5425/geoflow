@@ -47,10 +47,10 @@ def index():
     return FileResponse(ROOT / "web" / "index.html")
 
 
-def latest():
-    path = RESULTS / "latest.json"
+def latest(month: str | None = None):
+    path = RESULTS / f"{month}.json" if month else RESULTS / "latest.json"
     if not path.exists():
-        raise HTTPException(404, "还没有已完成的分析，请先导入数据并运行 Hadoop 作业。")
+        raise HTTPException(404, "还没有该月份的分析，请先导入数据并运行 Hadoop 作业。")
     return read_json(path)
 
 
@@ -62,22 +62,24 @@ def zones():
     return FileResponse(path, media_type="application/geo+json")
 
 
-def analysis_data(hour, borough):
+def analysis_data(hour, borough, month=None):
     features = read_json(DATA / "zones.geojson")["features"]
     info = {x["properties"]["id"]: x["properties"] for x in features}
     if borough and borough not in {v["borough"] for v in info.values()}:
         raise HTTPException(422, "Unknown borough")
-    return summarize(latest(), info, hour, borough)
+    return summarize(latest(month), info, hour, borough)
 
 
 @app.get("/api/analysis")
-def analysis(hour: int | None = Query(None, ge=0, le=23), borough: str | None = None):
-    return analysis_data(hour, borough)
+def analysis(hour: int | None = Query(None, ge=0, le=23), borough: str | None = None,
+             month: str | None = Query(None, pattern=r"^20\d{2}-(0[1-9]|1[0-2])$")):
+    return analysis_data(hour, borough, month)
 
 
 @app.get("/api/export")
-def export(hour: int | None = Query(None, ge=0, le=23), borough: str | None = None):
-    data = analysis_data(hour, borough)
+def export(hour: int | None = Query(None, ge=0, le=23), borough: str | None = None,
+           month: str | None = Query(None, pattern=r"^20\d{2}-(0[1-9]|1[0-2])$")):
+    data = analysis_data(hour, borough, month)
     out = io.StringIO()
     fields = ["id", "name", "borough", "trips", "avg_distance_km", "avg_minutes", "avg_amount"]
     writer = csv.DictWriter(out, fieldnames=fields, extrasaction="ignore")
@@ -145,6 +147,51 @@ def submit(payload: JobRequest, request: Request):
             job_lock.release()
     executor.submit(execute)
     return {"status": "RUNNING"}
+
+
+@app.get("/api/year")
+def year():
+    path = RESULTS / "year.json"
+    if not path.exists():
+        raise HTTPException(404, "年度合并尚未生成，请先完成全年作业并运行 merge_year.py。")
+    return FileResponse(path, media_type="application/json", headers={"Cache-Control": "no-store"})
+
+
+@app.get("/api/od")
+def od():
+    path = RESULTS / "od_year.json"
+    if not path.exists():
+        raise HTTPException(404, "OD 聚合尚未生成。")
+    return FileResponse(path, media_type="application/json", headers={"Cache-Control": "no-store"})
+
+
+@app.get("/api/forecast")
+def forecast():
+    path = RESULTS / "forecast.json"
+    if not path.exists():
+        raise HTTPException(404, "预测尚未生成，请运行 forecast.py。")
+    return FileResponse(path, media_type="application/json", headers={"Cache-Control": "no-store"})
+
+
+@app.get("/api/forecast-curve")
+def forecast_curve():
+    path = RESULTS / "forecast_curve.json"
+    if not path.exists():
+        raise HTTPException(404, "预测曲线尚未生成。")
+    return FileResponse(path, media_type="application/json", headers={"Cache-Control": "no-store"})
+
+
+@app.get("/api/months")
+def months():
+    records = []
+    for path in sorted((DATA / "input").glob("20*")):
+        if not (path / "manifest.json").exists():
+            continue
+        manifest = read_json(path / "manifest.json")
+        records.append({"month": path.name, "rows": manifest["rows"],
+                        "source_rows": manifest["source_rows"],
+                        "created_at": manifest.get("created_at")})
+    return {"months": records}
 
 
 @app.get("/api/evidence")

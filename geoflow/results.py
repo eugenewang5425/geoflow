@@ -21,24 +21,38 @@ def parse_output(path):
 
 def publish(run_id, metadata):
     path = DATA / "runs" / run_id
-    rows = parse_output(path / "output.tsv")
     zone_hours, days, od, rejected = [], [], [], {}
     counts = Counter()
-    for key, values in rows.items():
-        kind, *parts = key.split("|")
-        counts[kind] += values[0]
-        if kind == "Z":
-            zone_hours.append({"zone": int(parts[0]), "hour": int(parts[1]), "values": values})
-        elif kind == "D":
-            days.append({"day": parts[0], "values": values})
-        elif kind == "O":
-            od.append({"origin": int(parts[0]), "destination": int(parts[1]), "values": values})
-        elif kind == "Q":
-            rejected[parts[0]] = values[0]
-        else:
-            raise ValueError(f"Unknown output type: {kind}")
+    rows = {}
+    # Stream the per-(day, zone, hour) dimension into its own file instead of the
+    # result JSON: ~195k lines/month keeps metadata small and feeds forecasting.
+    with (path / "output.tsv").open(encoding="utf-8") as stream,             (path / "daily.tsv").open("w", encoding="utf-8") as daily_out:
+        for line in stream:
+            key, value = line.rstrip("\n").split("\t")
+            values = list(map(int, value.split(",")))
+            if len(values) != 4:
+                raise ValueError("Bad reducer schema")
+            kind, *parts = key.split("|")
+            counts[kind] += values[0]
+            if kind == "T":
+                daily_out.write(key + "\t" + value + "\n")
+                continue
+            if key in rows:
+                raise ValueError(f"Duplicate reducer key: {key}")
+            rows[key] = values
+            if kind == "Z":
+                zone_hours.append({"zone": int(parts[0]), "hour": int(parts[1]), "values": values})
+            elif kind == "D":
+                days.append({"day": parts[0], "values": values})
+            elif kind == "O":
+                od.append({"origin": int(parts[0]), "destination": int(parts[1]), "values": values})
+            elif kind == "Q":
+                rejected[parts[0]] = values[0]
+            else:
+                raise ValueError(f"Unknown output type: {kind}")
     manifest = read_json(DATA / "input" / metadata["month"] / "manifest.json")
-    if not (counts["Z"] == counts["D"] == counts["O"] and counts["Z"] + counts["Q"] == manifest["rows"]):
+    if not (counts["Z"] == counts["D"] == counts["O"] == counts["T"]
+            and counts["Z"] + counts["Q"] == manifest["rows"]):
         raise ValueError("Conservation check failed; refusing to publish inconsistent results")
     result = {"run_id": run_id, "created_at": datetime.now(UTC).isoformat(),
               "metadata": metadata, "dataset": manifest,
@@ -47,6 +61,7 @@ def publish(run_id, metadata):
               "od": sorted(od, key=lambda x: -x["values"][0]), "conservation_passed": True}
     atomic_json(path / "result.json", result)
     atomic_json(RESULTS / "latest.json", result)
+    atomic_json(RESULTS / f"{metadata['month']}.json", result)
     return result
 
 

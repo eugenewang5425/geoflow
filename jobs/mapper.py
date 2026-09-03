@@ -42,6 +42,7 @@ def emissions(trip):
     yield f"Z|{trip['zone']:03d}|{trip['hour']:02d}", values
     yield f"D|{trip['day']}", values
     yield f"O|{trip['zone']:03d}|{trip['dest']:03d}", values
+    yield f"T|{trip['day']}|{trip['zone']:03d}|{trip['hour']:02d}", values
 
 
 def main():
