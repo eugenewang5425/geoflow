@@ -115,10 +115,10 @@ async function renderD3() {
   const nx = demData.lons.length, ny = demData.lats.length;
   const surf = []; for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) surf.push([demData.lons[i], demData.lats[j], demData.grid[j][i]]);
   const demPts = [];
-  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const e = demData.grid[j][i]; demPts.push({ value: [demData.lons[i], demData.lats[j], Math.round(e * 0.15 * 10) / 10], itemStyle: { color: e <= 1.5 ? "#cfdcea" : e <= 45 ? "#b9d9b3" : e <= 120 ? "#a9c9a0" : e <= 220 ? "#c9b791" : "#b29a74" } }); }
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const e = demData.grid[j][i]; demPts.push({ value: [demData.lons[i], demData.lats[j], Math.round(e * 0.02 * 100) / 100], itemStyle: { color: e <= 1.5 ? "#cfdcea" : e <= 45 ? "#b9d9b3" : e <= 120 ? "#a9c9a0" : e <= 220 ? "#c9b791" : "#b29a74" } }); }
   const elevOf = (lon, lat) => demElev(demData.lons, demData.lats, demData.grid, nx, ny, lon, lat);
   if (!geo._mapped3) { echarts.registerMap("nyc", geo); geo._mapped3 = true; }
-  const zoneBars = geo.features.map(f => ({ name: f.properties.name, value: valueOf(f.properties.id) }));
+  const zoneBars = geo.features.map(f => [f.properties.name, valueOf(f.properties.id)]);
   const colTrips = t => { const r = Math.min(1, t / maxv); if (r < 0.25) return "rgb(157,192,234)"; if (r < 0.5) return "rgb(76,125,216)"; if (r < 0.75) return "rgb(139,111,216)"; if (r < 0.92) return "rgb(176,64,154)"; return "rgb(216,88,76)"; };
   try {
     if (!odData) odData = await get("/api/od");
@@ -128,7 +128,7 @@ async function renderD3() {
     safeGL(() => { chart("chart-scatter3d").setOption({
       tooltip: { formatter: function (p2) { if (p2.seriesType === "bar3D") return p2.value[0] + "<br/><strong>" + fmtk(p2.value[1]) + "</strong> 次 (全年)"; return p2.name + " · 高程 " + p2.value[2] + "m"; } },
       visualMap: { min: 0, max: maxv, dimension: 1, seriesIndex: 1, inRange: { color: ["#9dc0ea", "#4c7dd8", "#8b6fd8", "#b0409a", "#d8584c"] }, text: ["高", "低"], orient: "horizontal", left: "center", bottom: 4, textStyle: { color: "#666" }, calculable: true },
-      geo3D: { map: "nyc", boxWidth: 150, boxDepth: 115, regionHeight: 1.4, itemStyle: { color: "#e8edf5", opacity: 0.9, borderColor: "#8fa8c5" }, label: { show: false }, emphasis: { label: { show: false } }, viewControl: { alpha: 48, beta: 14, distance: 160 } },
+      geo3D: { map: "nyc", boxWidth: 150, boxDepth: 115, regionHeight: 0.9, itemStyle: { color: "#eef2f7", opacity: 0.92, borderColor: "#9db4cd" }, label: { show: false }, emphasis: { label: { show: false } }, viewControl: { alpha: 52, beta: 10, distance: 170 } },
       series: [
         { id: "dem", type: "scatter3D", coordinateSystem: "geo3D", data: demPts, symbolSize: 1.8, label: { show: false } },
         { id: "towers", type: "bar3D", coordinateSystem: "geo3D", data: zoneBars, barSize: 1.1, shading: "lambert", itemStyle: { opacity: 0.92 }, label: { show: false }, emphasis: { label: { show: true, formatter: function (p2) { return p2.value[0] + " " + fmtk(p2.value[1]); } } } }
