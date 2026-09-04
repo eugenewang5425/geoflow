@@ -62,7 +62,7 @@ def main():
         z_h = Counter()
         for row in zone_hours:
             z_h[(row["zone"], row["hour"])] += row["values"][0]
-            zone_month[row["zone"]][month] = row["values"][0]
+            zone_month[row["zone"]][month] = zone_month[row["zone"]].get(month, 0) + row["values"][0]
             zone_year[row["zone"]] += row["values"][0]
             month_hour[months.index(month)][row["hour"]] += row["values"][0]
         for dayrec in result["days"]:
