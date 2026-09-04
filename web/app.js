@@ -56,6 +56,29 @@ let __glSmoked = null;
 function glSmoke() { if (__glSmoked !== null) return __glSmoked; try { const el = document.createElement("div"); el.style.cssText = "position:fixed;left:-400px;top:-400px;width:120px;height:120px;"; document.body.appendChild(el); const c = echarts.init(el); c.setOption({ grid3D: {}, xAxis3D: {}, yAxis3D: {}, zAxis3D: {}, series: [{ type: "bar3D", data: [[0, 0, 1]] }] }); c.dispose(); el.remove(); __glSmoked = true; } catch (e) { console.error("GeoFlow GL smoke failed:", e); try { document.querySelector("div[data-gl-test]") && document.querySelector("div[data-gl-test]").remove(); } catch (_) { } __glSmoked = false; } return __glSmoked; }
 function hasWebGL() { try { const c = document.createElement("canvas"); const ctx = c.getContext("webgl") || c.getContext("experimental-webgl"); return !!ctx; } catch (e) { return false; } }
 function webglHint() { try { const c = document.createElement("canvas"); const ctx = c.getContext("webgl") || c.getContext("experimental-webgl"); if (ctx) return null; return "canvas.getContext(webgl) 返回 null"; } catch (e) { return "上下文创建异常: " + e.message; } }
+let __flowBoroughs = null;
+function renderBoroughFlow() {
+  if (odData) { renderBoroughFlowReal(odData, demData); }
+}
+function renderBoroughFlowReal(odData2, demData) {
+  const bmap2 = new Map(geo.features.map(f => [f.properties.id, f.properties.borough]));
+  const bc = {}, bs = {};
+  geo.features.forEach(f => { const b = f.properties.borough; const c = zoneCenter(f); bc[b] = bc[b] || { x: 0, y: 0, n: 0 }; bc[b].x += c[0]; bc[b].y += c[1]; bc[b].n += 1; bs[b] = (bs[b] || 0); });
+  Object.keys(bc).forEach(b => { bc[b].x /= bc[b].n; bc[b].y /= bc[b].n; });
+  const flows = {};
+  odData2.top_od.forEach(p => { const b1 = bmap2.get(p.origin), b2 = bmap2.get(p.destination); if (!b1 || !b2 || b1 === b2) return; flows[b1] = flows[b1] || {}; flows[b1][b2] = (flows[b1][b2] || 0) + p.trips; });
+  const srcs = Object.keys(flows);
+  const nodeData = Object.keys(bc).filter(b => bs[b] !== undefined || b).map(b => { let tot = 0; Object.keys(flows).forEach(s => { tot += (flows[s] && flows[s][b]) || 0; }); Object.keys(flows[b] || {}).forEach(t2 => { tot += flows[b][t2]; }); return { name: b, value: [bc[b].x, bc[b].y, tot], symbolSize: Math.max(8, Math.sqrt(tot) / 18) }; });
+  window.__flowSeriesIds = srcs.map((b1, i) => "flow-" + i);
+  chart("chart-flow3d").setOption({
+    grid: { left: 68, right: 42, top: 42, bottom: 52 },
+    xAxis: { type: "value", min: demData.bbox[0], max: demData.bbox[2], name: "经度", nameLocation: "middle", nameGap: 26, axisLabel: { fontSize: 10, margin: 10 } },
+    yAxis: { type: "value", min: demData.bbox[1], max: demData.bbox[3], name: "纬度", nameLocation: "middle", nameGap: 34, axisLabel: { fontSize: 10, margin: 10 } },
+    legend: { data: srcs.map((b1, i) => b1), top: 0, textStyle: { fontSize: 10 } },
+    tooltip: { formatter: function (p2) { if (p2.seriesType === "lines") { const d = p2.data; return (bmap2.get(p2.seriesName) ? "" : "") + d.from + " → " + d.to + "<br/><strong>" + fmt(d.trips) + "</strong> 次"; } return p2.name + "<br/>总流量 " + fmt(p2.value[2]) + " 次"; } },
+    series: srcs.map((b1, i) => ({ id: "flow-" + i, name: b1, type: "lines", coordinateSystem: "cartesian2d", data: Object.keys(flows[b1]).map(b2 => ({ coords: [[bc[b1].x, bc[b1].y], [bc[b2].x, bc[b2].y]], trips: flows[b1][b2], from: b1, to: b2 })), lineStyle: { color: (bcolors[b1] || "#9aa7b5"), width: 2.4, opacity: 0.92, curveness: 0.22 }, effect: { show: true, period: 2.6, trailLength: 0.28, symbol: "arrow", symbolSize: 6 }, zlevel: 2 })).concat([{ type: "effectScatter", coordinateSystem: "cartesian2d", data: nodeData, symbolSize: function (v) { return v[2] ? Math.max(8, Math.sqrt(v[2]) / 90) : 8; }, rippleEffect: { brushType: "stroke", scale: 2.2 }, label: { show: true, position: "top", formatter: function (p2) { return p2.name + "·" + (p2.value[2] >= 10000 ? (p2.value[2] / 10000).toFixed(1) + "万" : fmtk(p2.value[2])); }, fontSize: 10, color: "#2e3a4c" }, itemStyle: { color: "rgba(76,125,216,0.55)" } }])
+  });
+}
 function renderD3Fallback(yearData, demData, month, zmap, months, valueOf, maxv) {
   const legBox = $("d3-leg"); legBox.replaceChildren();
   const legLevels = [["较低", "#9dc0ea"], ["中", "#4c7dd8"], ["较高", "#8b6fd8"], ["高", "#b0409a"], ["峰值", "#d8584c"]];
@@ -84,6 +107,8 @@ async function renderD3() {
   const months = yearData.months;
   const valueOf = zid => { if (month) return zmap[zid] ? (zmap[zid][month] || 0) : 0; let t = 0; for (let mi = 0; mi < months.length; mi++) t += zmap[zid] ? (zmap[zid][months[mi]] || 0) : 0; return t; };
   let maxv = 1; geo.features.forEach(f => { const v = valueOf(f.properties.id); if (v > maxv) maxv = v; });
+  if (!odData) odData = await get("/api/od");
+  renderBoroughFlow();
   if (!gl) { renderD3Fallback(yearData, demData, month, zmap, months, valueOf, maxv); return; }
   const nx = demData.lons.length, ny = demData.lats.length;
   const surf = []; for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) surf.push([demData.lons[i], demData.lats[j], demData.grid[j][i]]);
@@ -92,8 +117,6 @@ async function renderD3() {
   try {
     if (!odData) odData = await get("/api/od");
     const towers = geo.features.map(f => { const c = zoneCenter(f); const v = valueOf(f.properties.id); const e = elevOf(c[0], c[1]); return { name: f.properties.name, value: [c[0], c[1], Math.round((e * 0.3 + v / maxv * 55) * 10) / 10], itemStyle: { color: colTrips(v), opacity: 0.82 } }; });
-    const flowLines = [];
-    odData.top_od.slice(0, 30).forEach(fp => { const o = geo.features.find(x => x.properties.id === fp.origin); const de = geo.features.find(x => x.properties.id === fp.destination); if (!o || !de) return; const c1 = zoneCenter(o), c2 = zoneCenter(de); flowLines.push({ value: [c1[0], c1[1], (elevOf(c1[0], c1[1]) * 0.3 + 12), c2[0], c2[1], (elevOf(c2[0], c2[1]) * 0.3 + 12)], color: groupColors[zoneGroup(nameOfGeo(fp.origin))] || "#4c7dd8", flowName: nameOfGeo(fp.origin) + " → " + nameOfGeo(fp.destination) }); });
     let __glErrShown = false;
     const safeGL = (fn) => { try { fn(); } catch (e2) { console.error("GeoFlow GL chart:", e2); if (!__glErrShown) { __glErrShown = true; $("d3-caption").textContent = "城市图渲染出错：" + (e2.message || String(e2)) + "（F12 可查 GeoFlow GL chart）"; } } };
     safeGL(() => { chart("chart-scatter3d").setOption({
@@ -102,7 +125,7 @@ async function renderD3() {
       xAxis3D: { type: "value", name: "经度", min: demData.bbox[0], max: demData.bbox[2], axisLabel: { fontSize: 9 } },
       yAxis3D: { type: "value", name: "纬度", min: demData.bbox[1], max: demData.bbox[3], axisLabel: { fontSize: 9 } },
       zAxis3D: { type: "value", name: "m", axisLabel: { fontSize: 9 } },
-      visualMap: { min: 0, max: 280, dimension: 2, seriesIndex: 0, show: false, inRange: { color: ["#d8ecd9", "#a9c9a0", "#b29a74"] } },
+      visualMap: { min: 0, max: 280, dimension: 2, seriesIndex: 0, show: false, inRange: { color: ["#bcd6ec", "#a9c9a0", "#b29a74"] } },
       series: [
         { id: "dem", type: "surface", data: surf, shading: "lambert", wireframe: { show: false } },
         { id: "towers", type: "scatter3D", data: towers, symbolSize: 4, label: { show: false }, emphasis: { label: { show: true, formatter: function (p2) { return p2.name; } } } }
@@ -124,7 +147,7 @@ async function renderD3() {
     const flowGroups = {}; const flowNames = {};
     flowLines.forEach(fl => { const k = fl.color; (flowGroups[k] = flowGroups[k] || []).push(fl.value); (flowNames[k] = flowNames[k] || []).push(fl.flowName); });
     Object.keys(flowGroups).forEach((gcol, gi) => { flowSeriesIds.push("flow-" + gi); }); window.__flowSeriesIds = flowSeriesIds;
-    chart("chart-flow3d").setOption({ grid: { left: 52, right: 30, top: 26, bottom: 46 }, xAxis: { type: "value", name: "经度", min: demData.bbox[0], max: demData.bbox[2] }, yAxis: { type: "value", name: "纬度", min: demData.bbox[1], max: demData.bbox[3] }, tooltip: { formatter: function (p2) { return (p2.data && p2.data.flowName) ? p2.data.flowName : (p2.name || ""); } }, series: Object.keys(flowGroups).map((gcol, gi) => ({ id: "flow-" + gi, type: "lines", coordinateSystem: "cartesian2d", data: flowGroups[gcol].map(function (v, vi) { return { coords: [[v[0], v[1]], [v[3], v[4]]], flowName: (flowNames[gcol] || [])[vi] }; }), lineStyle: { color: gcol, width: 1.8, opacity: 0.9, curveness: 0.22 }, effect: { show: true, period: 3, trailLength: 0.25, symbol: "arrow", symbolSize: 5 }, zlevel: 2 })) });
+
     chart("chart-scatter3d").setOption({ series: [{ id: "dem", show: $("d3-layer-dem").checked }, { id: "towers", show: $("d3-layer-towers").checked }] });
     safeGL(() => { if (flowSeriesIds.length) chart("chart-flow3d").setOption({ series: flowSeriesIds.map(id => ({ id: id, show: $("d3-layer-flow").checked })) }); });
     setGLView($("d3-sync").checked);
