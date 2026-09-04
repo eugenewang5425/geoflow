@@ -51,6 +51,8 @@ var demData = null;
 function setGLView(sync) { const alpha = +$("d3-alpha").value, beta = +$("d3-beta").value, dist = +$("d3-dist").value; const ids = sync ? ["chart-scatter3d", "chart-bar3d", "chart-surface"] : ["chart-scatter3d"]; ids.forEach(id => { if (charts[id]) charts[id].setOption({ grid3D: { viewControl: { alpha: alpha, beta: beta, distance: dist } } }); }); }
 function d3Preset() { const v = { iso: [42, 8, 170], top: [88, 2, 190], side: [14, 0, 230] }[$("d3-preset").value] || [42, 8, 170]; $("d3-alpha").value = v[0]; $("d3-beta").value = v[1]; $("d3-dist").value = v[2]; setGLView($("d3-sync").checked); }
 function demElev(lons, lats, grid, nx, ny, lon, lat) { let bi = 0, bj = 0, bd = 1e9; for (let i = 0; i < nx; i++) { const dx = Math.abs(lons[i] - lon); if (dx < bd) { bd = dx; bi = i; } } bd = 1e9; for (let j = 0; j < ny; j++) { const dy = Math.abs(lats[j] - lat); if (dy < bd) { bd = dy; bj = j; } } return grid[bj][bi]; }
+let __glSmoked = null;
+function glSmoke() { if (__glSmoked !== null) return __glSmoked; try { const el = document.createElement("div"); el.style.cssText = "position:fixed;left:-400px;top:-400px;width:120px;height:120px;"; document.body.appendChild(el); const c = echarts.init(el); c.setOption({ grid3D: {}, xAxis3D: {}, yAxis3D: {}, zAxis3D: {}, series: [{ type: "bar3D", data: [[0, 0, 1]] }] }); c.dispose(); el.remove(); __glSmoked = true; } catch (e) { console.error("GeoFlow GL smoke failed:", e); try { document.querySelector("div[data-gl-test]") && document.querySelector("div[data-gl-test]").remove(); } catch (_) { } __glSmoked = false; } return __glSmoked; }
 function hasWebGL() { try { const c = document.createElement("canvas"); const ctx = c.getContext("webgl") || c.getContext("experimental-webgl"); return !!ctx; } catch (e) { return false; } }
 function webglHint() { try { const c = document.createElement("canvas"); const ctx = c.getContext("webgl") || c.getContext("experimental-webgl"); if (ctx) return null; return "canvas.getContext(webgl) 返回 null"; } catch (e) { return "上下文创建异常: " + e.message; } }
 function renderD3Fallback(yearData, demData, month, zmap, months, valueOf, maxv) {
@@ -74,9 +76,9 @@ async function renderD3() {
   if (!yearData) yearData = await get("/api/year");
   if (!demData) demData = await get("/api/dem");
   const month = $("d3-month").value;
-  const gl = hasWebGL();
-  $("d3-caption").textContent = (month ? month.replace("-", " 年 ") + " 月" : "全年合计") + " · 千次 · " + (gl ? ("地形底图 " + (demData.attribution || "")) : "2D 模式（WebGL 不可用，详见提示）");
-  if (!gl && !window.__glHinted) { window.__glHinted = true; const why = webglHint(); notice("浏览器 WebGL 不可用（" + (why || "上下文创建失败") + "），3D 已切换为 2D 平面视图。启用方法：Chrome/Edge 设置 → 系统 → 打开“硬件加速”后重启浏览器；或在地址栏打开 chrome://gpu 查看详情；通过远程桌面/虚拟机访问时需 GPU 直通或改用本机浏览器。", true); }
+  const gl = hasWebGL() && glSmoke();
+  $("d3-caption").textContent = (month ? month.replace("-", " 年 ") + " 月" : "全年合计") + " · 千次 · " + (gl ? ("地形底图 " + (demData.attribution || "")) : "2D 模式（GL 初始化异常，详见提示）");
+  if (!gl && !window.__glHinted) { window.__glHinted = true; const why = webglHint(); notice("3D 引擎初始化失败：" + (why || "WebGL 上下文或 echarts-gl 组件校验未通过") + "，已切换 2D 平面视图。若 chrome://gpu 显示 WebGL 硬件加速正常，通常是 echarts-gl 与 echarts 版本组合问题（本页已使用配套版本），请 Ctrl+Shift+R 强制刷新后再试。", true); }
   const zmap = {}; yearData.zone_month.forEach(row => { (zmap[row[0]] = zmap[row[0]] || {})[row[1]] = row[2]; });
   const months = yearData.months;
   const valueOf = zid => { if (month) return zmap[zid] ? (zmap[zid][month] || 0) : 0; let t = 0; for (let mi = 0; mi < months.length; mi++) t += zmap[zid] ? (zmap[zid][months[mi]] || 0) : 0; return t; };
@@ -91,7 +93,8 @@ async function renderD3() {
     const towers = geo.features.map(f => { const c = zoneCenter(f); const v = valueOf(f.properties.id); const e = elevOf(c[0], c[1]); return { name: f.properties.name, value: [c[0], c[1], Math.round((e * 0.3 + v / maxv * 55) * 10) / 10], itemStyle: { color: colTrips(v), opacity: 0.82 } }; });
     const flowLines = [];
     odData.top_od.slice(0, 30).forEach(fp => { const o = geo.features.find(x => x.properties.id === fp.origin); const de = geo.features.find(x => x.properties.id === fp.destination); if (!o || !de) return; const c1 = zoneCenter(o), c2 = zoneCenter(de); flowLines.push({ value: [c1[0], c1[1], (elevOf(c1[0], c1[1]) * 0.3 + 12), c2[0], c2[1], (elevOf(c2[0], c2[1]) * 0.3 + 12)], lineStyle: { color: groupColors[zoneGroup(nameOfGeo(fp.origin))] || "#4c7dd8" } }); });
-    chart("chart-scatter3d").setOption({
+    const safeGL = (fn) => { try { fn(); } catch (e2) { console.error("GeoFlow GL chart:", e2); } };
+    safeGL(() => { chart("chart-scatter3d").setOption({
       tooltip: { formatter: function (p2) { if (p2.seriesType === "scatter3D") return p2.name + "<br/>出行量 " + fmtk(valueOf(Number(p2.name) || findZoneId(p2.name))) + " 次 · 柱顶 " + p2.value[2] + "m"; return "高程 " + p2.value[2] + "m"; } },
       grid3D: { boxWidth: 168, boxDepth: 118, boxHeight: 60, viewControl: { alpha: 50, beta: 15, distance: 165 }, axisLabel: { fontSize: 9 } },
       xAxis3D: { type: "value", name: "经度", min: demData.bbox[0], max: demData.bbox[2], axisLabel: { fontSize: 9 } },
@@ -100,8 +103,8 @@ async function renderD3() {
       series: [
         { id: "dem", type: "surface", data: surf, shading: "lambert", wireframe: { show: false }, itemStyle: { color: "#a9c9a0" } },
         { id: "towers", type: "scatter3D", data: towers, symbolSize: 4, label: { show: false }, emphasis: { label: { show: true, formatter: function (p2) { return p2.name; } } } },
-        { id: "flow", type: "lines3D", data: flowLines, lineStyle: { width: 1.4, opacity: 0.75 }, effect: { show: true, trailLength: 0.14, trailWidth: 1.5, constantSpeed: 9, symbol: "circle" } }
-      ] });
+        { id: "flow", type: "lines3D", data: flowLines, lineStyle: { width: 1.4, opacity: 0.75 } }
+      ] }); });
     const zt = {}; yearData.zone_month.forEach(r => { if (!month || r[1] === month) zt[r[0]] = (zt[r[0]] || 0) + r[2]; });
     const top = Object.entries(zt).sort((a, b) => b[1] - a[1]).slice(0, 20).map(e => ({ id: +e[0], name: nameOfGeo(e[0]), v: e[1] }));
     const names = top.map(t => t.name);
