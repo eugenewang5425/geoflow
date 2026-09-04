@@ -51,7 +51,8 @@ var demData = null;
 function setGLView(sync) { const alpha = +$("d3-alpha").value, beta = +$("d3-beta").value, dist = +$("d3-dist").value; const ids = sync ? ["chart-scatter3d", "chart-bar3d", "chart-surface"] : ["chart-scatter3d"]; ids.forEach(id => { if (charts[id]) charts[id].setOption({ grid3D: { viewControl: { alpha: alpha, beta: beta, distance: dist } } }); }); }
 function d3Preset() { const v = { iso: [42, 8, 170], top: [88, 2, 190], side: [14, 0, 230] }[$("d3-preset").value] || [42, 8, 170]; $("d3-alpha").value = v[0]; $("d3-beta").value = v[1]; $("d3-dist").value = v[2]; setGLView($("d3-sync").checked); }
 function demElev(lons, lats, grid, nx, ny, lon, lat) { let bi = 0, bj = 0, bd = 1e9; for (let i = 0; i < nx; i++) { const dx = Math.abs(lons[i] - lon); if (dx < bd) { bd = dx; bi = i; } } bd = 1e9; for (let j = 0; j < ny; j++) { const dy = Math.abs(lats[j] - lat); if (dy < bd) { bd = dy; bj = j; } } return grid[bj][bi]; }
-function hasWebGL() { try { const c = document.createElement("canvas"); return !!(window.WebGLRenderingContext && (c.getContext("webgl") || c.getContext("experimental-webgl"))); } catch (e) { return false; } }
+function hasWebGL() { try { const c = document.createElement("canvas"); const ctx = c.getContext("webgl") || c.getContext("experimental-webgl"); return !!ctx; } catch (e) { return false; } }
+function webglHint() { try { const c = document.createElement("canvas"); const ctx = c.getContext("webgl") || c.getContext("experimental-webgl"); if (ctx) return null; return "canvas.getContext(webgl) 返回 null"; } catch (e) { return "上下文创建异常: " + e.message; } }
 function renderD3Fallback(yearData, demData, month, zmap, months, valueOf, maxv) {
   const legBox = $("d3-leg"); legBox.replaceChildren();
   const legLevels = [["较低", "#9dc0ea"], ["中", "#4c7dd8"], ["较高", "#8b6fd8"], ["高", "#b0409a"], ["峰值", "#d8584c"]];
@@ -74,7 +75,8 @@ async function renderD3() {
   if (!demData) demData = await get("/api/dem");
   const month = $("d3-month").value;
   const gl = hasWebGL();
-  $("d3-caption").textContent = (month ? month.replace("-", " 年 ") + " 月" : "全年合计") + " · 千次 · " + (gl ? ("地形底图 " + (demData.attribution || "")) : "2D 模式（本机 WebGL 不可用，已切换到平面视图）");
+  $("d3-caption").textContent = (month ? month.replace("-", " 年 ") + " 月" : "全年合计") + " · 千次 · " + (gl ? ("地形底图 " + (demData.attribution || "")) : "2D 模式（WebGL 不可用，详见提示）");
+  if (!gl && !window.__glHinted) { window.__glHinted = true; const why = webglHint(); notice("浏览器 WebGL 不可用（" + (why || "上下文创建失败") + "），3D 已切换为 2D 平面视图。启用方法：Chrome/Edge 设置 → 系统 → 打开“硬件加速”后重启浏览器；或在地址栏打开 chrome://gpu 查看详情；通过远程桌面/虚拟机访问时需 GPU 直通或改用本机浏览器。", true); }
   const zmap = {}; yearData.zone_month.forEach(row => { (zmap[row[0]] = zmap[row[0]] || {})[row[1]] = row[2]; });
   const months = yearData.months;
   const valueOf = zid => { if (month) return zmap[zid] ? (zmap[zid][month] || 0) : 0; let t = 0; for (let mi = 0; mi < months.length; mi++) t += zmap[zid] ? (zmap[zid][months[mi]] || 0) : 0; return t; };
