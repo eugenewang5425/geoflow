@@ -49,7 +49,7 @@ async function renderOd() { if (!odData) odData = await get("/api/od"); const br
 
 /* ========== 3d ========== */
 var demData = null;
-function setGLView(sync) { const alpha = +$("d3-alpha").value, beta = +$("d3-beta").value, dist = +$("d3-dist").value; const ids = sync ? ["chart-scatter3d", "chart-flow3d", "chart-bar3d", "chart-surface"] : ["chart-scatter3d"]; ids.forEach(id => { if (charts[id]) charts[id].setOption({ grid3D: { viewControl: { alpha: alpha, beta: beta, distance: dist } } }); }); }
+function setGLView(sync) { const alpha = +$("d3-alpha").value, beta = +$("d3-beta").value, dist = +$("d3-dist").value; const ids = sync ? ["chart-scatter3d", "chart-bar3d", "chart-surface"] : ["chart-scatter3d"]; ids.forEach(id => { if (charts[id]) charts[id].setOption({ grid3D: { viewControl: { alpha: alpha, beta: beta, distance: dist } } }); }); }
 function d3Preset() { const v = { iso: [42, 8, 170], top: [88, 2, 190], side: [14, 0, 230] }[$("d3-preset").value] || [42, 8, 170]; $("d3-alpha").value = v[0]; $("d3-beta").value = v[1]; $("d3-dist").value = v[2]; setGLView($("d3-sync").checked); }
 function demElev(lons, lats, grid, nx, ny, lon, lat) { let bi = 0, bj = 0, bd = 1e9; for (let i = 0; i < nx; i++) { const dx = Math.abs(lons[i] - lon); if (dx < bd) { bd = dx; bi = i; } } bd = 1e9; for (let j = 0; j < ny; j++) { const dy = Math.abs(lats[j] - lat); if (dy < bd) { bd = dy; bj = j; } } return grid[bj][bi]; }
 let __glSmoked = null;
@@ -93,7 +93,7 @@ async function renderD3() {
     if (!odData) odData = await get("/api/od");
     const towers = geo.features.map(f => { const c = zoneCenter(f); const v = valueOf(f.properties.id); const e = elevOf(c[0], c[1]); return { name: f.properties.name, value: [c[0], c[1], Math.round((e * 0.3 + v / maxv * 55) * 10) / 10], itemStyle: { color: colTrips(v), opacity: 0.82 } }; });
     const flowLines = [];
-    odData.top_od.slice(0, 30).forEach(fp => { const o = geo.features.find(x => x.properties.id === fp.origin); const de = geo.features.find(x => x.properties.id === fp.destination); if (!o || !de) return; const c1 = zoneCenter(o), c2 = zoneCenter(de); flowLines.push({ value: [c1[0], c1[1], (elevOf(c1[0], c1[1]) * 0.3 + 12), c2[0], c2[1], (elevOf(c2[0], c2[1]) * 0.3 + 12)], color: groupColors[zoneGroup(nameOfGeo(fp.origin))] || "#4c7dd8" }); });
+    odData.top_od.slice(0, 30).forEach(fp => { const o = geo.features.find(x => x.properties.id === fp.origin); const de = geo.features.find(x => x.properties.id === fp.destination); if (!o || !de) return; const c1 = zoneCenter(o), c2 = zoneCenter(de); flowLines.push({ value: [c1[0], c1[1], (elevOf(c1[0], c1[1]) * 0.3 + 12), c2[0], c2[1], (elevOf(c2[0], c2[1]) * 0.3 + 12)], color: groupColors[zoneGroup(nameOfGeo(fp.origin))] || "#4c7dd8", flowName: nameOfGeo(fp.origin) + " → " + nameOfGeo(fp.destination) }); });
     let __glErrShown = false;
     const safeGL = (fn) => { try { fn(); } catch (e2) { console.error("GeoFlow GL chart:", e2); if (!__glErrShown) { __glErrShown = true; $("d3-caption").textContent = "城市图渲染出错：" + (e2.message || String(e2)) + "（F12 可查 GeoFlow GL chart）"; } } };
     safeGL(() => { chart("chart-scatter3d").setOption({
@@ -102,8 +102,9 @@ async function renderD3() {
       xAxis3D: { type: "value", name: "经度", min: demData.bbox[0], max: demData.bbox[2], axisLabel: { fontSize: 9 } },
       yAxis3D: { type: "value", name: "纬度", min: demData.bbox[1], max: demData.bbox[3], axisLabel: { fontSize: 9 } },
       zAxis3D: { type: "value", name: "m", axisLabel: { fontSize: 9 } },
+      visualMap: { min: 0, max: 280, dimension: 2, seriesIndex: 0, show: false, inRange: { color: ["#d8ecd9", "#a9c9a0", "#b29a74"] } },
       series: [
-        { id: "dem", type: "surface", data: surf, shading: "lambert", wireframe: { show: false }, itemStyle: { color: "#a9c9a0" } },
+        { id: "dem", type: "surface", data: surf, shading: "lambert", wireframe: { show: false } },
         { id: "towers", type: "scatter3D", data: towers, symbolSize: 4, label: { show: false }, emphasis: { label: { show: true, formatter: function (p2) { return p2.name; } } } }
       ] }); });
     const zt = {}; yearData.zone_month.forEach(r => { if (!month || r[1] === month) zt[r[0]] = (zt[r[0]] || 0) + r[2]; });
@@ -120,10 +121,10 @@ async function renderD3() {
     const legLevels = [["较低", "#9dc0ea"], ["中", "#4c7dd8"], ["较高", "#8b6fd8"], ["高", "#b0409a"], ["峰值", "#d8584c"]];
     legLevels.forEach(lv => { const c = document.createElement("span"); c.className = "chip"; c.innerHTML = "<i style=\"background:" + lv[1] + "\"></i>" + lv[0] + "(" + (month ? "该月" : "全年") + "≤" + fmtk(maxv) + ")"; legBox.appendChild(c); });
     const flowSeriesIds = [];
-    const flowGroups = {};
-    flowLines.forEach(fl => { (flowGroups[fl.color] = flowGroups[fl.color] || []).push(fl.value); });
+    const flowGroups = {}; const flowNames = {};
+    flowLines.forEach(fl => { const k = fl.color; (flowGroups[k] = flowGroups[k] || []).push(fl.value); (flowNames[k] = flowNames[k] || []).push(fl.flowName); });
     Object.keys(flowGroups).forEach((gcol, gi) => { flowSeriesIds.push("flow-" + gi); }); window.__flowSeriesIds = flowSeriesIds;
-    safeGL(() => { chart("chart-flow3d").setOption({ grid3D: { boxWidth: 162, boxDepth: 112, boxHeight: 42, viewControl: { alpha: 42, beta: 12, distance: 150 }, axisLabel: { fontSize: 9 } }, xAxis3D: { type: "value", name: "经度", min: demData.bbox[0], max: demData.bbox[2], axisLabel: { fontSize: 9 } }, yAxis3D: { type: "value", name: "纬度", min: demData.bbox[1], max: demData.bbox[3], axisLabel: { fontSize: 9 } }, zAxis3D: { type: "value", name: "m", axisLabel: { fontSize: 9 } }, series: Object.keys(flowGroups).map((gcol, gi) => ({ id: "flow-" + gi, type: "lines3D", data: flowGroups[gcol], lineStyle: { width: 1.6, opacity: 0.8, color: gcol } })) }); });
+    chart("chart-flow3d").setOption({ grid: { left: 52, right: 30, top: 26, bottom: 46 }, xAxis: { type: "value", name: "经度", min: demData.bbox[0], max: demData.bbox[2] }, yAxis: { type: "value", name: "纬度", min: demData.bbox[1], max: demData.bbox[3] }, tooltip: { formatter: function (p2) { return (p2.data && p2.data.flowName) ? p2.data.flowName : (p2.name || ""); } }, series: Object.keys(flowGroups).map((gcol, gi) => ({ id: "flow-" + gi, type: "lines", coordinateSystem: "cartesian2d", data: flowGroups[gcol].map(function (v, vi) { return { coords: [[v[0], v[1]], [v[3], v[4]]], flowName: flowNames[gi][vi] }; }), lineStyle: { color: gcol, width: 1.8, opacity: 0.9, curveness: 0.22 }, effect: { show: true, period: 3, trailLength: 0.25, symbol: "arrow", symbolSize: 5 }, zlevel: 2 })) });
     chart("chart-scatter3d").setOption({ series: [{ id: "dem", show: $("d3-layer-dem").checked }, { id: "towers", show: $("d3-layer-towers").checked }] });
     safeGL(() => { if (flowSeriesIds.length) chart("chart-flow3d").setOption({ series: flowSeriesIds.map(id => ({ id: id, show: $("d3-layer-flow").checked })) }); });
     setGLView($("d3-sync").checked);
