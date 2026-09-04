@@ -51,62 +51,75 @@ var demData = null;
 function setGLView(sync) { const alpha = +$("d3-alpha").value, beta = +$("d3-beta").value, dist = +$("d3-dist").value; const ids = sync ? ["chart-scatter3d", "chart-bar3d", "chart-surface"] : ["chart-scatter3d"]; ids.forEach(id => { if (charts[id]) charts[id].setOption({ grid3D: { viewControl: { alpha: alpha, beta: beta, distance: dist } } }); }); }
 function d3Preset() { const v = { iso: [42, 8, 170], top: [88, 2, 190], side: [14, 0, 230] }[$("d3-preset").value] || [42, 8, 170]; $("d3-alpha").value = v[0]; $("d3-beta").value = v[1]; $("d3-dist").value = v[2]; setGLView($("d3-sync").checked); }
 function demElev(lons, lats, grid, nx, ny, lon, lat) { let bi = 0, bj = 0, bd = 1e9; for (let i = 0; i < nx; i++) { const dx = Math.abs(lons[i] - lon); if (dx < bd) { bd = dx; bi = i; } } bd = 1e9; for (let j = 0; j < ny; j++) { const dy = Math.abs(lats[j] - lat); if (dy < bd) { bd = dy; bj = j; } } return grid[bj][bi]; }
+function hasWebGL() { try { const c = document.createElement("canvas"); return !!(window.WebGLRenderingContext && (c.getContext("webgl") || c.getContext("experimental-webgl"))); } catch (e) { return false; } }
+function renderD3Fallback(yearData, demData, month, zmap, months, valueOf, maxv) {
+  const legBox = $("d3-leg"); legBox.replaceChildren();
+  const legLevels = [["较低", "#9dc0ea"], ["中", "#4c7dd8"], ["较高", "#8b6fd8"], ["高", "#b0409a"], ["峰值", "#d8584c"]];
+  legLevels.forEach(lv => { const c = document.createElement("span"); c.className = "chip"; c.innerHTML = "<i style=\"background:" + lv[1] + "\"></i>" + lv[0]; legBox.appendChild(c); });
+  const pts = geo.features.map(f => { const c = zoneCenter(f); return [c[0], c[1], valueOf(f.properties.id)]; });
+  const pMax = Math.max.apply(null, pts.map(p => p[2]));
+  chart("chart-scatter3d").setOption({ grid: { left: 46, right: 26, top: 24, bottom: 40 }, tooltip: { formatter: function (p2) { return p2.name + " · " + fmt(p2.value[2]) + " 次"; } }, xAxis: { type: "value", name: "经度", min: demData.bbox[0], max: demData.bbox[2], scale: true }, yAxis: { type: "value", name: "纬度", min: demData.bbox[1], max: demData.bbox[3], scale: true }, visualMap: { min: 0, max: pMax, calculable: true, orient: "horizontal", left: "center", bottom: 0, inRange: { color: ["#9dc0ea", "#4c7dd8", "#8b6fd8", "#b0409a", "#d8584c"] }, text: ["高", "低"] }, series: [{ type: "scatter", data: pts.map(p => ({ name: nameOfGeoNear(p[0], p[1]), value: p, symbolSize: v => (v[2] ? Math.max(3, Math.sqrt(v[2]) * 0.25) : 3) })), itemStyle: { opacity: 0.8 } }] });
+  const zt = {}; yearData.zone_month.forEach(r => { if (!month || r[1] === month) zt[r[0]] = (zt[r[0]] || 0) + r[2]; });
+  const top = Object.entries(zt).sort((a, b) => b[1] - a[1]).slice(0, 20).map(e => ({ id: +e[0], name: nameOfGeo(e[0]), v: e[1] }));
+  const names = top.map(t => t.name);
+  const hd = []; for (let ti = 0; ti < top.length; ti++) for (let hh = 0; hh < 24; hh++) hd.push([names.indexOf(top[ti].name), hh, +(top[ti].v / 24 / 1000).toFixed(2)]);
+  chart("chart-bar3d").setOption({ grid: { left: 46, right: 30, top: 20, bottom: 48 }, xAxis: { type: "category", data: names, axisLabel: { rotate: 35, fontSize: 9 } }, yAxis: { type: "category", data: Array.from({ length: 24 }, (_, i) => i + ":00"), axisLabel: { interval: 3, fontSize: 9 } }, visualMap: { min: 0, max: Math.max.apply(null, hd.map(d => d[2])), calculable: true, orient: "horizontal", left: "center", bottom: 0, inRange: { color: ["#a9c7ec", "#4c7dd8", "#8b6fd8", "#d8584c"] } }, series: [{ type: "heatmap", data: hd, label: { show: false } }] });
+  const wd = yearData.weekday_hour;
+  const wd2 = []; for (let wi = 0; wi < 7; wi++) for (let hi = 0; hi < 24; hi++) wd2.push([hi, wi, +(wd[wi][hi] / 1000).toFixed(2)]);
+  chart("chart-surface").setOption({ grid: { left: 46, right: 30, top: 20, bottom: 40 }, xAxis: { type: "category", data: Array.from({ length: 24 }, (_, i) => i + ":00"), axisLabel: { interval: 3, fontSize: 9 } }, yAxis: { type: "category", data: ["一", "二", "三", "四", "五", "六", "日"] }, visualMap: { min: 0, max: Math.max.apply(null, wd2.map(d => d[2])), calculable: true, orient: "horizontal", left: "center", bottom: 0, inRange: { color: ["#d6e8f8", "#4c7dd8", "#8b6fd8", "#d8584c"] } }, series: [{ type: "heatmap", data: wd2, label: { show: false } }] });
+}
+function nameOfGeoNear(lon, lat) { let best = null, bd = 1e9; geo.features.forEach(f => { const c = zoneCenter(f); const d = Math.abs(c[0] - lon) + Math.abs(c[1] - lat); if (d < bd) { bd = d; best = f.properties.name; } }); return best || "?"; }
 async function renderD3() {
   if (!yearData) yearData = await get("/api/year");
   if (!demData) demData = await get("/api/dem");
   const month = $("d3-month").value;
-  $("d3-caption").textContent = (month ? month.replace("-", " 年 ") + " 月" : "全年合计") + " · 千次 · 地形底图 " + (demData.attribution || "");
+  const gl = hasWebGL();
+  $("d3-caption").textContent = (month ? month.replace("-", " 年 ") + " 月" : "全年合计") + " · 千次 · " + (gl ? ("地形底图 " + (demData.attribution || "")) : "2D 模式（本机 WebGL 不可用，已切换到平面视图）");
   const zmap = {}; yearData.zone_month.forEach(row => { (zmap[row[0]] = zmap[row[0]] || {})[row[1]] = row[2]; });
   const months = yearData.months;
   const valueOf = zid => { if (month) return zmap[zid] ? (zmap[zid][month] || 0) : 0; let t = 0; for (let mi = 0; mi < months.length; mi++) t += zmap[zid] ? (zmap[zid][months[mi]] || 0) : 0; return t; };
   let maxv = 1; geo.features.forEach(f => { const v = valueOf(f.properties.id); if (v > maxv) maxv = v; });
+  if (!gl) { renderD3Fallback(yearData, demData, month, zmap, months, valueOf, maxv); return; }
   const nx = demData.lons.length, ny = demData.lats.length;
   const surf = []; for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) surf.push([demData.lons[i], demData.lats[j], demData.grid[j][i]]);
-  const colTrips = t => { const r = Math.min(1, t / maxv); if (r < 0.25) return "rgb(157,192,234)"; if (r < 0.5) return "rgb(76,125,216)"; if (r < 0.75) return "rgb(139,111,216)"; if (r < 0.92) return "rgb(176,64,154)"; return "rgb(216,88,76)"; };
-  if (!odData) odData = await get("/api/od");
   const elevOf = (lon, lat) => demElev(demData.lons, demData.lats, demData.grid, nx, ny, lon, lat);
-  const towers = geo.features.map(f => { const c = zoneCenter(f); const v = valueOf(f.properties.id); const e = elevOf(c[0], c[1]); return { name: f.properties.name, value: [c[0], c[1], Math.round((e * 0.3 + v / maxv * 55) * 10) / 10], itemStyle: { color: colTrips(v), opacity: 0.82 } }; });
-  const flowLines = [];
-  odData.top_od.slice(0, 30).forEach(fp => { const o = geo.features.find(x => x.properties.id === fp.origin); const de = geo.features.find(x => x.properties.id === fp.destination); if (!o || !de) return; const c1 = zoneCenter(o), c2 = zoneCenter(de); flowLines.push({ value: [c1[0], c1[1], (elevOf(c1[0], c1[1]) * 0.3 + 12), c2[0], c2[1], (elevOf(c2[0], c2[1]) * 0.3 + 12)], lineStyle: { color: groupColors[zoneGroup(nameOfGeo(fp.origin))] || "#4c7dd8" } }); });
-  chart("chart-scatter3d").setOption({
-    tooltip: { formatter: function (p2) { if (p2.seriesType === "scatter3D") { const v = valueOf(Number(p2.name) || findZoneId(p2.name)); return p2.name + "<br/>出行量 " + fmtk(v) + " 次 · 柱顶 " + p2.value[2] + "m"; } return "高程 " + p2.value[2] + "m"; } },
-    visualMap: { min: 0, max: maxv, dimension: 2, seriesIndex: 1, show: false },
-    grid3D: { boxWidth: 168, boxDepth: 118, boxHeight: 60, viewControl: { alpha: 50, beta: 15, distance: 165 }, axisLabel: { fontSize: 9 } },
-    xAxis3D: { type: "value", name: "经度", min: demData.bbox[0], max: demData.bbox[2], axisLabel: { fontSize: 9 } },
-    yAxis3D: { type: "value", name: "纬度", min: demData.bbox[1], max: demData.bbox[3], axisLabel: { fontSize: 9 } },
-    zAxis3D: { type: "value", name: "m", axisLabel: { fontSize: 9 } },
-    series: [
-      { id: "dem", type: "surface", data: surf, shading: "lambert", wireframe: { show: false }, itemStyle: { color: "#a9c9a0" } },
-      { id: "towers", type: "scatter3D", data: towers, symbolSize: 4, label: { show: false }, emphasis: { label: { show: true, formatter: function (p2) { return p2.name; } } } },
-      { id: "flow", type: "lines3D", data: flowLines, lineStyle: { width: 1.4, opacity: 0.75 }, effect: { show: true, trailLength: 0.14, trailWidth: 1.5, constantSpeed: 9, symbol: "circle" } }
-    ] });
-  const zt = {}; yearData.zone_month.forEach(r => { if (!month || r[1] === month) zt[r[0]] = (zt[r[0]] || 0) + r[2]; });
-  const top = Object.entries(zt).sort((a, b) => b[1] - a[1]).slice(0, 20).map(e => ({ id: +e[0], name: nameOfGeo(e[0]), v: e[1] }));
-  const names = top.map(t => t.name);
-  const bdata = []; for (let ti = 0; ti < top.length; ti++) for (let hh = 0; hh < 24; hh++) bdata.push([names.indexOf(top[ti].name), hh, +(top[ti].v / 24 / 1000).toFixed(2)]);
-  const bmax = Math.max.apply(null, bdata.map(d => d[2]));
-  chart("chart-bar3d").setOption({
-    grid3D: { boxWidth: 170, boxDepth: 70, viewControl: { alpha: 42, beta: 18, distance: 200 }, axisLabel: { fontSize: 9 } },
-    xAxis3D: { type: "category", data: names, axisLabel: { interval: 1, rotate: 35, fontSize: 9 } },
-    yAxis3D: { type: "category", data: Array.from({ length: 24 }, (_, i) => i + ":00"), axisLabel: { interval: 3, fontSize: 9 } },
-    zAxis3D: { type: "value", name: "千次", axisLabel: { fontSize: 9 } },
-    visualMap: { min: 0, max: bmax, inRange: { color: ["#a9c7ec", "#4c7dd8", "#8b6fd8", "#b0409a", "#d8584c"] }, text: ["高", "低"], orient: "horizontal", left: "center", bottom: 4, textStyle: { color: "#666" }, calculable: true },
-    series: [{ type: "bar3D", data: bdata, shading: "lambert", itemStyle: { opacity: 0.88 } }] });
-  const wd = yearData.weekday_hour;
-  const sdata = []; for (let wi = 0; wi < 7; wi++) for (let hi = 0; hi < 24; hi++) sdata.push([hi, wi, +(wd[wi][hi] / 1000).toFixed(2)]);
-  const sMax = Math.max.apply(null, sdata.map(d => d[2]));
-  chart("chart-surface").setOption({
-    grid3D: { boxWidth: 130, boxDepth: 95, viewControl: { alpha: 38, beta: 22, distance: 190 } },
-    xAxis3D: { type: "value", name: "小时", min: 0, max: 23, axisLabel: { fontSize: 9 } },
-    yAxis3D: { type: "value", name: "星期", min: 0, max: 6, axisLabel: { formatter: function (v) { return ["周一", "周二", "周三", "周四", "周五", "周六", "周日"][Math.round(v)]; }, fontSize: 9 } },
-    zAxis3D: { type: "value", name: "千次", axisLabel: { fontSize: 9 } },
-    visualMap: { min: 0, max: sMax, inRange: { color: ["#d6e8f8", "#4c7dd8", "#8b6fd8", "#d8584c"] }, text: ["高", "低"], orient: "horizontal", left: "center", bottom: 4, textStyle: { color: "#666" }, calculable: true },
-    series: [{ type: "surface", data: sdata, shading: "lambert", wireframe: { show: false } }] });
-  chart("chart-scatter3d").setOption({ series: [{ id: "dem", show: $("d3-layer-dem").checked }, { id: "towers", show: $("d3-layer-towers").checked }, { id: "flow", show: $("d3-layer-flow").checked }] });
-  const legBox = $("d3-leg"); legBox.replaceChildren();
-  const legLevels = [["较低", "#9dc0ea"], ["中", "#4c7dd8"], ["较高", "#8b6fd8"], ["高", "#b0409a"], ["峰值", "#d8584c"]];
-  legLevels.forEach(lv => { const c = document.createElement("span"); c.className = "chip"; c.innerHTML = "<i style=\"background:" + lv[1] + "\"></i>" + lv[0] + "(" + (month ? "该月" : "全年") + "≤" + fmtk(maxv) + ")"; legBox.appendChild(c); });
-  setGLView($("d3-sync").checked);
+  const colTrips = t => { const r = Math.min(1, t / maxv); if (r < 0.25) return "rgb(157,192,234)"; if (r < 0.5) return "rgb(76,125,216)"; if (r < 0.75) return "rgb(139,111,216)"; if (r < 0.92) return "rgb(176,64,154)"; return "rgb(216,88,76)"; };
+  try {
+    if (!odData) odData = await get("/api/od");
+    const towers = geo.features.map(f => { const c = zoneCenter(f); const v = valueOf(f.properties.id); const e = elevOf(c[0], c[1]); return { name: f.properties.name, value: [c[0], c[1], Math.round((e * 0.3 + v / maxv * 55) * 10) / 10], itemStyle: { color: colTrips(v), opacity: 0.82 } }; });
+    const flowLines = [];
+    odData.top_od.slice(0, 30).forEach(fp => { const o = geo.features.find(x => x.properties.id === fp.origin); const de = geo.features.find(x => x.properties.id === fp.destination); if (!o || !de) return; const c1 = zoneCenter(o), c2 = zoneCenter(de); flowLines.push({ value: [c1[0], c1[1], (elevOf(c1[0], c1[1]) * 0.3 + 12), c2[0], c2[1], (elevOf(c2[0], c2[1]) * 0.3 + 12)], lineStyle: { color: groupColors[zoneGroup(nameOfGeo(fp.origin))] || "#4c7dd8" } }); });
+    chart("chart-scatter3d").setOption({
+      tooltip: { formatter: function (p2) { if (p2.seriesType === "scatter3D") return p2.name + "<br/>出行量 " + fmtk(valueOf(Number(p2.name) || findZoneId(p2.name))) + " 次 · 柱顶 " + p2.value[2] + "m"; return "高程 " + p2.value[2] + "m"; } },
+      grid3D: { boxWidth: 168, boxDepth: 118, boxHeight: 60, viewControl: { alpha: 50, beta: 15, distance: 165 }, axisLabel: { fontSize: 9 } },
+      xAxis3D: { type: "value", name: "经度", min: demData.bbox[0], max: demData.bbox[2], axisLabel: { fontSize: 9 } },
+      yAxis3D: { type: "value", name: "纬度", min: demData.bbox[1], max: demData.bbox[3], axisLabel: { fontSize: 9 } },
+      zAxis3D: { type: "value", name: "m", axisLabel: { fontSize: 9 } },
+      series: [
+        { id: "dem", type: "surface", data: surf, shading: "lambert", wireframe: { show: false }, itemStyle: { color: "#a9c9a0" } },
+        { id: "towers", type: "scatter3D", data: towers, symbolSize: 4, label: { show: false }, emphasis: { label: { show: true, formatter: function (p2) { return p2.name; } } } },
+        { id: "flow", type: "lines3D", data: flowLines, lineStyle: { width: 1.4, opacity: 0.75 }, effect: { show: true, trailLength: 0.14, trailWidth: 1.5, constantSpeed: 9, symbol: "circle" } }
+      ] });
+    const zt = {}; yearData.zone_month.forEach(r => { if (!month || r[1] === month) zt[r[0]] = (zt[r[0]] || 0) + r[2]; });
+    const top = Object.entries(zt).sort((a, b) => b[1] - a[1]).slice(0, 20).map(e => ({ id: +e[0], name: nameOfGeo(e[0]), v: e[1] }));
+    const names = top.map(t => t.name);
+    const bdata = []; for (let ti = 0; ti < top.length; ti++) for (let hh = 0; hh < 24; hh++) bdata.push([names.indexOf(top[ti].name), hh, +(top[ti].v / 24 / 1000).toFixed(2)]);
+    const bmax = Math.max.apply(null, bdata.map(d => d[2]));
+    chart("chart-bar3d").setOption({ grid3D: { boxWidth: 170, boxDepth: 70, viewControl: { alpha: 42, beta: 18, distance: 200 }, axisLabel: { fontSize: 9 } }, xAxis3D: { type: "category", data: names, axisLabel: { interval: 1, rotate: 35, fontSize: 9 } }, yAxis3D: { type: "category", data: Array.from({ length: 24 }, (_, i) => i + ":00"), axisLabel: { interval: 3, fontSize: 9 } }, zAxis3D: { type: "value", name: "千次", axisLabel: { fontSize: 9 } }, visualMap: { min: 0, max: bmax, inRange: { color: ["#a9c7ec", "#4c7dd8", "#8b6fd8", "#b0409a", "#d8584c"] }, text: ["高", "低"], orient: "horizontal", left: "center", bottom: 4, textStyle: { color: "#666" }, calculable: true }, series: [{ type: "bar3D", data: bdata, shading: "lambert", itemStyle: { opacity: 0.88 } }] });
+    const wd = yearData.weekday_hour;
+    const sdata = []; for (let wi = 0; wi < 7; wi++) for (let hi = 0; hi < 24; hi++) sdata.push([hi, wi, +(wd[wi][hi] / 1000).toFixed(2)]);
+    const sMax = Math.max.apply(null, sdata.map(d => d[2]));
+    chart("chart-surface").setOption({ grid3D: { boxWidth: 130, boxDepth: 95, viewControl: { alpha: 38, beta: 22, distance: 190 } }, xAxis3D: { type: "value", name: "小时", min: 0, max: 23, axisLabel: { fontSize: 9 } }, yAxis3D: { type: "value", name: "星期", min: 0, max: 6, axisLabel: { formatter: function (v) { return ["周一", "周二", "周三", "周四", "周五", "周六", "周日"][Math.round(v)]; }, fontSize: 9 } }, zAxis3D: { type: "value", name: "千次", axisLabel: { fontSize: 9 } }, visualMap: { min: 0, max: sMax, inRange: { color: ["#d6e8f8", "#4c7dd8", "#8b6fd8", "#d8584c"] }, text: ["高", "低"], orient: "horizontal", left: "center", bottom: 4, textStyle: { color: "#666" }, calculable: true }, series: [{ type: "surface", data: sdata, shading: "lambert", wireframe: { show: false } }] });
+    const legBox = $("d3-leg"); legBox.replaceChildren();
+    const legLevels = [["较低", "#9dc0ea"], ["中", "#4c7dd8"], ["较高", "#8b6fd8"], ["高", "#b0409a"], ["峰值", "#d8584c"]];
+    legLevels.forEach(lv => { const c = document.createElement("span"); c.className = "chip"; c.innerHTML = "<i style=\"background:" + lv[1] + "\"></i>" + lv[0] + "(" + (month ? "该月" : "全年") + "≤" + fmtk(maxv) + ")"; legBox.appendChild(c); });
+    chart("chart-scatter3d").setOption({ series: [{ id: "dem", show: $("d3-layer-dem").checked }, { id: "towers", show: $("d3-layer-towers").checked }, { id: "flow", show: $("d3-layer-flow").checked }] });
+    setGLView($("d3-sync").checked);
+  } catch (e) {
+    console.error("GeoFlow 3D:", e);
+    $("d3-caption").textContent = "3D 渲染出错：" + e.message + "（请把 F12 控制台信息发给我）";
+    notice("3D 渲染出错：" + e.message, true);
+  }
 }
 function findZoneId(name) { const f = geo.features.find(x => x.properties.name === name); return f ? f.properties.id : 0; }
 
