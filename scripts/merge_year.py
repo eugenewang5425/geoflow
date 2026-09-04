@@ -159,7 +159,15 @@ def main():
         outbound = sum(c for (o, de), c in od_year.items() if o == aid)
         airport_rows.append({"id": aid, "name": zone_name[aid], "inbound": inbound,
                              "outbound": outbound})
+    # full borough x borough matrix from every OD pair (not only top-200)
+    bm_full = defaultdict(lambda: defaultdict(int))
+    for (o, de), c in od_year.items():
+        b1 = zone_info.get(o, {}).get("borough", "?")
+        b2 = zone_info.get(de, {}).get("borough", "?")
+        bm_full[b1][b2] += c
+    borough_od = [[b1, b2, bm_full[b1][b2]] for b1 in sorted(bm_full) for b2 in sorted(bm_full[b1])]
     atomic_json(RESULTS / "od_year.json", {
+        "borough_od": borough_od,
         "top_od": [{"origin": o, "destination": de, "trips": c} for o, de, c in od_pairs[:200]],
         "sankey": {"names": list(dict.fromkeys([n for e in sankey_edges for n in e[:2]])),
                    "links": sankey_edges},

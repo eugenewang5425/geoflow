@@ -61,22 +61,24 @@ function renderBoroughFlow() {
   if (odData) { renderBoroughFlowReal(odData, demData); }
 }
 function renderBoroughFlowReal(odData2, demData) {
-  const bmap2 = new Map(geo.features.map(f => [f.properties.id, f.properties.borough]));
-  const bc = {}, bs = {};
-  geo.features.forEach(f => { const b = f.properties.borough; const c = zoneCenter(f); bc[b] = bc[b] || { x: 0, y: 0, n: 0 }; bc[b].x += c[0]; bc[b].y += c[1]; bc[b].n += 1; bs[b] = (bs[b] || 0); });
+  const bc = {};
+  geo.features.forEach(f => { const b = f.properties.borough; const c = zoneCenter(f); bc[b] = bc[b] || { x: 0, y: 0, n: 0 }; bc[b].x += c[0]; bc[b].y += c[1]; bc[b].n += 1; });
   Object.keys(bc).forEach(b => { bc[b].x /= bc[b].n; bc[b].y /= bc[b].n; });
-  const flows = {};
-  odData2.top_od.forEach(p => { const b1 = bmap2.get(p.origin), b2 = bmap2.get(p.destination); if (!b1 || !b2 || b1 === b2) return; flows[b1] = flows[b1] || {}; flows[b1][b2] = (flows[b1][b2] || 0) + p.trips; });
-  const srcs = Object.keys(flows);
-  const nodeData = Object.keys(bc).filter(b => bs[b] !== undefined || b).map(b => { let tot = 0; Object.keys(flows).forEach(s => { tot += (flows[s] && flows[s][b]) || 0; }); Object.keys(flows[b] || {}).forEach(t2 => { tot += flows[b][t2]; }); return { name: b, value: [bc[b].x, bc[b].y, tot], symbolSize: Math.max(8, Math.sqrt(tot) / 18) }; });
+  const flows = {}, intra = {}, nodeTot = {};
+  (odData2.borough_od || []).forEach(r => { const b1 = r[0], b2 = r[1], c = r[2]; flows[b1] = flows[b1] || {}; flows[b1][b2] = c; if (b1 === b2) { intra[b1] = c; } else { nodeTot[b1] = (nodeTot[b1] || 0) + c; nodeTot[b2] = (nodeTot[b2] || 0) + c; } });
+  const srcs = Object.keys(flows).filter(b1 => Object.keys(flows[b1] || {}).some(b2 => b2 !== b1));
+  const nodeData = Object.keys(nodeTot).map(b => ({ name: b, value: [bc[b].x, bc[b].y, nodeTot[b]] }));
   window.__flowSeriesIds = srcs.map((b1, i) => "flow-" + i);
+  const globalIntra = Object.keys(intra).map(b => b + "·区内" + (intra[b] >= 10000 ? (intra[b] / 10000).toFixed(1) + "万" : fmtk(intra[b])));
+  const cap = $("d3-caption"); const extra = " · 数据口径：全区县 45.4M 次全量（含区内：" + globalIntra.join("，") + "）";
+  if (cap && cap.textContent.indexOf("全区县") < 0) cap.textContent += extra;
   chart("chart-flow3d").setOption({
-    grid: { left: 68, right: 42, top: 42, bottom: 52 },
+    grid: { left: 68, right: 42, top: 44, bottom: 52 },
     xAxis: { type: "value", min: demData.bbox[0], max: demData.bbox[2], name: "经度", nameLocation: "middle", nameGap: 26, axisLabel: { fontSize: 10, margin: 10 } },
     yAxis: { type: "value", min: demData.bbox[1], max: demData.bbox[3], name: "纬度", nameLocation: "middle", nameGap: 34, axisLabel: { fontSize: 10, margin: 10 } },
-    legend: { data: srcs.map((b1, i) => b1), top: 0, textStyle: { fontSize: 10 } },
-    tooltip: { formatter: function (p2) { if (p2.seriesType === "lines") { const d = p2.data; return (bmap2.get(p2.seriesName) ? "" : "") + d.from + " → " + d.to + "<br/><strong>" + fmt(d.trips) + "</strong> 次"; } return p2.name + "<br/>总流量 " + fmt(p2.value[2]) + " 次"; } },
-    series: srcs.map((b1, i) => ({ id: "flow-" + i, name: b1, type: "lines", coordinateSystem: "cartesian2d", data: Object.keys(flows[b1]).map(b2 => ({ coords: [[bc[b1].x, bc[b1].y], [bc[b2].x, bc[b2].y]], trips: flows[b1][b2], from: b1, to: b2 })), lineStyle: { color: (bcolors[b1] || "#9aa7b5"), width: 2.4, opacity: 0.92, curveness: 0.22 }, effect: { show: true, period: 2.6, trailLength: 0.28, symbol: "arrow", symbolSize: 6 }, zlevel: 2 })).concat([{ type: "effectScatter", coordinateSystem: "cartesian2d", data: nodeData, symbolSize: function (v) { return v[2] ? Math.max(8, Math.sqrt(v[2]) / 90) : 8; }, rippleEffect: { brushType: "stroke", scale: 2.2 }, label: { show: true, position: "top", formatter: function (p2) { return p2.name + "·" + (p2.value[2] >= 10000 ? (p2.value[2] / 10000).toFixed(1) + "万" : fmtk(p2.value[2])); }, fontSize: 10, color: "#2e3a4c" }, itemStyle: { color: "rgba(76,125,216,0.55)" } }])
+    legend: { data: srcs, top: 0, textStyle: { fontSize: 10 } },
+    tooltip: { formatter: function (p2) { if (p2.seriesType === "lines") { const d = p2.data; return d.from + " → " + d.to + "<br/><strong>" + fmt(d.trips) + "</strong> 次 · 占全区 " + (d.trips / 45400745 * 100).toFixed(1) + "%"; } return p2.name + "<br/>跨区流量 " + fmt(p2.value[2]) + " 次"; } },
+    series: srcs.map((b1, i) => ({ id: "flow-" + i, name: b1, type: "lines", coordinateSystem: "cartesian2d", data: Object.keys(flows[b1]).filter(b2 => b2 !== b1).map(b2 => ({ coords: [[bc[b1].x, bc[b1].y], [bc[b2].x, bc[b2].y]], trips: flows[b1][b2], from: b1, to: b2 })), lineStyle: { color: (bcolors[b1] || "#9aa7b5"), width: 2.6, opacity: 0.92, curveness: 0.2 }, effect: { show: true, period: 2.4, trailLength: 0.26, symbol: "arrow", symbolSize: 6 }, zlevel: 2 })).concat([{ type: "effectScatter", coordinateSystem: "cartesian2d", data: nodeData, symbolSize: function (v) { return v[2] ? Math.max(9, Math.sqrt(v[2]) / 260) : 9; }, rippleEffect: { brushType: "stroke", scale: 2.2 }, label: { show: true, position: "top", formatter: function (p2) { return p2.name + (p2.value[2] >= 10000 ? " " + (p2.value[2] / 10000).toFixed(1) + "万" : " " + fmtk(p2.value[2])); }, fontSize: 10.5, color: "#2e3a4c" }, itemStyle: { color: "rgba(76,125,216,0.6)" } }])
   });
 }
 function renderD3Fallback(yearData, demData, month, zmap, months, valueOf, maxv) {
@@ -112,6 +114,8 @@ async function renderD3() {
   if (!gl) { renderD3Fallback(yearData, demData, month, zmap, months, valueOf, maxv); return; }
   const nx = demData.lons.length, ny = demData.lats.length;
   const surf = []; for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) surf.push([demData.lons[i], demData.lats[j], demData.grid[j][i]]);
+  const demPts = [];
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const e = demData.grid[j][i]; demPts.push({ value: [demData.lons[i], demData.lats[j], Math.round(e * 0.3 * 10) / 10], itemStyle: { color: e <= 1.5 ? "#bcd6ec" : e <= 45 ? "#b9d9b3" : e <= 120 ? "#a9c9a0" : e <= 220 ? "#c9b791" : "#b29a74" } }); }
   const elevOf = (lon, lat) => demElev(demData.lons, demData.lats, demData.grid, nx, ny, lon, lat);
   const colTrips = t => { const r = Math.min(1, t / maxv); if (r < 0.25) return "rgb(157,192,234)"; if (r < 0.5) return "rgb(76,125,216)"; if (r < 0.75) return "rgb(139,111,216)"; if (r < 0.92) return "rgb(176,64,154)"; return "rgb(216,88,76)"; };
   try {
@@ -125,9 +129,8 @@ async function renderD3() {
       xAxis3D: { type: "value", name: "经度", min: demData.bbox[0], max: demData.bbox[2], axisLabel: { fontSize: 9 } },
       yAxis3D: { type: "value", name: "纬度", min: demData.bbox[1], max: demData.bbox[3], axisLabel: { fontSize: 9 } },
       zAxis3D: { type: "value", name: "m", axisLabel: { fontSize: 9 } },
-      visualMap: { min: 0, max: 280, dimension: 2, seriesIndex: 0, show: false, inRange: { color: ["#bcd6ec", "#a9c9a0", "#b29a74"] } },
       series: [
-        { id: "dem", type: "surface", data: surf, shading: "lambert", wireframe: { show: false } },
+        { id: "dem", type: "scatter3D", data: demPts, symbolSize: 2.4 },
         { id: "towers", type: "scatter3D", data: towers, symbolSize: 4, label: { show: false }, emphasis: { label: { show: true, formatter: function (p2) { return p2.name; } } } }
       ] }); });
     const zt = {}; yearData.zone_month.forEach(r => { if (!month || r[1] === month) zt[r[0]] = (zt[r[0]] || 0) + r[2]; });
