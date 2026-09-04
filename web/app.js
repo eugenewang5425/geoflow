@@ -143,13 +143,7 @@ async function renderD3() {
     const legBox = $("d3-leg"); legBox.replaceChildren();
     const legLevels = [["较低", "#9dc0ea"], ["中", "#4c7dd8"], ["较高", "#8b6fd8"], ["高", "#b0409a"], ["峰值", "#d8584c"]];
     legLevels.forEach(lv => { const c = document.createElement("span"); c.className = "chip"; c.innerHTML = "<i style=\"background:" + lv[1] + "\"></i>" + lv[0] + "(" + (month ? "该月" : "全年") + "≤" + fmtk(maxv) + ")"; legBox.appendChild(c); });
-    const flowSeriesIds = [];
-    const flowGroups = {}; const flowNames = {};
-    flowLines.forEach(fl => { const k = fl.color; (flowGroups[k] = flowGroups[k] || []).push(fl.value); (flowNames[k] = flowNames[k] || []).push(fl.flowName); });
-    Object.keys(flowGroups).forEach((gcol, gi) => { flowSeriesIds.push("flow-" + gi); }); window.__flowSeriesIds = flowSeriesIds;
 
-    chart("chart-scatter3d").setOption({ series: [{ id: "dem", show: $("d3-layer-dem").checked }, { id: "towers", show: $("d3-layer-towers").checked }] });
-    safeGL(() => { if (flowSeriesIds.length) chart("chart-flow3d").setOption({ series: flowSeriesIds.map(id => ({ id: id, show: $("d3-layer-flow").checked })) }); });
     setGLView($("d3-sync").checked);
   } catch (e) {
     console.error("GeoFlow 3D:", e);
