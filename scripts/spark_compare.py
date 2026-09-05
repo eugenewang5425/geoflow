@@ -74,8 +74,8 @@ def mr_baseline():
         if (r.get("status") == "SUCCEEDED" and r.get("month") == MONTH
                 and r.get("reducers") == 2 and r.get("combiner") and not r.get("fail_first")
                 and r.get("started_at") and r.get("elapsed_seconds")
-                and (best is None or r["started_at"] < best["started_at"])):
-            best = r
+                and (best is None or r["started_at"] > best["started_at"])):
+            best = r  # latest matching run: closest cluster state to the Spark run
     if best is None:
         raise RuntimeError("no MR baseline run found for " + MONTH)
     return {"job_elapsed_seconds": best.get("job_elapsed_seconds"),
@@ -138,7 +138,7 @@ def main():
         "mr_results_valid_rows": mr_valid_rows,
         "consistent_with_mapreduce_output": consistent,
         "speedup_job_vs_warm": round(mr_job / warm["wall_seconds"], 2) if warm["wall_seconds"] else None,
-        "note": "MR 基线为原始管线运行记录；Spark 冷启动含 JVM/Context 引导，"
+        "note": "MR 基线为最近一次同口径管线运行记录；Spark 冷启动含 JVM/Context 引导，"
                 "与 MR 的 ApplicationMaster + JVM 任务启动开销同一量级，故对比墙钟时间。",
     }
     atomic_json(ROOT / "evidence" / "spark.json", report)
