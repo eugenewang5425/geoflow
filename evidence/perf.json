@@ -1,0 +1,100 @@
+{
+  "generated_at": "2026-09-05T22:19:31.762407+00:00",
+  "engine": "Hadoop 3.4.2 / YARN / Streaming",
+  "topology": "WSL2, one physical host, two DataNodes and two NodeManagers",
+  "map_sweep_month": "2025-01",
+  "map_sweep": [
+    {
+      "target_maps": 14,
+      "map_tasks": 14,
+      "status": "SUCCEEDED",
+      "job_seconds": 29.7,
+      "error": null
+    },
+    {
+      "target_maps": 36,
+      "map_tasks": 36,
+      "status": "SUCCEEDED",
+      "job_seconds": 48.0,
+      "error": null
+    },
+    {
+      "target_maps": 72,
+      "map_tasks": 72,
+      "status": "SUCCEEDED",
+      "job_seconds": 65.9,
+      "error": null
+    },
+    {
+      "target_maps": 144,
+      "map_tasks": 144,
+      "status": "SUCCEEDED",
+      "job_seconds": 113.9,
+      "error": null
+    }
+  ],
+  "map_sweep_note": "K 个平衡重分片文件（每个 < 16MB 块）→ Map 任务数 = 文件数；FileInputFormat 对小于块大小的文件不生效的 mapreduce.job.maps / split.maxsize 提示均无法改变任务数，故用物理布局控制。",
+  "scaling": [
+    {
+      "month": "2025-01",
+      "rows": 3475226,
+      "elapsed_seconds": 231.352
+    },
+    {
+      "month": "2025-02",
+      "rows": 3577543,
+      "elapsed_seconds": 215.447
+    },
+    {
+      "month": "2025-03",
+      "rows": 4145257,
+      "elapsed_seconds": 244.342
+    },
+    {
+      "month": "2025-04",
+      "rows": 3970553,
+      "elapsed_seconds": 243.152
+    },
+    {
+      "month": "2025-05",
+      "rows": 4591845,
+      "elapsed_seconds": 264.478
+    },
+    {
+      "month": "2025-06",
+      "rows": 4322960,
+      "elapsed_seconds": 256.392
+    },
+    {
+      "month": "2025-07",
+      "rows": 3898963,
+      "elapsed_seconds": 230.76
+    },
+    {
+      "month": "2025-08",
+      "rows": 3574091,
+      "elapsed_seconds": 217.828
+    },
+    {
+      "month": "2025-09",
+      "rows": 4251015,
+      "elapsed_seconds": 253.47
+    },
+    {
+      "month": "2025-10",
+      "rows": 4428699,
+      "elapsed_seconds": 260.36
+    },
+    {
+      "month": "2025-11",
+      "rows": 4181444,
+      "elapsed_seconds": 242.24
+    },
+    {
+      "month": "2025-12",
+      "rows": 4305006,
+      "elapsed_seconds": 249.309
+    }
+  ],
+  "scaling_note": "12 个月独立作业，reducers=2、combiner 开启；耗时取原始管线运行记录"
+}

@@ -4,7 +4,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export HADOOP_CONF_DIR="$ROOT/.runtime/conf/master"
 source "$HADOOP_CONF_DIR/hadoop-env.sh"
 export PATH="$JAVA_HOME/bin:$HADOOP_HOME/bin:$PATH"
-MONTH="${1:?month}" RUN="${2:?run id}" REDUCERS="${3:-2}" COMBINE="${4:-1}" FAIL="${5:-0}"
+MONTH="${1:?month}" RUN="${2:?run id}" REDUCERS="${3:-2}" COMBINE="${4:-1}" FAIL="${5:-0}" MAPS="${6:-0}"
 [[ "$MONTH" =~ ^20[0-9]{2}-(0[1-9]|1[0-2])$ ]]
 [[ "$RUN" =~ ^[a-zA-Z0-9_-]+$ ]]
 [[ "$REDUCERS" =~ ^[1-8]$ ]]
@@ -24,6 +24,15 @@ if ! hdfs dfs -test -e "$HDFS_IN/_READY"; then
 fi
 EXTRA=()
 if [ "$COMBINE" = 1 ]; then EXTRA=(-combiner 'python3 reducer.py'); fi
+if [ "$MAPS" -gt 0 ]; then
+  # FileInputFormat ignores job.maps/maxsize hints for these 5.8MB files on 16MB
+  # blocks; CombineFileInputFormat + split.maxsize is the only knob that really
+  # moves the map count (down to 1, up to ~total/blocksize).
+  TOTAL_BYTES="$(hdfs dfs -du -s "$HDFS_IN" | awk '{print $1}')"
+  MAXSPLIT=$(( TOTAL_BYTES / MAPS ))
+  EXTRA+=(-inputformat org.apache.hadoop.mapred.lib.CombineFileInputFormat
+          -D "mapreduce.input.fileinputformat.split.maxsize=$MAXSPLIT")
+fi
 hadoop jar "$HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-3.4.2.jar" \
   -D "mapreduce.job.name=GeoFlow-$RUN" \
   -D "mapreduce.job.reduces=$REDUCERS" \

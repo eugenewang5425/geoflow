@@ -270,7 +270,7 @@ def dem():
 @app.get("/api/evidence")
 def evidence():
     reports = {}
-    for name in ("verification", "experiments", "year", "forecast"):
+    for name in ("verification", "experiments", "perf", "spark", "fault_demo", "year", "forecast"):
         path = ROOT / "evidence" / f"{name}.json"
         if path.exists():
             reports[name] = read_json(path)

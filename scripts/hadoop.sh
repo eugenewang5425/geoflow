@@ -113,6 +113,17 @@ case "${1-status}" in
     yarn --daemon stop nodemanager
     hdfs --daemon stop datanode
     ;;
+  stop-datanode)
+    [ -n "${2:-}" ] || { echo "Usage: hadoop.sh stop-datanode worker1|worker2" >&2; exit 2; }
+    node_env "$2"
+    hdfs --daemon stop datanode
+    ;;
+  start-datanode)
+    [ -n "${2:-}" ] || { echo "Usage: hadoop.sh start-datanode worker1|worker2" >&2; exit 2; }
+    node_env "$2"
+    hdfs --daemon start datanode
+    sleep 2
+    ;;
   dfs) shift; hdfs dfs "$@" ;;
   fsck) shift; hdfs fsck "$@" ;;
   yarn) shift; yarn "$@" ;;

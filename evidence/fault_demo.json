@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-09-05T21:03:52.317907+00:00",
+  "month": "2025-10",
+  "run_id": "fault-20260905T210223",
+  "job_succeeded_despite_node_loss": true,
+  "job_total_seconds": 75,
+  "kill_after_seconds": 50,
+  "mode": "DataNode-only kill: NodeManager 与容器不受影响，验证 HDFS 双副本读容错",
+  "worker1_restarted": true,
+  "cluster_healthy_after_restart": true,
+  "timeline": [
+    {
+      "t": 0,
+      "event": "submitted 2025-10 job (reducers=2, combiner=on)"
+    },
+    {
+      "t": 51,
+      "event": "killed worker1 DataNode (NodeManager keeps serving)",
+      "detail": "w\u0000s\u0000l\u0000:\u0000 \u0000�hKm0R \u0000l\u0000o\u0000c\u0000a\u0000l\u0000h\u0000o\u0000s\u0000t\u0000 \u0000�N\u0006tM�n\f�FO*g\\��P0R \u0000W\u0000S\u0000L\u0000\u00020N\u0000A\u0000T\u0000 \u0000!j\u000f_\u000bN�v \u0000W\u0000S\u0000L\u0000 \u0000\nN/e\u0001c \u0000l\u0000o\u0000c\u0000a\u0000l\u0000h\u0000o\u0000s\u0000t\u0000 \u0000�N\u0006t\u00020\n\u0000\n\u0000"
+    },
+    {
+      "t": 70,
+      "event": "dfsadmin report during outage: live DataNodes = 1, job keeps running",
+      "detail": "GeoFlow cluster online\nTotal Nodes:2\n         Node-Id\t     Node-State\tNode-Http-Address\tNumber-of-Running-Containers\n localhost:18041\t        RUNNING\t  localhost:18042\t                           0\n localhost:18051\t        RUNNING\t  localhost:18052\t                           0\nw\u0000s\u0000l\u0000:\u0000 \u0000�hKm0R \u0000l\u0000o\u0000c\u0000a\u0000l\u0000h\u0000o\u0000s\u0000t\u0000 \u0000�N\u0006tM�n\f�FO*g\\��P0R \u0000W\u0000S\u0000L\u0000\u00020N\u0000A\u0000T\u0000 \u0000!j\u000f_\u000bN�v \u0000W\u0000S\u0000L\u0000 \u0000\nN/e\u0001c \u0000l\u0000o\u0000c\u0000a\u0000l\u0000h\u0000o\u0000s\u0000t\u0000 \u0000�N\u0006t\u00020\n\u0000\n\u0000WARNING: YARN_LOG_DIR has been replaced by HADOOP_LOG_DIR. Using value of YARN_LOG_DIR.\nWARNING: YARN_PID_DIR has been replaced by HADOOP_PID_DIR. Using value of YARN_PID_DIR.\n2026-09-06 05:03:33,139 INFO client.DefaultNoHARMFailoverProxyProvider: Connecting to ResourceManager at /127.0.0.1:18032"
+    },
+    {
+      "t": 75,
+      "event": "job finished with returncode=0 -> SUCCEEDED despite node loss"
+    },
+    {
+      "t": 78,
+      "event": "restarted worker1",
+      "detail": "ed by HADOOP_LOG_DIR. Using value of YARN_LOG_DIR.\nWARNING: YARN_PID_DIR has been replaced by HADOOP_PID_DIR. Using value of YARN_PID_DIR.\nnodemanager is running as process 1005942.  Stop it first and ensure /mnt/d/项目/云计算/.runtime/pids/worker1/hadoop-eugen-nodemanager.pid file is empty before retry."
+    },
+    {
+      "t": 89,
+      "event": "cluster healthy again (2 live DataNodes + 2 NodeManagers): True"
+    }
+  ],
+  "conclusion": "输入块以双副本落盘：worker1 的 DataNode 被杀后，map 任务直接改读 worker2 上的副本，作业不中断、结果不变；DataNode 重启后集群恢复 2 副本。（若同时杀 NodeManager，AM 会在 worker2 重启并重跑 map，但单机 15GB 内存承受不了全量 JVM 重启风暴——这正是真多机部署要解决的问题。）"
+}

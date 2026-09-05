@@ -104,11 +104,24 @@
     <section id="experiments" class="view" hidden>
       <div class="kpis">
         <article><span>对照实验</span><strong>7 组</strong><small>reducers × combiner × 容错</small><div class="kpi-icon blue">▥</div></article>
+        <article><span>扩展性实验</span><strong id="exc-perf-count">4 组</strong><small>Map 粒度 + 12 月弱扩展</small><div class="kpi-icon teal">↗</div></article>
         <article><span>一致性校验</span><strong id="exc-exact">—</strong><small>独立聚合逐键比对</small><div class="kpi-icon purple">✓</div></article>
+        <article><span>引擎对比</span><strong id="exc-engine">MR vs Spark</strong><small>同一聚合两种引擎</small><div class="kpi-icon amber">⚡</div></article>
       </div>
       <div class="analysis-grid">
         <article class="panel"><div class="panel-heading"><div><h2>作业记录</h2><p>YARN 作业与运行状态</p></div><span class="tag">RUNS</span></div><div class="table-wrap"><table id="runs" class="table"></table></div></article>
         <article class="panel"><div class="panel-heading"><div><h2>验证证据</h2><p>顺序参考 vs Hadoop 输出</p></div></div><div id="evidence" class="evidence-grid"></div></article>
+      </div>
+      <div class="analysis-grid" style="margin-top:20px">
+        <article class="panel"><div class="panel-heading"><div><h2>扩展性 · Map 任务粒度</h2><p>同一作业 · split.maxsize 决定 Map 任务数 · 2025-01 全月</p></div><span class="tag">MAP SWEEP</span></div><div id="chart-perf-map" class="chart big"></div></article>
+        <article class="panel"><div class="panel-heading"><div><h2>Combiner 开关对比</h2><p>reducers × combiner on/off 净耗时</p></div><span class="tag">COMBINE</span></div><div id="chart-perf-combiner" class="chart big"></div></article>
+      </div>
+      <div class="analysis-grid" style="margin-top:20px">
+        <article class="panel"><div class="panel-heading"><div><h2>弱扩展 · 数据量 × 耗时</h2><p>12 个月独立作业 · reducers=2 · combiner 开启</p></div><span class="tag">SCALING</span></div><div id="chart-perf-scale" class="chart big"></div></article>
+        <article class="panel"><div class="panel-heading"><div><h2>引擎对比 · MR vs Spark</h2><p>同一聚合 · 同一 HDFS 输入 · 同一校验规则</p></div><span class="tag">VS</span></div><div class="table-wrap"><table id="engine-table" class="table"></table></div><p class="muted" id="engine-note" style="padding:0 22px 18px;margin:0"></p></article>
+      </div>
+      <div class="analysis-grid" style="margin-top:20px;grid-template-columns:1fr">
+        <article class="panel"><div class="panel-heading"><div><h2>容错演示 · 单点故障下的作业存活</h2><p>作业运行中终止 worker1 的 DataNode（双副本容错）→ 观察作业结果与集群自愈</p></div><span class="tag">FAULT</span></div><div id="fault-evidence" class="evidence-grid" style="margin:0 22px 8px"></div><div id="fault-timeline" style="padding:0 22px 20px"></div></article>
       </div>
     </section>
 
@@ -138,6 +151,6 @@
 </main>
 <script src="/static/vendor/echarts.min.js?v=20260904l"></script>
 <script src="/static/vendor/echarts-gl.min.js?v=20260904l"></script>
-<script src="/static/app.js?v=20260906g"></script>
+<script src="/static/app.js?v=20260906i"></script>
 </body>
 </html>

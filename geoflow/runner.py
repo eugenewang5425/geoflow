@@ -26,7 +26,7 @@ def script_command(script, *args):
     return prefix + ["bash", linux_path(path), *map(str, args)]
 
 
-def run_job(month="2025-01", reducers=2, combiner=True, fail_first=False, run_id=None):
+def run_job(month="2025-01", reducers=2, combiner=True, fail_first=False, run_id=None, map_tasks=0):
     if DATA.resolve() != (ROOT / "data").resolve():
         raise ValueError("WSL runner currently requires the project data/ directory")
     run_id = run_id or datetime.now(UTC).strftime("%Y%m%dT%H%M%S") + "-" + uuid.uuid4().hex[:6]

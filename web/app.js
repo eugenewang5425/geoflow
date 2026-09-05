@@ -79,7 +79,68 @@ $("cluster-start").onclick = () => clusterAction("start");
 $("cluster-stop").onclick = () => clusterAction("stop");
 $("node-console").addEventListener("click", e => { const b = e.target.closest("button[data-act]"); if (b && !b.disabled) clusterAction(b.dataset.act, b.dataset.node); });
 function refreshRuns() { return get("/api/runs").then(data => { $("runs").innerHTML = "<thead><tr><th>作业 ID</th><th>状态</th><th>Reducer</th><th>Combiner</th><th>耗时</th></tr></thead><tbody>" + data.runs.map(r => "<tr><td>" + escapeHtml(r.run_id) + "<small>" + escapeHtml(r.job_id || "尚无作业 ID") + "</small></td><td><span class=\"status " + escapeHtml(r.status) + "\">" + escapeHtml(r.status) + "</span></td><td>" + r.reducers + "</td><td>" + (r.combiner ? "开启" : "关闭") + "</td><td>" + (r.elapsed_seconds != null ? r.elapsed_seconds + " s" : "—") + "</td></tr>").join("") + "</tbody>"; return data.current; }); }
-async function refreshEvidence() { const e = await get("/api/evidence"); const v = e.verification; $("evidence").innerHTML = v ? "<div class=\"evidence-grid\"><div class=\"evidence-card\"><strong>" + (v.exact_match ? "完全一致" : "存在差异") + "</strong><span>单进程参考结果 vs Hadoop 输出</span></div><div class=\"evidence-card\"><strong>" + fmt(v.compared_keys) + "</strong><span>逐键核对的聚合结果</span></div><div class=\"evidence-card\"><strong>" + fmt(v.input_rows) + "</strong><span>真实输入行数</span></div></div>" : "<p class=\"muted\">对照实验尚未运行；不展示推测结果。</p>"; $("exc-exact").textContent = v ? ("核对 " + fmt(v.compared_keys) + " 键") : "—"; }
+function fmtSeconds(v) { return v == null ? "—" : (Math.round(v * 10) / 10) + " s"; }
+function renderPerf(perf, experiments) {
+  if (!perf) { ["chart-perf-map", "chart-perf-combiner", "chart-perf-scale"].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = "<p class=\"muted\" style=\"padding:20px\">性能实验数据尚未生成，运行 scripts/perf_experiments.py。</p>"; }); return; }
+  const sweep = (perf.map_sweep || []).filter(s => s.map_tasks);
+  chart("chart-perf-map").setOption({
+    grid: { left: 58, right: 24, top: 42, bottom: 52 },
+    legend: { data: ["作业净耗时"], top: 0, textStyle: { fontSize: 10 } },
+    tooltip: { trigger: "axis", formatter: function (ps) { const d = sweep[ps[0].dataIndex]; return ps.map(p => p.marker + p.seriesName + ": " + p.value + " s").join("<br/>") + "<br/>目标 Map 数 " + d.map_hint + "（CombineFileInputFormat 切分）"; } },
+    xAxis: { type: "category", data: sweep.map(s => s.map_tasks + " maps"), name: "Map 任务数", nameLocation: "middle", nameGap: 30 },
+    yAxis: { type: "value", name: "秒", splitLine: { lineStyle: { color: "#eef2f7" } } },
+    series: [{ name: "作业净耗时", type: "bar", data: sweep.map(s => +(s.job_seconds || 0).toFixed(1)), itemStyle: { color: "#4c7dd8", borderRadius: [3, 3, 0, 0] }, barMaxWidth: 44, label: { show: true, position: "top", fontSize: 10 } }]
+  });
+  const runs = ((experiments && experiments.runs) || []).filter(r => !r.fail_first && r.status === "SUCCEEDED");
+  const reds = [1, 2, 4];
+  const pick = (r, on) => { const x = runs.find(v => v.reducers === r && v.combiner === on); if (!x) return null; return +(x.job_elapsed_seconds || x.elapsed_seconds).toFixed(1); };
+  chart("chart-perf-combiner").setOption({
+    grid: { left: 58, right: 24, top: 42, bottom: 40 },
+    legend: { data: ["combiner 开", "combiner 关"], top: 0, textStyle: { fontSize: 10 } },
+    tooltip: { trigger: "axis" },
+    xAxis: { type: "category", data: reds.map(r => r + " reducer"), nameLocation: "middle", nameGap: 30, name: "Reduce 任务数" },
+    yAxis: { type: "value", name: "净耗时/秒", splitLine: { lineStyle: { color: "#eef2f7" } } },
+    series: [{ name: "combiner 开", type: "bar", data: reds.map(r => pick(r, true)), itemStyle: { color: "#54acaa", borderRadius: [3, 3, 0, 0] }, barMaxWidth: 40, label: { show: true, position: "top", fontSize: 10 } },
+             { name: "combiner 关", type: "bar", data: reds.map(r => pick(r, false)), itemStyle: { color: "#d9a634", borderRadius: [3, 3, 0, 0] }, barMaxWidth: 40, label: { show: true, position: "top", fontSize: 10 } }]
+  });
+  const scaling = perf.scaling || [];
+  chart("chart-perf-scale").setOption({
+    grid: { left: 62, right: 66, top: 46, bottom: 44 },
+    legend: { data: ["有效出行(百万)", "总耗时(秒)"], top: 0, textStyle: { fontSize: 10 } },
+    tooltip: { trigger: "axis" },
+    xAxis: { type: "category", data: scaling.map(s => s.month.slice(5) + "月") },
+    yAxis: [{ type: "value", name: "百万次", splitLine: { lineStyle: { color: "#eef2f7" } } },
+            { type: "value", name: "秒", splitLine: { show: false } }],
+    series: [{ name: "有效出行(百万)", type: "bar", data: scaling.map(s => +((s.rows || 0) / 1e6).toFixed(2)), itemStyle: { color: "#a9c7ec", borderRadius: [3, 3, 0, 0] }, barMaxWidth: 34 },
+             { name: "总耗时(秒)", type: "line", yAxisIndex: 1, data: scaling.map(s => +(s.elapsed_seconds || 0).toFixed(1)), lineStyle: { color: "#d8584c", width: 2.5 }, symbol: "circle", symbolSize: 7, itemStyle: { color: "#d8584c" } }]
+  });
+  $("exc-perf-count").textContent = sweep.length + " 组";
+}
+function renderEngine(spark) {
+  const body = id => { const el = document.getElementById(id); return el ? el : null; };
+  if (!spark) { $("engine-table").innerHTML = "<tbody><tr><td>引擎对比数据尚未生成，运行 scripts/spark_compare.py。</td></tr></tbody>"; return; }
+  const mr = spark.mapreduce || {}, sp = spark.spark || {};
+  const rows = [
+    ["作业口径", mr.engine || "—", sp.engine || "—"],
+    ["作业净耗时", fmtSeconds(mr.job_elapsed_seconds), "计算 " + fmtSeconds(sp.warm_compute_seconds)],
+    ["总墙钟(含启动)", fmtSeconds(mr.total_elapsed_seconds), "冷启动 " + fmtSeconds(sp.cold_wall_seconds) + " · 热跑 " + fmtSeconds(sp.warm_wall_seconds)],
+    ["聚合键数", "16.8 万键（已逐键校验）", (sp.result_keys != null ? fmt(sp.result_keys) + " 键" : "—") + "（有效 " + (sp.valid_rows != null ? fmt(sp.valid_rows) : "—") + " 行）"],
+    ["结果一致性", "四维计数守恒 ✓", spark.consistent_with_mapreduce_output ? "与 MR 输出逐行一致 ✓" : "未校验"],
+    ["相对速度", "基线", "作业净耗时口径 ×" + (spark.speedup_job_vs_warm || "—")]
+  ];
+  $("engine-table").innerHTML = "<thead><tr><th>指标</th><th>MapReduce Streaming</th><th>Spark " + (spark.spark_version || "") + "</th></tr></thead><tbody>" + rows.map(r => "<tr><td>" + r[0] + "</td><td>" + r[1] + "</td><td>" + r[2] + "</td></tr>").join("") + "</tbody>";
+  $("engine-note").textContent = spark.note || "";
+  $("exc-engine").textContent = spark.speedup_job_vs_warm ? "×" + spark.speedup_job_vs_warm : "MR vs Spark";
+}
+function renderFault(fault) {
+  const box = $("fault-evidence");
+  if (!fault) { box.innerHTML = "<p class=\"muted\" style=\"padding:8px 0\">容错演示尚未运行，运行 scripts/fault_demo.py。</p>"; $("fault-timeline").textContent = ""; return; }
+  box.innerHTML = "<div class=\"evidence-card\"><strong>" + (fault.job_succeeded_despite_node_loss ? "作业成功 ✓" : "作业失败 ✗") + "</strong><span>kill worker1 后作业最终状态</span></div>"
+    + "<div class=\"evidence-card\"><strong>" + fault.job_total_seconds + " s</strong><span>含节点故障恢复的作业总耗时（" + fault.month + " 全月）</span></div>"
+    + "<div class=\"evidence-card\"><strong>" + (fault.cluster_healthy_after_restart ? "已自愈 ✓" : "未恢复") + "</strong><span>worker1 重启后 2 DN + 2 NM</span></div>";
+  $("fault-timeline").innerHTML = "<div class=\"insight\"><span>时间线</span><p>" + (fault.timeline || []).map(t => "t+" + t.t + "s · " + t.event).join("<br/>") + "</p><p>" + (fault.conclusion || "") + "</p></div>";
+}
+async function refreshEvidence() { const e = await get("/api/evidence"); const v = e.verification; $("evidence").innerHTML = v ? "<div class=\"evidence-grid\"><div class=\"evidence-card\"><strong>" + (v.exact_match ? "完全一致" : "存在差异") + "</strong><span>单进程参考结果 vs Hadoop 输出</span></div><div class=\"evidence-card\"><strong>" + fmt(v.compared_keys) + "</strong><span>逐键核对的聚合结果</span></div><div class=\"evidence-card\"><strong>" + fmt(v.input_rows) + "</strong><span>真实输入行数</span></div></div>" : "<p class=\"muted\">对照实验尚未运行；不展示推测结果。</p>"; $("exc-exact").textContent = v ? ("核对 " + fmt(v.compared_keys) + " 键") : "—"; renderPerf(e.perf, e.experiments); renderEngine(e.spark); renderFault(e.fault_demo); }
 document.querySelectorAll(".nav").forEach(button => button.onclick = async () => { document.querySelectorAll(".view").forEach(v => v.hidden = v.id !== button.dataset.view); document.querySelectorAll(".nav").forEach(b => b.classList.toggle("active", b === button)); try { if (button.dataset.view === "experiments") await Promise.all([refreshRuns(), refreshEvidence()]); if (button.dataset.view === "architecture") await refreshCluster(); if (button.dataset.view === "year") await renderYear(); if (button.dataset.view === "od") await renderOd(); if (button.dataset.view === "d3") await renderD3(); if (button.dataset.view === "forecast") await renderForecast(); attachZoom(); resizeCharts(); } catch (e) { notice(e.message, true); } });
 $("hour").addEventListener("input", updateHour); $("hour").addEventListener("change", refreshAnalysis); $("borough").addEventListener("change", refreshAnalysis); $("month").addEventListener("change", refreshAnalysis); $("d3-month").addEventListener("change", () => renderD3().catch(e => notice(e.message, true))); $("d3-sync").addEventListener("change", () => setGLView($("d3-sync").checked)); $("d3-alpha").addEventListener("input", () => setGLView($("d3-sync").checked)); $("d3-beta").addEventListener("input", () => setGLView($("d3-sync").checked)); $("d3-dist").addEventListener("input", () => setGLView($("d3-sync").checked)); $("d3-preset").addEventListener("change", () => d3Preset());
 $("d3-layer-dem").addEventListener("change", () => { if (charts["chart-scatter3d"]) charts["chart-scatter3d"].setOption({ series: [{ id: "dem3d", data: $("d3-layer-dem").checked ? buildDem3DPoints() : [] }] }); });
