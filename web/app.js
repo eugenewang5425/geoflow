@@ -61,18 +61,20 @@ let __flowBoroughs = null;
 function renderDemMap() {
   if (!demData) return;
   const NX = demData.lons.length, NY = demData.lats.length;
-  const step = Math.max(1, Math.floor(NX / 96));
+  const step = 2;
   const xs = [], ys = [], data = [];
   for (let i = 0; i < NX; i += step) xs.push(demData.lons[i]);
   for (let j = 0; j < NY; j += step) ys.push(demData.lats[j]);
   for (let j = 0; j < NY; j += step) for (let i = 0; i < NX; i += step) data.push([demData.lons[i], demData.lats[j], demData.grid[j][i]]);
+  const box = document.getElementById("chart-demmap");
+  const cellW = Math.max(4, Math.round((box.clientWidth - 68 - 42) / xs.length * 1.3));
+  const cellH = Math.max(3, Math.round((box.clientHeight - 34 - 66) / ys.length * 1.3));
   chart("chart-demmap").setOption({
-    grid: { left: 68, right: 42, top: 34, bottom: 52 },
+    grid: { left: 68, right: 42, top: 34, bottom: 66 },
     xAxis: { type: "value", min: demData.bbox[0], max: demData.bbox[2], name: "经度", nameLocation: "middle", nameGap: 26, axisLabel: { fontSize: 10, margin: 10 } },
     yAxis: { type: "value", min: demData.bbox[1], max: demData.bbox[3], name: "纬度", nameLocation: "middle", nameGap: 34, axisLabel: { fontSize: 10, margin: 10 } },
-    visualMap: { min: 0, max: 280, calculable: true, orient: "horizontal", left: "center", bottom: 0, inRange: { color: ["#bcd6ec", "#b9d9b3", "#a9c9a0", "#c9b791", "#b29a74"] }, text: ["高", "低"], textStyle: { color: "#666" } },
     tooltip: { formatter: function (p2) { return p2.value[0].toFixed(3) + ", " + p2.value[1].toFixed(3) + "<br/>高程 " + p2.value[2] + " m"; } },
-    series: [{ type: "scatter", symbolSize: 3.2, data: data, progressive: 0, animation: false, itemStyle: { color: function (p2) { const e = p2.value[2]; return e <= 1.5 ? "#bcd6ec" : e <= 45 ? "#b9d9b3" : e <= 120 ? "#a9c9a0" : e <= 220 ? "#c9b791" : "#b29a74"; } } }]
+    series: [{ type: "scatter", symbol: "rect", symbolSize: [cellW, cellH], data: data, progressive: 0, animation: false, itemStyle: { color: function (p2) { const e = p2.value[2]; return e <= 1.5 ? "#bcd6ec" : e <= 45 ? "#b9d9b3" : e <= 120 ? "#a9c9a0" : e <= 220 ? "#c9b791" : "#b29a74"; } } }]
   });
 }
 function renderBoroughFlow() {
@@ -137,7 +139,7 @@ async function renderD3() {
   for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const e = demData.grid[j][i]; demPts.push({ value: [demData.lons[i], demData.lats[j], Math.round(e * 0.02 * 100) / 100], itemStyle: { color: e <= 1.5 ? "#cfdcea" : e <= 45 ? "#b9d9b3" : e <= 120 ? "#a9c9a0" : e <= 220 ? "#c9b791" : "#b29a74" } }); }
   const elevOf = (lon, lat) => demElev(demData.lons, demData.lats, demData.grid, nx, ny, lon, lat);
   if (!geo._mapped3) { echarts.registerMap("nyc", geo); geo._mapped3 = true; }
-  const colTrips = t => { const r = Math.min(1, t / maxv); if (r < 0.25) return "rgb(157,192,234)"; if (r < 0.5) return "rgb(76,125,216)"; if (r < 0.75) return "rgb(139,111,216)"; if (r < 0.92) return "rgb(176,64,154)"; return "rgb(216,88,76)"; };
+  const colTrips = t => { const r = Math.min(1, Math.log1p(t) / Math.log1p(maxv)); if (r < 0.25) return "rgb(157,192,234)"; if (r < 0.5) return "rgb(76,125,216)"; if (r < 0.75) return "rgb(139,111,216)"; if (r < 0.92) return "rgb(176,64,154)"; return "rgb(216,88,76)"; };
   const zoneRegions = geo.features.map(f => ({ name: f.properties.name, itemStyle: { color: colTrips(valueOf(f.properties.id)) } }));
   window.__zoneRegions = zoneRegions;
   try {
@@ -162,7 +164,8 @@ async function renderD3() {
     chart("chart-surface").setOption({ grid3D: { boxWidth: 130, boxDepth: 95, viewControl: { alpha: 38, beta: 22, distance: 190 } }, xAxis3D: { type: "value", name: "小时", min: 0, max: 23, axisLabel: { fontSize: 9 } }, yAxis3D: { type: "value", name: "星期", min: 0, max: 6, axisLabel: { formatter: function (v) { return ["周一", "周二", "周三", "周四", "周五", "周六", "周日"][Math.round(v)]; }, fontSize: 9 } }, zAxis3D: { type: "value", name: "千次", axisLabel: { fontSize: 9 } }, visualMap: { min: 0, max: sMax, inRange: { color: ["#d6e8f8", "#4c7dd8", "#8b6fd8", "#d8584c"] }, text: ["高", "低"], orient: "horizontal", left: "center", bottom: 4, textStyle: { color: "#666" }, calculable: true }, series: [{ type: "surface", data: sdata, shading: "lambert", wireframe: { show: false } }] });
     const legBox = $("d3-leg"); legBox.replaceChildren();
     const legLevels = [["较低", "#9dc0ea"], ["中", "#4c7dd8"], ["较高", "#8b6fd8"], ["高", "#b0409a"], ["峰值", "#d8584c"]];
-    legLevels.forEach(lv => { const c = document.createElement("span"); c.className = "chip"; c.innerHTML = "<i style=\"background:" + lv[1] + "\"></i>" + lv[0] + "(" + (month ? "该月" : "全年") + "≤" + fmtk(maxv) + ")"; legBox.appendChild(c); });
+    legLevels.forEach(lv => { const c = document.createElement("span"); c.className = "chip"; c.innerHTML = "<i style=\"background:" + lv[1] + "\"></i>" + lv[0]; legBox.appendChild(c); });
+    const note = document.createElement("span"); note.className = "chip"; note.textContent = (month ? "该月" : "全年") + " · 对数色阶"; legBox.appendChild(note);
 
     setGLView($("d3-sync").checked);
   } catch (e) {
