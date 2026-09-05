@@ -1,5 +1,7 @@
 import csv
 import io
+import json
+import subprocess
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
@@ -14,7 +16,7 @@ from pydantic import BaseModel, Field
 from .config import DATA, RESULTS, ROOT
 from .io import atomic_json, read_json
 from .results import summarize
-from .runner import run_job
+from .runner import run_job, script_command
 
 
 def _reconcile_interrupted():
@@ -89,9 +91,13 @@ def export(hour: int | None = Query(None, ge=0, le=23), borough: str | None = No
                     headers={"Content-Disposition": 'attachment; filename="geoflow-zones.csv"'})
 
 
+WORKER_PORTS = {"19866": "worker1", "19876": "worker2", "18041": "worker1", "18051": "worker2"}
+
+
 @app.get("/api/cluster")
 def cluster():
-    result = {"online": False, "physical_hosts": 1, "mode": "WSL 单机多节点", "nodes": []}
+    result = {"online": False, "physical_hosts": 1, "mode": "WSL 单机多节点",
+              "nodes": [], "datanodes": [], "apps": [], "action": cluster_action}
     with httpx.Client(timeout=2, trust_env=False) as client:
         try:
             response = client.get("http://127.0.0.1:18088/ws/v1/cluster/metrics")
@@ -99,8 +105,14 @@ def cluster():
             result["yarn"] = response.json()["clusterMetrics"]
             response = client.get("http://127.0.0.1:18088/ws/v1/cluster/nodes")
             response.raise_for_status()
-            result["nodes"] = (response.json().get("nodes") or {}).get("node", [])
+            result["nodes"] = [{**n, "worker": WORKER_PORTS.get(str(n.get("id", "")).rsplit(":", 1)[-1], "?")}
+                               for n in (response.json().get("nodes") or {}).get("node", [])]
             result["online"] = result["yarn"].get("activeNodes", 0) > 0
+            response = client.get("http://127.0.0.1:18088/ws/v1/cluster/apps",
+                                  params={"states": "RUNNING,ACCEPTED,SUBMITTED"})
+            response.raise_for_status()
+            apps = (response.json().get("apps") or {}).get("app", []) or []
+            result["apps"] = sorted(apps, key=lambda a: a.get("startTime", 0))[-8:]
         except (httpx.HTTPError, KeyError, ValueError):
             result["yarn_error"] = "YARN 不可达或未启动"
         try:
@@ -108,9 +120,62 @@ def cluster():
                                   params={"qry": "Hadoop:service=NameNode,name=FSNamesystemState"})
             response.raise_for_status()
             result["hdfs"] = response.json()["beans"][0]
+            response = client.get("http://127.0.0.1:19870/jmx",
+                                  params={"qry": "Hadoop:service=NameNode,name=NameNodeInfo"})
+            response.raise_for_status()
+            live = json.loads(response.json()["beans"][0].get("LiveNodes") or "{}")
+            result["datanodes"] = [{
+                "worker": WORKER_PORTS.get(str(info.get("name") or key).rsplit(":", 1)[-1], key),
+                "host": (info.get("name") or key).split(":")[0],
+                "state": info.get("adminState", "NORMAL"),
+                "capacity": info.get("capacity", 0),
+                "used": info.get("used", 0),
+                "remaining": info.get("remaining", 0),
+                "last_contact": info.get("lastContact", -1),
+            } for key, info in live.items()]
         except (httpx.HTTPError, KeyError, IndexError, ValueError):
             result["hdfs_error"] = "NameNode 不可达或未启动"
     return result
+
+
+cluster_action = {"action": None, "status": "IDLE", "detail": "",
+                  "started_at": None, "finished_at": None}
+_action_lock = threading.Lock()
+cluster_executor = ThreadPoolExecutor(max_workers=1)
+
+
+class ClusterAction(BaseModel):
+    action: str = Field(pattern="^(start|stop|start-node|stop-node)$")
+    node: str | None = Field(None, pattern="^worker[12]$")
+
+
+def _run_cluster_action(action: str, node: str | None):
+    args = (action, node) if node else (action,)
+    try:
+        proc = subprocess.run(script_command("hadoop.sh", *args), capture_output=True,
+                              text=True, cwd=ROOT, timeout=420, check=False)
+        ok = proc.returncode == 0
+        tail = "\n".join((proc.stdout + proc.stderr).splitlines()[-12:])
+        cluster_action.update(status="SUCCEEDED" if ok else "FAILED",
+                              finished_at=datetime.now(UTC).isoformat(),
+                              detail=tail.strip()[-1200:])
+    except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
+        cluster_action.update(status="FAILED", finished_at=datetime.now(UTC).isoformat(),
+                              detail=str(exc))
+
+
+@app.post("/api/cluster/action")
+def cluster_action_endpoint(payload: ClusterAction):
+    if payload.action in ("start-node", "stop-node") and not payload.node:
+        raise HTTPException(422, "节点操作需要指定 worker1 或 worker2")
+    with _action_lock:
+        if cluster_action["status"] == "RUNNING":
+            raise HTTPException(409, "已有集群指令在执行中，请等待完成")
+        cluster_executor.submit(_run_cluster_action, payload.action, payload.node)
+        cluster_action.update(action=payload.action + (" " + payload.node if payload.node else ""),
+                              status="RUNNING", detail="",
+                              started_at=datetime.now(UTC).isoformat(), finished_at=None)
+    return {"accepted": True, "action": cluster_action["action"]}
 
 
 @app.get("/api/runs")

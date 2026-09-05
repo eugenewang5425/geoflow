@@ -73,11 +73,11 @@
 
     <section id="d3" class="view" hidden>
       <div class="filterbar"><div class="dataset"><span class="dataset-icon">◧</span><div><strong>3D 全景</strong><span>区域多边形底图 · 柱体立于所属区域 · 颜色 = 规模（可叠加 DEM 点云）</span></div></div><div class="filters"><label>月份 <select id="d3-month"><option value="">全年</option></select></label><span class="filter-divider"></span><span id="d3-caption">全年合计 · 单位：千次</span></div></div>
-    <div class="toolbar"><label class="sync"><input type="checkbox" id="d3-layer-dem" checked> DEM 高程点云</label><label class="sync"><input type="checkbox" id="d3-layer-towers" checked> 需求着色</label><label class="sync"><input type="checkbox" id="d3-layer-flow" checked> OD 交通流</label><span class="filter-divider"></span><label class="sync"><input type="checkbox" id="d3-sync" checked> 方向同步</label><label>预设 <select id="d3-preset"><option value="iso">等角（环视）</option><option value="top">俯视</option><option value="side">平视</option></select></label><label>方位α <input type="range" id="d3-alpha" min="0" max="360" value="50"></label><label>仰角β <input type="range" id="d3-beta" min="0" max="90" value="45"></label><label>距离 <input type="range" id="d3-dist" min="80" max="320" value="160"></label></div>
+    <div class="toolbar"><label class="sync"><input type="checkbox" id="d3-layer-dem" checked> DEM 高程点云（3D）</label><label class="sync"><input type="checkbox" id="d3-layer-towers" checked> 需求着色</label><span class="filter-divider"></span><label class="sync"><input type="checkbox" id="d3-sync" checked> 方向同步</label><label>预设 <select id="d3-preset"><option value="iso">等角（环视）</option><option value="top">俯视</option><option value="side">平视</option></select></label><label>方位α <input type="range" id="d3-alpha" min="0" max="360" value="50"></label><label>仰角β <input type="range" id="d3-beta" min="0" max="90" value="45"></label><label>距离 <input type="range" id="d3-dist" min="80" max="320" value="160"></label></div>
       <div class="analysis-grid">
         <article class="panel"><div class="panel-heading"><div><h2>城市需求立体映射</h2><p>分区柱体投影 · 可拖动旋转缩放</p></div><span class="tag">MAP3D + BAR</span></div><div id="chart-scatter3d" class="chart tall"></div><div id="d3-leg" class="leg-chips"></div></article>
       </div>
-      <div class="analysis-grid"><article class="panel"><div class="panel-heading"><div><h2>OD 交通流 · 行政区走廊（全量）</h2><p>全区县全量 · 弧线 = 跨区流量 · 颜色 = 出发区 · 节点 = 跨区总量</p></div><span class="tag">FLOW</span></div><div id="chart-flow3d" class="chart tall"></div><div class="panel-heading" style="margin-top:6px"><div><h2>DEM 高程平面</h2><p>与弧线图同一经纬坐标 · 海=蓝(≤1.5m) · 陆=绿(≤45/120m) · 高地=棕(≤220m+)</p></div></div><div id="chart-demmap" class="chart tall"></div></article></div>
+      <div class="analysis-grid"><article class="panel"><div class="panel-heading"><div><h2>OD 交通流 · 行政区走廊（全量）</h2><p>全区县全量 · 弧线 = 跨区流量 · 颜色 = 出发区 · 节点 = 跨区总量</p></div><span class="tag">FLOW</span></div><div id="chart-flow3d" class="chart tall"></div></article></div>
       <div class="analysis-grid">
         <article class="panel"><div class="panel-heading"><div><h2>区域 × 小时 3D 矩阵</h2><p>TOP 20 热门区域</p></div></div><div id="chart-bar3d" class="chart tall"></div></article>
         <article class="panel"><div class="panel-heading"><div><h2>星期 × 小时 3D 曲面</h2><p>全年需求地形</p></div></div><div id="chart-surface" class="chart tall"></div></article>
@@ -114,7 +114,7 @@
 
     <section id="architecture" class="view" hidden>
       <div class="analysis-grid">
-        <article class="panel"><div class="panel-heading"><div><h2>集群状态</h2><p>HDFS 与 YARN 实时指标</p></div></div><div id="cluster" class="cluster-grid"></div></article>
+        <article class="panel"><div class="panel-heading"><div><h2>集群状态</h2><p>HDFS 与 YARN 实时指标</p></div></div><div id="cluster" class="cluster-grid"></div><p class="muted" id="console-summary" style="margin-top:8px"></p></article>
         <article class="panel"><div class="panel-heading"><div><h2>数据管线</h2><p>公开数据 → 分布式统计 → 可视化与预测</p></div></div><div class="pipe-flow">
   <div class="stage"><span class="stage-ico">🗄</span><div><strong>数据接入</strong><span>TLC 公开 Parquet → 36 个 CSV 分片/月 · manifest + SHA-256 校验 · 12 个月</span></div></div>
   <div class="stage-next">↓</div>
@@ -127,11 +127,17 @@
   <div class="stage"><span class="stage-ico">▣</span><div><strong>服务与可视化</strong><span>FastAPI + Web：统计面板 · 2D 图表 · 3D 地形 · 需求预测（日历 + 天气 + 滞后特征）</span></div></div>
 </div></article>
       </div>
+      <div class="analysis-grid">
+        <article class="panel"><div class="panel-heading"><div><h2>节点检测台</h2><p>WSL2 单机多节点 · 指标 10 秒轮询 · 支持集群与单节点启停</p></div><span class="tag">CONSOLE</span></div><div class="toolbar" style="margin-bottom:8px"><button class="btn primary" id="cluster-start">▶ 启动集群</button><button class="btn" id="cluster-stop">■ 停止集群</button><span class="filter-divider"></span><label class="sync"><input type="checkbox" id="auto-refresh" checked> 自动刷新</label><span id="cluster-action-state" style="font-size:12px;font-weight:600"></span></div><div class="table-wrap"><table id="node-console" class="table"></table></div><div class="panel-heading" style="margin-top:12px"><div><h2>YARN 应用</h2><p>提交 / 接受 / 运行中的作业</p></div></div><div class="table-wrap"><table id="yarn-apps" class="table"></table></div></article>
+      </div>
+      <div class="analysis-grid">
+        <article class="panel"><div class="panel-heading"><div><h2>部署架构 · 数据流全景</h2><p>Windows 宿主 → WSL2 集群 → 服务层 → 浏览器展示</p></div><span class="tag">ARCH</span></div><div style="overflow-x:auto;padding:6px 2px"><img src="/static/arch-diagram.svg" alt="GeoFlow 部署架构与数据流图" style="min-width:1024px;width:100%;height:auto;display:block" /></div></article>
+      </div>
     </section>
   </div>
 </main>
 <script src="/static/vendor/echarts.min.js?v=20260904l"></script>
 <script src="/static/vendor/echarts-gl.min.js?v=20260904l"></script>
-<script src="/static/app.js?v=20260906d"></script>
+<script src="/static/app.js?v=20260906g"></script>
 </body>
 </html>

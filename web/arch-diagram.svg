@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 700" font-family="'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#9db4cd"/>
+    </marker>
+  </defs>
+  <style>
+    .box { fill: #f7fafc; stroke: #c9d6e4; stroke-width: 1.4; rx: 8; }
+    .band { fill: #ffffff; stroke: #c9d6e4; stroke-width: 1.4; rx: 10; }
+    .t1 { font-size: 15px; font-weight: 700; fill: #2e3a4c; }
+    .t2 { font-size: 12px; fill: #64788e; }
+    .t3 { font-size: 11px; fill: #8395a9; }
+    .tag { font-size: 10px; font-weight: 700; letter-spacing: 1px; fill: #9aa7b5; }
+    .flow { stroke: #9db4cd; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+    .lbl { font-size: 10.5px; fill: #64788e; }
+  </style>
+
+  <!-- 展示层 -->
+  <rect class="band" x="20" y="14" width="1110" height="86"/>
+  <text class="tag" x="40" y="36">BROWSER · 展示层</text>
+  <text class="t1" x="40" y="60">浏览器 Dashboard（单页应用）</text>
+  <text class="t2" x="40" y="82">2D SVG / ECharts 图表 · 3D geo3D 分区着色 + DEM 高程点云 · OD 弧线走廊 · LightGBM 预测视图 · 节点检测台</text>
+  <text class="t3" x="1080" y="60" text-anchor="end">app.js + index.html</text>
+
+  <line class="flow" x1="575" y1="100" x2="575" y2="128"/>
+  <text class="lbl" x="590" y="118">HTTP :8765 · /api/* + /static</text>
+
+  <!-- 服务层 -->
+  <rect class="band" x="20" y="130" width="1110" height="86"/>
+  <text class="tag" x="40" y="152">WINDOWS 11 宿主 · 服务层</text>
+  <text class="t1" x="40" y="176">FastAPI (uvicorn) + LightGBM 预测</text>
+  <text class="t2" x="40" y="198">/api/analysis /api/year /api/od /api/dem /api/forecast /api/cluster(+action) · Hadoop 作业编排 runner.py · 结果校验 verify_result.py</text>
+  <text class="t3" x="1080" y="176" text-anchor="end">python -m geoflow serve</text>
+
+  <line class="flow" x1="575" y1="216" x2="575" y2="244"/>
+  <text class="lbl" x="590" y="234">JMX 127.0.0.1:19870 · YARN REST :18088 · HDFS RPC :9000（WSL2 端口转发）</text>
+
+  <!-- WSL2 集群 -->
+  <rect class="band" x="20" y="246" width="1110" height="212" style="stroke:#7fae74"/>
+  <text class="tag" x="40" y="268" style="fill:#5b8f60">WSL2 UBUNTU-24.04 · 计算与存储层（单机多节点）</text>
+  <!-- master -->
+  <rect class="box" x="40" y="282" width="330" height="132" rx="8"/>
+  <text class="t1" x="60" y="308" style="font-size:14px">master</text>
+  <text class="t2" x="60" y="330">NameNode（元数据 · fsimage/edits）</text>
+  <text class="t2" x="60" y="350">ResourceManager（作业调度）</text>
+  <text class="t2" x="60" y="370">JobHistoryServer :19888</text>
+  <text class="t3" x="60" y="394">启动：hadoop.sh start（clean + 格式检查 + 健康等待）</text>
+  <!-- worker1 -->
+  <rect class="box" x="400" y="282" width="350" height="132" rx="8"/>
+  <text class="t1" x="420" y="308" style="font-size:14px">worker1</text>
+  <text class="t2" x="420" y="330">DataNode（16 MB 数据块 · 副本 2）</text>
+  <text class="t2" x="420" y="350">NodeManager（6 vCore / 6 GB）</text>
+  <text class="t2" x="420" y="370">Map 任务 ×16–22 · Combiner 本地聚合</text>
+  <text class="t3" x="420" y="394">检测台支持单节点 启动 / 停止（容错演示）</text>
+  <!-- worker2 -->
+  <rect class="box" x="780" y="282" width="330" height="132" rx="8"/>
+  <text class="t1" x="800" y="308" style="font-size:14px">worker2</text>
+  <text class="t2" x="800" y="330">DataNode（16 MB 数据块 · 副本 2）</text>
+  <text class="t2" x="800" y="350">NodeManager（6 vCore / 6 GB）</text>
+  <text class="t2" x="800" y="370">Reduce 任务 ×N → results/&lt;月&gt;.json</text>
+  <text class="t3" x="800" y="394">与 worker1 互为机架副本</text>
+  <text class="t2" x="40" y="440">HDFS /geoflow/raw/&lt;月&gt;/&lt;指纹&gt; · YARN Streaming：hadoop stream -mapper mapper.py -reducer reducer.py -combiner</text>
+
+  <line class="flow" x1="575" y1="458" x2="575" y2="486"/>
+  <text class="lbl" x="590" y="476">hdfs dfs -put 分片 · MapReduce Streaming 作业</text>
+
+  <!-- 接入层 -->
+  <rect class="band" x="20" y="488" width="1110" height="86"/>
+  <text class="tag" x="40" y="510">数据接入层</text>
+  <rect class="box" x="40" y="520" width="330" height="40" rx="7"/>
+  <text class="t2" x="56" y="545">ingest.py · 质量规则清洗 → 36 分片/月 + manifest(SHA-256)</text>
+  <rect class="box" x="400" y="520" width="350" height="40" rx="7"/>
+  <text class="t2" x="416" y="545">fetch_dem.py · Web-Mercator 对齐采样 → dem_grid.json (160×160)</text>
+  <rect class="box" x="780" y="520" width="330" height="40" rx="7"/>
+  <text class="t2" x="796" y="545">fetch_weather.py · 逐日气象 → weather_2025.json</text>
+
+  <line class="flow" x1="575" y1="574" x2="575" y2="602"/>
+  <text class="lbl" x="590" y="592">公开数据集（脚本一次性抓取，走代理/直连）</text>
+
+  <!-- 数据源 -->
+  <rect class="band" x="20" y="604" width="1110" height="86"/>
+  <text class="tag" x="40" y="626">数据源 · 公开数据</text>
+  <rect class="box" x="40" y="636" width="330" height="40" rx="7" style="stroke:#e0b978"/>
+  <text class="t2" x="56" y="661">NYC TLC Trip Record · 黄车 Parquet ×12 月（2025）</text>
+  <rect class="box" x="400" y="636" width="350" height="40" rx="7" style="stroke:#e0b978"/>
+  <text class="t2" x="416" y="661">Mapbox / OpenStreetMap Terrain-RGB 高程瓦片（terrarium）</text>
+  <rect class="box" x="780" y="636" width="330" height="40" rx="7" style="stroke:#e0b978"/>
+  <text class="t2" x="796" y="661">NOAA / Open-Meteo 纽约逐日气象（温度 · 降水）</text>
+</svg>

@@ -25,14 +25,65 @@ function buildMap() { const dirs = zoneDirs(geo); for (const f of geo.features) 
 function selectZone(id) { selectedZone = id; paths.forEach((parts, z) => parts.forEach(x => x.classList.toggle("selected", z === id))); const zone = current ? current.zones.find(z => z.id === id) : null; const info = geo.features.find(f => f.properties.id === id); $("zone-detail").replaceChildren(); const name = document.createElement("strong"), desc = document.createElement("span"); name.textContent = (zone && zone.name) || (info ? info.properties.name : "未知区域"); desc.textContent = zone ? fmt(zone.trips) + " 次出行 · 平均 " + zone.avg_distance_km.toFixed(2) + " km" : "当前筛选条件下无有效记录"; $("zone-detail").append(name, desc); }
 async function refreshAnalysis() { const request = ++generation; try { const data = await get("/api/analysis?" + params()); if (request !== generation) return; current = data; const m = data.summary, quality = data.quality; $("kpi-trips").textContent = fmt(m.trips); $("kpi-distance").innerHTML = m.avg_distance_km.toFixed(2) + "<em>km</em>"; $("kpi-duration").innerHTML = m.avg_minutes.toFixed(1) + "<em>min</em>"; $("kpi-quality").innerHTML = (100 * quality.valid / quality.input).toFixed(2) + "<em>%</em>"; $("dataset-month").textContent = data.month.replace("-", " 年 ") + " 月 · 整月记录"; $("export").href = "/api/export?" + params(); const max = Math.max(1, ...data.zones.map(z => z.trips)); const byId = new Map(data.zones.map(z => [z.id, z])); paths.forEach((parts, id) => { const n = byId.get(id) ? byId.get(id).trips : 0; const t = Math.log1p(n) / Math.log1p(max); const fill = n ? "rgb(" + Math.round(218 - 184 * t) + "," + Math.round(234 - 149 * t) + "," + Math.round(250 - 91 * t) + ")" : "#dce4ec"; parts.forEach(x => x.setAttribute("fill", fill)); }); const rank = $("ranking"); rank.replaceChildren(); data.zones.slice(0, 8).forEach((z, i) => { const row = document.createElement("div"); row.className = "rank-row"; row.tabIndex = 0; row.setAttribute("role", "button"); row.setAttribute("aria-label", "查看 " + z.name + " · " + z.trips + " 次"); row.innerHTML = "<span class=\"rank-num\">" + String(i + 1).padStart(2, "0") + "</span><div><div class=\"rank-name\">" + escapeHtml(z.name) + "</div><div class=\"rank-bar\"><span style=\"width:" + (100 * z.trips / max) + "%\"></span></div></div><span class=\"rank-value\">" + fmt(z.trips) + "</span>"; row.onclick = () => selectZone(z.id); row.onkeydown = e => { if (e.key === "Enter") selectZone(z.id); }; rank.appendChild(row); }); if (!data.zones.length) rank.textContent = "当前筛选没有记录。"; const top = data.zones[0]; $("insight").textContent = top ? top.name + " 在当前筛选中出行最多，占有效上车记录的 " + (100 * top.trips / m.trips).toFixed(1) + "%。该值反映记录中的需求，不能直接解释为拥堵程度。" : "请更换区域或时段，查看空间分布。"; const hc = $("hour-chart"); hc.replaceChildren(); const peak = Math.max(1, ...data.hourly); data.hourly.forEach((n, h) => { const b = document.createElement("button"); b.style.height = Math.max(2, n / peak * 100) + "%"; if (n === peak) b.className = "peak"; b.title = h + ":00 · " + fmt(n) + " 次"; b.setAttribute("aria-label", b.title); b.onclick = () => { $("hour").value = h; updateHour(); refreshAnalysis(); }; hc.appendChild(b); }); chart("trend").setOption({ grid: { left: 44, right: 16, top: 20, bottom: 26 }, xAxis: { type: "category", data: data.hourly.map((n, h) => h + ":00"), axisLabel: { interval: 3 } }, yAxis: { type: "value", splitLine: { lineStyle: { color: "#eef2f7" } } }, series: [{ type: "line", smooth: true, symbol: "none", data: data.hourly, lineStyle: { color: palette.blue, width: 2.5 }, areaStyle: { color: "rgba(76,125,216,0.12)" } }] }); $("quality").innerHTML = "<div class=\"quality-row\"><span>原始记录</span><strong>" + fmt(quality.input) + "</strong></div><div class=\"quality-row\"><span>有效记录</span><strong>" + fmt(quality.valid) + "</strong></div><div class=\"quality-track\"><span style=\"width:" + (quality.valid / quality.input * 100) + "%\"></span></div><div class=\"quality-row\"><span>规则排除</span><strong>" + fmt(quality.rejected) + "</strong></div><div class=\"quality-row\"><span>区域 / 日期 / OD / 日粒度计数守恒</span><strong>已通过 ✓</strong></div>"; if (selectedZone !== null) selectZone(selectedZone); } catch (e) { notice(e.message, true); } }
 function updateHour() { const h = +$("hour").value; const caption = h === 24 ? "全天累计" : String(h).padStart(2, "0") + ":00–" + String(h).padStart(2, "0") + ":59"; $("hour-caption").textContent = caption; $("filter-caption").textContent = caption; }
-async function refreshCluster() { try { const c = await get("/api/cluster"); $("side-dot").classList.toggle("online", c.online); $("side-state").textContent = c.online ? (c.yarn.activeNodes + " 个计算节点在线") : "集群离线 · 可浏览历史结果"; $("cluster").innerHTML = "<div class=\"cluster-item\"><span>HDFS DataNodes</span><strong>" + (c.hdfs ? c.hdfs.NumLiveDataNodes : "—") + "</strong></div><div class=\"cluster-item\"><span>YARN NodeManagers</span><strong>" + (c.yarn ? c.yarn.activeNodes : "—") + "</strong></div><div class=\"cluster-item\"><span>HDFS 数据块</span><strong>" + (c.hdfs ? fmt(c.hdfs.BlocksTotal) : "—") + "</strong></div>" + c.nodes.map(n => "<div class=\"cluster-item\"><span>" + escapeHtml(n.id) + "</span><strong>" + n.numContainers + " 容器</strong></div>").join(""); } catch { $("side-state").textContent = "暂时无法读取集群状态"; } }
+function fmtBytes(v) { if (!v && v !== 0) return "—"; const u = ["B", "KB", "MB", "GB", "TB"]; let i = 0, n = v; while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; } return (i ? n.toFixed(1) : n) + " " + u[i]; }
+function barCell(used, total) { if (!total) return "<td>—</td>"; const pct = Math.min(100, used / total * 100); return "<td><div class=\"rank-bar\"><span style=\"width:" + pct.toFixed(1) + "%\"></span></div><small>" + fmtBytes(used) + " / " + fmtBytes(total) + "</small></td>"; }
+let clusterTimer = null;
+function scheduleClusterPoll() { clearTimeout(clusterTimer); clusterTimer = setTimeout(async () => { const view = document.getElementById("architecture"); if (view && view.hidden) return; if (!$("auto-refresh") || !$("auto-refresh").checked) return; try { await refreshCluster(); } catch (_) {} }, 10000); }
+async function refreshCluster() {
+  try {
+    const c = await get("/api/cluster");
+    $("side-dot").classList.toggle("online", c.online);
+    $("side-state").textContent = c.online ? (c.yarn.activeNodes + " 个计算节点在线") : "集群离线 · 可浏览历史结果";
+    $("cluster").innerHTML = "<div class=\"cluster-item\"><span>HDFS DataNodes</span><strong>" + (c.hdfs ? c.hdfs.NumLiveDataNodes : "—") + "</strong></div><div class=\"cluster-item\"><span>YARN NodeManagers</span><strong>" + (c.yarn ? c.yarn.activeNodes : "—") + "</strong></div><div class=\"cluster-item\"><span>HDFS 数据块</span><strong>" + (c.hdfs ? fmt(c.hdfs.BlocksTotal) : "—") + "</strong></div>" + c.nodes.map(n => "<div class=\"cluster-item\"><span>" + escapeHtml(n.id) + "</span><strong>" + n.numContainers + " 容器</strong></div>").join("");
+    const running = c.action && c.action.status === "RUNNING";
+    const dnByHost = new Map((c.datanodes || []).map(d => [d.worker, d]));
+    const nodeRow = (host, roles, yarn, dn) => {
+      const st = host === "master" ? ((c.online && c.hdfs) ? "RUNNING" : "DOWN") : (yarn ? yarn.state || "RUNNING" : (dn ? (dn.state === "NORMAL" || dn.state === "In Service" ? "RUNNING" : "DOWN") : "DOWN"));
+      const chip = st === "RUNNING" || st === "NORMAL" ? "<span class=\"status SUCCEEDED\">在线</span>" : "<span class=\"status FAILED\">离线</span>";
+      const mem = yarn ? barCell(yarn.usedMemoryMB * 1024 * 1024, (yarn.usedMemoryMB + yarn.availMemoryMB) * 1024 * 1024) : "<td>—</td>";
+      const vcores = yarn ? "<td>" + (yarn.usedVirtualCores || 0) + " / " + ((yarn.usedVirtualCores || 0) + (yarn.availVirtualCores || 0)) + "</td>" : "<td>—</td>";
+      const hdfs = dn ? barCell(dn.used, dn.capacity) : "<td>—</td>";
+      const beat = dn ? (dn.last_contact >= 0 ? dn.last_contact + " 秒前" : "—") : (roles.includes("NameNode") && c.hdfs ? "—" : "—");
+      const act = host === "master" ? "<td>集群级启停</td>" : "<td>" + (running ? "<button disabled class=\"btn\">…</button>" : "<button class=\"btn\" data-act=\"start-node\" data-node=\"" + host + "\">启动</button> <button class=\"btn\" data-act=\"stop-node\" data-node=\"" + host + "\">停止</button>") + "</td>";
+      return "<tr><td><strong>" + host + "</strong></td><td>" + roles.join(" + ") + "</td><td>" + chip + "</td>" + (host === "master" ? "<td>—</td>" + "<td>—</td>" + "<td>—</td>" : "<td>" + (yarn ? yarn.numContainers : 0) + "</td>" + vcores + mem) + hdfs + "<td>" + beat + "</td>" + act + "</tr>";
+    };
+    const nmByHost = new Map(c.nodes.map(n => [n.worker || String(n.id).rsplit(":", 1)[-1], n]));
+    $("node-console").innerHTML = "<thead><tr><th>节点</th><th>角色</th><th>状态</th><th>容器</th><th>vCore</th><th>YARN 内存</th><th>HDFS 磁盘</th><th>心跳</th><th>操作</th></tr></thead><tbody>"
+      + nodeRow("master", ["NameNode", "ResourceManager"], null, null)
+      + ["worker1", "worker2"].map(w => nodeRow(w, ["DataNode", "NodeManager"], nmByHost.get(w), dnByHost.get(w))).join("")
+      + "</tbody>";
+    const cap = c.hdfs || {};
+    $("console-summary").textContent = c.online ? ("集群容量 " + fmtBytes(cap.CapacityTotal) + " · DFS 已用 " + fmtBytes(cap.CapacityUsed) + " · 剩余 " + fmtBytes(cap.CapacityRemaining) + " · 存活节点负载 " + (cap.TotalLoad || 0)) : (c.yarn_error || c.hdfs_error || "集群离线");
+    const actEl = $("cluster-action-state");
+    if (c.action && c.action.action) {
+      actEl.textContent = "指令 " + c.action.action + " · " + (c.action.status === "RUNNING" ? "执行中…" : c.action.status === "SUCCEEDED" ? "成功 ✓" : "失败 ✗");
+      actEl.style.color = c.action.status === "SUCCEEDED" ? "#2f7d4f" : c.action.status === "FAILED" ? "#b04040" : "#4c7dd8";
+    } else actEl.textContent = "";
+    $("yarn-apps").innerHTML = "<thead><tr><th>应用 ID</th><th>名称</th><th>状态</th><th>进度</th><th>已运行</th><th>队列</th></tr></thead><tbody>" + ((c.apps || []).length ? c.apps.map(a => "<tr><td>" + escapeHtml(a.id) + "</td><td>" + escapeHtml(a.name || "—") + "</td><td><span class=\"status " + escapeHtml(a.state) + "\">" + escapeHtml(a.state) + "</span></td><td>" + (a.progress != null ? a.progress.toFixed(0) + "%" : "—") + "</td><td>" + (a.elapsedTime != null ? Math.round(a.elapsedTime / 1000) + " s" : "—") + "</td><td>" + escapeHtml(a.queue || "default") + "</td></tr>").join("") : "<tr><td colspan=\"6\">当前没有提交 / 运行中的 YARN 应用。</td></tr>") + "</tbody>";
+    window.__clusterActionRunning = running;
+  } catch {
+    $("side-state").textContent = "暂时无法读取集群状态";
+  }
+  scheduleClusterPoll();
+}
+async function clusterAction(action, node) {
+  if (action === "stop" && !confirm("停止整个 Hadoop 集群？随时可以重新启动，数据保存在 HDFS 上不受影响。")) return;
+  if (action === "stop-node" && !confirm("停止节点 " + node + "（DataNode + NodeManager）？可用于演示单点故障与多副本容错。")) return;
+  try {
+    await get("/api/cluster/action", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: action, node: node }) });
+    notice("集群指令已下发：" + action + (node ? " " + node : "") + "，执行约需数十秒，状态会自动刷新。");
+    clearTimeout(clusterTimer); clusterTimer = setTimeout(async () => { await refreshCluster(); if (window.__clusterActionRunning) { clearTimeout(clusterTimer); clusterTimer = setTimeout(async () => refreshCluster(), 5000); } }, 4000);
+  } catch (e) { notice(e.message, true); }
+}
+$("cluster-start").onclick = () => clusterAction("start");
+$("cluster-stop").onclick = () => clusterAction("stop");
+$("node-console").addEventListener("click", e => { const b = e.target.closest("button[data-act]"); if (b && !b.disabled) clusterAction(b.dataset.act, b.dataset.node); });
 function refreshRuns() { return get("/api/runs").then(data => { $("runs").innerHTML = "<thead><tr><th>作业 ID</th><th>状态</th><th>Reducer</th><th>Combiner</th><th>耗时</th></tr></thead><tbody>" + data.runs.map(r => "<tr><td>" + escapeHtml(r.run_id) + "<small>" + escapeHtml(r.job_id || "尚无作业 ID") + "</small></td><td><span class=\"status " + escapeHtml(r.status) + "\">" + escapeHtml(r.status) + "</span></td><td>" + r.reducers + "</td><td>" + (r.combiner ? "开启" : "关闭") + "</td><td>" + (r.elapsed_seconds != null ? r.elapsed_seconds + " s" : "—") + "</td></tr>").join("") + "</tbody>"; return data.current; }); }
 async function refreshEvidence() { const e = await get("/api/evidence"); const v = e.verification; $("evidence").innerHTML = v ? "<div class=\"evidence-grid\"><div class=\"evidence-card\"><strong>" + (v.exact_match ? "完全一致" : "存在差异") + "</strong><span>单进程参考结果 vs Hadoop 输出</span></div><div class=\"evidence-card\"><strong>" + fmt(v.compared_keys) + "</strong><span>逐键核对的聚合结果</span></div><div class=\"evidence-card\"><strong>" + fmt(v.input_rows) + "</strong><span>真实输入行数</span></div></div>" : "<p class=\"muted\">对照实验尚未运行；不展示推测结果。</p>"; $("exc-exact").textContent = v ? ("核对 " + fmt(v.compared_keys) + " 键") : "—"; }
 document.querySelectorAll(".nav").forEach(button => button.onclick = async () => { document.querySelectorAll(".view").forEach(v => v.hidden = v.id !== button.dataset.view); document.querySelectorAll(".nav").forEach(b => b.classList.toggle("active", b === button)); try { if (button.dataset.view === "experiments") await Promise.all([refreshRuns(), refreshEvidence()]); if (button.dataset.view === "architecture") await refreshCluster(); if (button.dataset.view === "year") await renderYear(); if (button.dataset.view === "od") await renderOd(); if (button.dataset.view === "d3") await renderD3(); if (button.dataset.view === "forecast") await renderForecast(); attachZoom(); resizeCharts(); } catch (e) { notice(e.message, true); } });
 $("hour").addEventListener("input", updateHour); $("hour").addEventListener("change", refreshAnalysis); $("borough").addEventListener("change", refreshAnalysis); $("month").addEventListener("change", refreshAnalysis); $("d3-month").addEventListener("change", () => renderD3().catch(e => notice(e.message, true))); $("d3-sync").addEventListener("change", () => setGLView($("d3-sync").checked)); $("d3-alpha").addEventListener("input", () => setGLView($("d3-sync").checked)); $("d3-beta").addEventListener("input", () => setGLView($("d3-sync").checked)); $("d3-dist").addEventListener("input", () => setGLView($("d3-sync").checked)); $("d3-preset").addEventListener("change", () => d3Preset());
-$("d3-layer-dem").addEventListener("change", () => { if (charts["chart-demmap"]) charts["chart-demmap"].setOption({ series: [{ show: $("d3-layer-dem").checked }] }); });
+$("d3-layer-dem").addEventListener("change", () => { if (charts["chart-scatter3d"]) charts["chart-scatter3d"].setOption({ series: [{ id: "dem3d", data: $("d3-layer-dem").checked ? buildDem3DPoints() : [] }] }); });
 $("d3-layer-towers").addEventListener("change", () => { if (charts["chart-scatter3d"] && window.__zoneRegions) { const regs = $("d3-layer-towers").checked ? window.__zoneRegions : geo.features.map(f => ({ name: f.properties.name, itemStyle: { color: "#eef2f7" } })); charts["chart-scatter3d"].setOption({ geo3D: { regions: regs } }); } });
-$("d3-layer-flow").addEventListener("change", () => { if (charts["chart-flow3d"]) { const flowIds = []; (window.__flowSeriesIds || []).forEach(id2 => flowIds.push({ id: id2, show: $("d3-layer-flow").checked })); charts["chart-flow3d"].setOption({ series: flowIds }); } });
 $("run").onclick = async () => { $("run").disabled = true; $("job-bar").hidden = false; $("job-prog-text").textContent = "作业提交中…"; try { await get("/api/jobs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ month: $("month").value || (current ? current.month : "2025-01"), reducers: 2, combiner: true }) }); notice("Hadoop 作业已提交。数据清洗与分布式统计可能需要数分钟，完成后自动更新。"); pollJob(); } catch (e) { notice(e.message, true); $("run").disabled = false; } };
 async function pollJob() { try { const state = await refreshRuns(); if (state.status === "RUNNING") { $("job-bar").hidden = false; let t = null; if (state.started_at) { t = Math.round((Date.now() - new Date(state.started_at).getTime()) / 1000); } $("job-prog-text").textContent = "MapReduce 计算当前月份全量数据" + (t !== null && t >= 0 ? " · 已运行 " + t + " 秒" : "") + "（进度实时刷新）"; pollTimer = setTimeout(pollJob, 3000); return; } $("job-bar").hidden = true; $("run").disabled = false; if (state.status === "SUCCEEDED") { notice("计算完成，已通过总数守恒检查并发布新结果。"); await refreshAnalysis(); await refreshCluster(); } else if (state.status === "FAILED") { notice("作业失败，保留上一版结果。" + state.error, true); } } catch (e) { notice(e.message, true); $("run").disabled = false; } }
 async function loadMonths() { const data = await get("/api/months"); const opts = data.months.map(m => "<option value=\"" + m.month + "\">" + m.month.replace("-", " 年 ") + " 月</option>").join(""); $("month").insertAdjacentHTML("beforeend", opts); $("d3-month").insertAdjacentHTML("beforeend", opts); return data.months; }
@@ -58,24 +109,44 @@ function glSmoke() { if (__glSmoked !== null) return __glSmoked; try { const el 
 function hasWebGL() { try { const c = document.createElement("canvas"); const ctx = c.getContext("webgl") || c.getContext("experimental-webgl"); return !!ctx; } catch (e) { return false; } }
 function webglHint() { try { const c = document.createElement("canvas"); const ctx = c.getContext("webgl") || c.getContext("experimental-webgl"); if (ctx) return null; return "canvas.getContext(webgl) 返回 null"; } catch (e) { return "上下文创建异常: " + e.message; } }
 let __flowBoroughs = null;
-function renderDemMap() {
-  if (!demData) return;
-  const NX = demData.lons.length, NY = demData.lats.length;
-  const step = 2;
-  const xs = [], ys = [], data = [];
-  for (let i = 0; i < NX; i += step) xs.push(demData.lons[i]);
-  for (let j = 0; j < NY; j += step) ys.push(demData.lats[j]);
-  for (let j = 0; j < NY; j += step) for (let i = 0; i < NX; i += step) data.push([demData.lons[i], demData.lats[j], demData.grid[j][i]]);
-  const box = document.getElementById("chart-demmap");
-  const cellW = Math.max(4, Math.round((box.clientWidth - 68 - 42) / xs.length * 1.3));
-  const cellH = Math.max(3, Math.round((box.clientHeight - 34 - 66) / ys.length * 1.3));
-  chart("chart-demmap").setOption({
-    grid: { left: 68, right: 42, top: 34, bottom: 66 },
-    xAxis: { type: "value", min: demData.bbox[0], max: demData.bbox[2], name: "经度", nameLocation: "middle", nameGap: 26, axisLabel: { fontSize: 10, margin: 10 } },
-    yAxis: { type: "value", min: demData.bbox[1], max: demData.bbox[3], name: "纬度", nameLocation: "middle", nameGap: 34, axisLabel: { fontSize: 10, margin: 10 } },
-    tooltip: { formatter: function (p2) { return p2.value[0].toFixed(3) + ", " + p2.value[1].toFixed(3) + "<br/>高程 " + p2.value[2] + " m"; } },
-    series: [{ type: "scatter", symbol: "rect", symbolSize: [cellW, cellH], data: data, progressive: 0, animation: false, itemStyle: { color: function (p2) { const e = p2.value[2]; return e <= 1.5 ? "#bcd6ec" : e <= 45 ? "#b9d9b3" : e <= 120 ? "#a9c9a0" : e <= 220 ? "#c9b791" : "#b29a74"; } } }]
+function buildDem3DPoints() {
+  if (window.__dem3dPts) return window.__dem3dPts;
+  function inRing(lon, lat, ring) {
+    let inside = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const xi = ring[i][0], yi = ring[i][1], xj = ring[j][0], yj = ring[j][1];
+      if (((yi > lat) !== (yj > lat)) && (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi)) inside = !inside;
+    }
+    return inside;
+  }
+  const bboxes = geo.features.map(f => {
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    const polys = f.geometry.type === "Polygon" ? [f.geometry.coordinates] : f.geometry.coordinates;
+    polys.forEach(p => p[0].forEach(pt => { if (pt[0] < x0) x0 = pt[0]; if (pt[0] > x1) x1 = pt[0]; if (pt[1] < y0) y0 = pt[1]; if (pt[1] > y1) y1 = pt[1]; }));
+    return [x0, y0, x1, y1];
   });
+  function inAnyZone(lon, lat) {
+    for (let z = 0; z < geo.features.length; z++) {
+      const b = bboxes[z];
+      if (lon < b[0] || lon > b[2] || lat < b[1] || lat > b[3]) continue;
+      const g = geo.features[z].geometry;
+      const polys = g.type === "Polygon" ? [g.coordinates] : g.coordinates;
+      for (const p of polys) if (inRing(lon, lat, p[0])) return true;
+    }
+    return false;
+  }
+  const pts = [];
+  const nx = demData.lons.length, ny = demData.lats.length, step = 2;
+  for (let j = 0; j < ny; j += step) for (let i = 0; i < nx; i += step) {
+    const e = demData.grid[j][i];
+    const lon = demData.lons[i], lat = demData.lats[j];
+    const land = e > 1.5;
+    if (!land && !inAnyZone(lon, lat)) continue;
+    const h = land ? 0.9 + e * 0.015 : 0.905;
+    pts.push({ value: [+lon.toFixed(4), +lat.toFixed(4), +h.toFixed(3)], elevation: e, symbolSize: land ? 3.6 : 2.6, itemStyle: { color: land ? (e <= 45 ? "#7fae74" : e <= 120 ? "#98a05e" : "#b2823c") : "rgba(120,170,205,0.45)" } });
+  }
+  window.__dem3dPts = pts;
+  return pts;
 }
 function renderBoroughFlow() {
   if (odData) { renderBoroughFlowReal(odData, demData); }
@@ -98,7 +169,7 @@ function renderBoroughFlowReal(odData2, demData) {
     yAxis: { type: "value", min: demData.bbox[1], max: demData.bbox[3], name: "纬度", nameLocation: "middle", nameGap: 34, axisLabel: { fontSize: 10, margin: 10 } },
     legend: { data: srcs, top: 0, textStyle: { fontSize: 10 } },
     tooltip: { formatter: function (p2) { if (p2.seriesType === "lines") { const d = p2.data; return d.from + " → " + d.to + "<br/><strong>" + fmt(d.trips) + "</strong> 次 · 占全区 " + (d.trips / 45400745 * 100).toFixed(1) + "%"; } return p2.name + "<br/>跨区流量 " + fmt(p2.value[2]) + " 次"; } },
-    series: srcs.map((b1, i) => ({ id: "flow-" + i, name: b1, type: "lines", coordinateSystem: "cartesian2d", data: Object.keys(flows[b1]).filter(b2 => b2 !== b1).map(b2 => ({ coords: [[bc[b1].x, bc[b1].y], [bc[b2].x, bc[b2].y]], trips: flows[b1][b2], from: b1, to: b2 })), lineStyle: { color: (bcolors[b1] || "#9aa7b5"), width: 2.6, opacity: 0.92, curveness: 0.2 }, effect: { show: true, period: 2.4, trailLength: 0.26, symbol: "arrow", symbolSize: 6 }, zlevel: 2 })).concat([{ type: "effectScatter", coordinateSystem: "cartesian2d", data: nodeData, symbolSize: function (v) { return v[2] ? Math.max(9, Math.sqrt(v[2]) / 260) : 9; }, rippleEffect: { brushType: "stroke", scale: 2.2 }, label: { show: true, position: "top", formatter: function (p2) { return p2.name + (p2.value[2] >= 10000 ? " " + (p2.value[2] / 10000).toFixed(1) + "万" : " " + fmtk(p2.value[2])); }, fontSize: 10.5, color: "#2e3a4c" }, itemStyle: { color: "rgba(76,125,216,0.6)" } }])
+    series: srcs.map((b1, i) => ({ id: "flow-" + i, name: b1, type: "lines", coordinateSystem: "cartesian2d", data: Object.keys(flows[b1]).filter(b2 => b2 !== b1).map(b2 => ({ coords: [[bc[b1].x, bc[b1].y], [bc[b2].x, bc[b2].y]], trips: flows[b1][b2], from: b1, to: b2 })), lineStyle: { color: (bcolors[b1] || "#9aa7b5"), width: 2.6, opacity: 0.92, curveness: 0.2 }, effect: { show: true, period: 2.4, trailLength: 0.26, symbol: "arrow", symbolSize: 6 }, zlevel: 2 })).concat([{ type: "effectScatter", coordinateSystem: "cartesian2d", data: nodeData, symbolSize: function (v) { return v[2] ? Math.max(9, Math.sqrt(v[2]) / 260) : 9; }, rippleEffect: { brushType: "stroke", scale: 2.2 }, label: { show: true, position: "top", formatter: function (p2) { return p2.name + (p2.value[2] >= 10000 ? " " + (p2.value[2] / 10000).toFixed(1) + "万" : " " + fmtk(p2.value[2])); }, fontSize: 10.5, color: "#2e3a4c", backgroundColor: "rgba(255,255,255,0.88)", padding: [3, 5], borderRadius: 3 }, labelLayout: { hideOverlap: true }, z: 5, itemStyle: { color: "rgba(76,125,216,0.6)" } }])
   });
 }
 function renderD3Fallback(yearData, demData, month, zmap, months, valueOf, maxv) {
@@ -131,12 +202,8 @@ async function renderD3() {
   let maxv = 1; geo.features.forEach(f => { const v = valueOf(f.properties.id); if (v > maxv) maxv = v; });
   if (!odData) odData = await get("/api/od");
   renderBoroughFlow();
-  renderDemMap();
   if (!gl) { renderD3Fallback(yearData, demData, month, zmap, months, valueOf, maxv); return; }
   const nx = demData.lons.length, ny = demData.lats.length;
-  const surf = []; for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) surf.push([demData.lons[i], demData.lats[j], demData.grid[j][i]]);
-  const demPts = [];
-  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const e = demData.grid[j][i]; demPts.push({ value: [demData.lons[i], demData.lats[j], Math.round(e * 0.02 * 100) / 100], itemStyle: { color: e <= 1.5 ? "#cfdcea" : e <= 45 ? "#b9d9b3" : e <= 120 ? "#a9c9a0" : e <= 220 ? "#c9b791" : "#b29a74" } }); }
   const elevOf = (lon, lat) => demElev(demData.lons, demData.lats, demData.grid, nx, ny, lon, lat);
   if (!geo._mapped3) { echarts.registerMap("nyc", geo); geo._mapped3 = true; }
   const colTrips = t => { const r = Math.min(1, Math.log1p(t) / Math.log1p(maxv)); if (r < 0.25) return "rgb(157,192,234)"; if (r < 0.5) return "rgb(76,125,216)"; if (r < 0.75) return "rgb(139,111,216)"; if (r < 0.92) return "rgb(176,64,154)"; return "rgb(216,88,76)"; };
@@ -148,9 +215,9 @@ async function renderD3() {
     let __glErrShown = false;
     const safeGL = (fn) => { try { fn(); } catch (e2) { console.error("GeoFlow GL chart:", e2); if (!__glErrShown) { __glErrShown = true; $("d3-caption").textContent = "城市图渲染出错：" + (e2.message || String(e2)) + "（F12 可查 GeoFlow GL chart）"; } } };
     safeGL(() => { chart("chart-scatter3d").setOption({
-      tooltip: { formatter: function (p2) { if (p2.seriesType === "bar3D") return p2.value[0] + "<br/><strong>" + fmtk(p2.value[1]) + "</strong> 次 (全年)"; return p2.name + " · 高程 " + p2.value[2] + "m"; } },
+      tooltip: { formatter: function (p2) { if (p2.seriesId === "dem3d") return "地形采样点<br/>" + p2.value[0].toFixed(3) + ", " + p2.value[1].toFixed(3) + "<br/>高程 <strong>" + p2.data.elevation + "</strong> m"; return p2.name || ""; } },
       geo3D: { map: "nyc", boxWidth: 150, boxDepth: 115, regionHeight: 0.9, regions: zoneRegions, itemStyle: { color: "#eef2f7", opacity: 0.95, borderColor: "#9db4cd" }, label: { show: false }, emphasis: { label: { show: true, formatter: function (p2) { return p2.name; } } }, viewControl: { alpha: 52, beta: 10, distance: 170 } },
-      series: []
+      series: [{ id: "dem3d", name: "DEM 高程点云", type: "scatter3D", coordinateSystem: "geo3D", data: buildDem3DPoints(), progressive: 0, shading: "color", itemStyle: { opacity: 0.95, borderWidth: 0 }, emphasis: { itemStyle: { opacity: 1 } } }]
     }); });
     const zt = {}; yearData.zone_month.forEach(r => { if (!month || r[1] === month) zt[r[0]] = (zt[r[0]] || 0) + r[2]; });
     const top = Object.entries(zt).sort((a, b) => b[1] - a[1]).slice(0, 20).map(e => ({ id: +e[0], name: nameOfGeo(e[0]), v: e[1] }));

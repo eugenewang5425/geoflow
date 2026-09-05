@@ -91,3 +91,5 @@
 .help-card .close { float: right; border: 1px solid #d9e2ee; background: #f8fafd; color: #4c7dd8; padding: 5px 14px; border-radius: 6px; cursor: pointer; }
 /* ---- matrix & charts margin ---- */
 .chart { box-sizing: border-box; }
+.table .status{white-space:nowrap;display:inline-block}
+.table td small{white-space:nowrap}

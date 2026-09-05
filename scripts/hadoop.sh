@@ -99,8 +99,22 @@ case "${1-status}" in
       exit 1
     fi
     ;;
+  start-node)
+    [ -n "${2:-}" ] || { echo "Usage: hadoop.sh start-node worker1|worker2" >&2; exit 2; }
+    node_env "$2"
+    hdfs --daemon start datanode
+    yarn --daemon start nodemanager
+    sleep 3
+    hdfs dfsadmin -report | sed -n 's/^Live datanodes.*/Live datanodes:/p;/^Name:/p' | head -6
+    ;;
+  stop-node)
+    [ -n "${2:-}" ] || { echo "Usage: hadoop.sh stop-node worker1|worker2" >&2; exit 2; }
+    node_env "$2"
+    yarn --daemon stop nodemanager
+    hdfs --daemon stop datanode
+    ;;
   dfs) shift; hdfs dfs "$@" ;;
   fsck) shift; hdfs fsck "$@" ;;
   yarn) shift; yarn "$@" ;;
-  *) echo "Usage: bash scripts/hadoop.sh install|start|stop|status|dfs|fsck|yarn"; exit 2 ;;
+  *) echo "Usage: bash scripts/hadoop.sh install|start|stop|status|start-node|stop-node|dfs|fsck|yarn"; exit 2 ;;
 esac
