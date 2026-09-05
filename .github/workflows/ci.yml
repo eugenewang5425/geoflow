@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install project and dev tools
+        run: pip install -e . pytest ruff
+      - name: Ruff (static checks)
+        run: ruff check .
+      - name: Pytest (unit tests)
+        run: pytest -q
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install project and Playwright
+        run: |
+          pip install -e . pytest playwright
+          playwright install --with-deps chromium
+      - name: Start dashboard (cluster-independent pages)
+        run: python -m geoflow serve &
+      - name: End-to-end smoke (2D pages; 3D page asserts fallback, not WebGL)
+        run: python scripts/e2e_check.py

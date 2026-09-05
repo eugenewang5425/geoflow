@@ -20,6 +20,35 @@ sys.path.insert(0, str(ROOT))
 from geoflow.config import DATA, RESULTS
 from geoflow.io import atomic_json, read_json
 
+
+def zone_neighbors(max_dist_m=800):
+    """Adjacency list {zone_id: [neighbor_ids]} for zones within max_dist_m.
+
+    Computed once with shapely/pyproj (UTM 18N) and cached to data/neighbors.json.
+    """
+    path = DATA / "neighbors.json"
+    if path.exists():
+        return {int(k): v for k, v in read_json(path).items()}
+    from pyproj import Transformer
+    from shapely.geometry import shape
+    from shapely.ops import transform as sh_transform
+    feats = read_json(DATA / "zones.geojson")["features"]
+    tf = Transformer.from_crs("EPSG:4326", "EPSG:32618", always_xy=True)
+    geoms = {}
+    for f in feats:
+        zid = int(f["properties"]["id"])
+        geoms[zid] = sh_transform(lambda x, y: tf.transform(x, y), shape(f["geometry"]))
+    ids = sorted(geoms)
+    neigh = {zid: [] for zid in ids}
+    for i, a in enumerate(ids):
+        ga = geoms[a]
+        for b in ids[i + 1:]:
+            if ga.distance(geoms[b]) <= max_dist_m:
+                neigh[a].append(b)
+                neigh[b].append(a)
+    atomic_json(path, neigh)
+    return neigh
+
 TRAIN_END = date(2025, 10, 31)
 VALID_END = date(2025, 11, 30)
 WEATHER_VARS = ["temperature_2m", "apparent_temperature", "precipitation", "snowfall",
@@ -90,6 +119,17 @@ def main():
     df["lag_7"] = g.shift(7)
     df["lag7mean"] = g.transform(lambda s: s.shift(1).rolling(7, min_periods=1).mean())
 
+    # Neighborhood lag: mean of adjacent zones' same-hour lag_1 (congestion spills
+    # over; adjacency computed geometrically once and cached).
+    neighbors = zone_neighbors()
+    pairs = [(int(z), int(n)) for z, ns in neighbors.items() for n in ns]
+    pair_df = pd.DataFrame(pairs, columns=["zone", "neighbor"])
+    merged = df[["date", "hour", "zone", "lag_1"]].merge(pair_df, on="zone")
+    nb_mean = (merged.groupby(["date", "hour", "zone"])["lag_1"].mean()
+                     .rename("neighbor_lag1_mean").reset_index())
+    df = df.merge(nb_mean, on=["date", "hour", "zone"], how="left")
+    df["neighbor_lag1_mean"] = df["neighbor_lag1_mean"].fillna(df["lag_1"])
+
     feats = ["zone", "hour", "weekday", "month", "is_weekend"] + WEATHER_VARS + DAILY_VARS +             ["lag_1", "lag_7", "lag7mean"]
     df = df.dropna(subset=feats + ["trips"])
     # availability of lag_7: from 2025-01-08 on
@@ -111,18 +151,55 @@ def main():
         importance = dict(sorted(zip(feats, model.feature_importances_.tolist()),
                                  key=lambda kv: -kv[1]))
         model_name = "LightGBM"
+
+        def fit_quantile(alpha):
+            q = LGBMRegressor(objective="quantile", alpha=alpha, n_estimators=400,
+                              learning_rate=0.08, num_leaves=63, min_child_samples=40,
+                              subsample=0.85, subsample_freq=1, colsample_bytree=0.85,
+                              n_jobs=-1, random_state=42, verbose=-1)
+            q.fit(train[feats], np.log1p(train["trips"].to_numpy()),
+                  eval_set=[(valid[feats], np.log1p(valid["trips"].to_numpy()))],
+                  callbacks=[early_stopping(30, verbose=False)])
+            return np.maximum(np.expm1(q.predict(test[feats])), 0.0)
+
+        q10 = fit_quantile(0.1)
+        q90 = fit_quantile(0.9)
+
+        # ablation: the same point model PLUS the neighborhood feature
+        feats_w = feats + ["neighbor_lag1_mean"]
+        ab = LGBMRegressor(n_estimators=800, learning_rate=0.06, num_leaves=63,
+                           min_child_samples=40, subsample=0.85, subsample_freq=1,
+                           colsample_bytree=0.85, n_jobs=-1, random_state=42, verbose=-1)
+        ab.fit(train[feats_w], np.log1p(train["trips"].to_numpy()),
+               eval_set=[(valid[feats_w], np.log1p(valid["trips"].to_numpy()))],
+               callbacks=[early_stopping(40, verbose=False)])
+        pred_w = np.maximum(np.expm1(ab.predict(test[feats_w])), 0.0)
     except ImportError:
         from sklearn.ensemble import HistGradientBoostingRegressor
         model_name = "HistGradientBoosting (sklearn fallback)"
         model = HistGradientBoostingRegressor(max_iter=500, random_state=42)
         model.fit(train[feats], np.log1p(train["trips"].to_numpy()))
         pred = np.expm1(model.predict(test[feats]))
+        pred_w = pred  # fallback has no quantile/ablation variants
         importance = {}
 
     test = test.reset_index(drop=True)
     test["pred"] = pred
+    if "q10" in dir():
+        test["q10"] = np.maximum(q10, 0.0)
+        test["q90"] = np.maximum(q90, test["q10"])
     actual = test["trips"].to_numpy().astype(float)
     base = test["lag_7"].to_numpy().astype(float)
+
+    if "q10" in dir():
+        lo = np.maximum(q10, 0.0)
+        hi = np.maximum(q90, lo)
+        coverage = float(np.mean((actual >= lo) & (actual <= hi))) * 100
+        interval_metrics = {"coverage_pct": round(coverage, 2),
+                            "target_pct": 80.0,
+                            "mean_width": round(float(np.mean(hi - lo)), 2)}
+    else:
+        interval_metrics = {"coverage_pct": None, "target_pct": 80.0, "mean_width": None}
 
     def metrics(a, p):
         m = np.isfinite(a) & np.isfinite(p)
@@ -142,7 +219,11 @@ def main():
         "validation_window": "2025-11-01..2025-11-30",
         "test_window": "2025-12-01..2025-12-31",
         "rows": {"train": len(train), "valid": len(valid), "test": len(test)},
-        "metrics": {"model": metrics(actual, pred), "baseline_lag7": metrics(actual, base)},
+        "metrics": {"model": metrics(actual, pred), "baseline_lag7": metrics(actual, base),
+                    "interval": interval_metrics,
+                    "neighbor_ablation": {"rmse_baseline_features": metrics(actual, pred)["rmse"],
+                                          "rmse_with_neighbor_feature": metrics(actual, pred_w)["rmse"],
+                                          "verdict": "邻域滞后与自身滞后高度冗余，主模型不采用"}},
         "weather_effect": {
             "precip_vs_dry": {
                 "dry_mean": round(float(actual[test["precipitation"].to_numpy() == 0].mean()), 1),
@@ -183,11 +264,14 @@ def main():
     })
 
     top_zone = int(zone_agg.loc[zone_agg["actual"].idxmax(), "zone"])
-    curve = test[test["zone"] == top_zone].sort_values(["date", "hour"])[["date", "hour", "trips", "pred"]]
+    curve_cols = ["date", "hour", "trips", "pred"] + (["q10", "q90"] if "q10" in test.columns else [])
+    curve = test[test["zone"] == top_zone].sort_values(["date", "hour"])[curve_cols]
     atomic_json(RESULTS / "forecast_curve.json", {
         "zone": top_zone, "name": name_map.get(top_zone),
         "points": [[(pd.Timestamp(r["date"].date()) + pd.Timedelta(hours=int(r["hour"]))).isoformat(sep="T")[:16],
                     int(r["trips"]), round(float(r["pred"]), 1)]
+                   + ([round(float(r["q10"]), 1), round(float(r["q90"]), 1)]
+                      if "q10" in curve_cols else [])
                    for _, r in curve.iterrows()],
     })
     atomic_json(ROOT / "evidence" / "forecast.json", report)

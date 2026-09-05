@@ -43,6 +43,16 @@
       "mae": 7.32,
       "mape_pct": 65.22,
       "mape_high_demand_pct": 49.2
+    },
+    "interval": {
+      "coverage_pct": 83.98,
+      "target_pct": 80.0,
+      "mean_width": 14.98
+    },
+    "neighbor_ablation": {
+      "rmse_baseline_features": 19.1,
+      "rmse_with_neighbor_feature": 19.4,
+      "verdict": "邻域滞后与自身滞后高度冗余，主模型不采用"
     }
   },
   "weather_effect": {

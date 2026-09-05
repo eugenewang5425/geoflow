@@ -11,6 +11,7 @@
     <button class="nav" data-view="year"><span>▦</span>年度趋势</button>
     <button class="nav" data-view="od"><span>⇄</span>OD 流向</button>
     <button class="nav" data-view="d3"><span>◧</span>3D 全景</button>
+    <button class="nav" data-view="live"><span>◉</span>实时回放</button>
     <button class="nav" data-view="forecast"><span>⚡</span>需求预测</button>
     <button class="nav" data-view="experiments"><span>▥</span>实验与作业</button>
     <button class="nav" data-view="architecture"><span>⌘</span>系统架构</button>
@@ -84,6 +85,26 @@
       </div>
     </section>
 
+    <section id="live" class="view" hidden>
+      <div class="page-title">
+        <div><div class="eyebrow">LIVE REPLAY</div><h1>实时需求回放<span class="title-dot">.</span></h1><p>2025 年 12 月全量出行 · 按原始时间戳逐分钟回放 · 秒级刷新</p></div>
+        <div class="title-actions">
+          <select id="live-speed" style="background:#f7f9fc;border:1px solid #e7ecf4;padding:8px;border-radius:5px;color:#4a5974;font-size:12px"><option value="1">×60 · 1秒=1分钟</option><option value="6">×360 · 1秒=6分钟</option><option value="15">×900 · 1秒=15分钟</option></select>
+          <button class="btn primary" id="live-play">▶ 播放</button>
+          <strong id="live-clock" style="font-size:16px;font-variant-numeric:tabular-nums;align-self:center">12-01 00:00</strong>
+        </div>
+      </div>
+      <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+        <article><span>本分钟出行</span><strong id="live-total">—</strong><small>当前模拟分钟的全市上车量</small><div class="kpi-icon blue">◉</div></article>
+        <article><span>最近一小时</span><strong id="live-window">—</strong><small>过去 60 模拟分钟累计（折算）</small><div class="kpi-icon teal">Σ</div></article>
+        <article><span>回放进度</span><strong id="live-progress">0%</strong><small id="live-progress-detail">未开始</small><div class="kpi-icon purple">▶</div></article>
+      </div>
+      <div class="analysis-grid">
+        <article class="panel"><div class="panel-heading"><div><h2>全市需求热力</h2><p>颜色 = 本分钟上车量（对数色阶）· 与总览地图同源</p></div><span class="tag">LIVE MAP</span></div><div id="live-map" class="map-wrap" style="margin:0 13px;background:#edf2f6;border-radius:7px;overflow:hidden"></div></article>
+        <article class="panel"><div class="panel-heading"><div><h2>分钟节奏</h2><p>最近 60 个模拟分钟 · 全市合计</p></div></div><div id="live-spark" class="hour-chart" style="height:170px"></div><div id="live-top" style="padding:0 22px 20px"></div></article>
+      </div>
+    </section>
+
     <section id="forecast" class="view" hidden>
       <div class="kpis" id="fc-kpis">
         <article><span>预测模型</span><strong id="fc-model">—</strong><small>12 月测试窗口</small><div class="kpi-icon blue">⚡</div></article>
@@ -93,7 +114,7 @@
       </div>
       <div class="analysis-grid">
         <article class="panel map-panel"><div class="panel-heading"><div><h2>12 月预测误差图</h2><p>红=低估 / 蓝=高估 / 灰=接近</p></div><span class="tag">RESIDUAL</span></div><div class="map-wrap"><svg id="fc-map" viewBox="0 0 800 530" role="img" aria-label="预测误差地图"></svg><div class="map-legend"><span>低估</span><div></div><span>高估</span><small>误差百分比 · 区域级</small></div></div></article>
-        <article class="panel"><div class="panel-heading"><div><h2>榜首区域：预测 vs 实际</h2><p>12 月逐小时</p></div></div><div id="chart-fc-curve" class="chart tall"></div></article>
+        <article class="panel"><div class="panel-heading"><div><h2>榜首区域：预测 vs 实际</h2><p>12 月逐小时</p></div></div><div id="chart-fc-curve" class="chart tall"></div><p class="muted" id="fc-interval-note" style="padding:0 18px 14px;margin:0"></p></article>
       </div>
       <div class="analysis-grid">
         <article class="panel"><div class="panel-heading"><div><h2>天气相关需求差异</h2><p>12 月不同温度区间 / 降水</p></div></div><div id="chart-weather" class="chart big"></div></article>
@@ -151,6 +172,6 @@
 </main>
 <script src="/static/vendor/echarts.min.js?v=20260904l"></script>
 <script src="/static/vendor/echarts-gl.min.js?v=20260904l"></script>
-<script src="/static/app.js?v=20260906i"></script>
+<script src="/static/app.js?v=20260906j"></script>
 </body>
 </html>

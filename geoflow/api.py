@@ -33,6 +33,7 @@ def _reconcile_interrupted():
 @asynccontextmanager
 async def lifespan(_app):
     _reconcile_interrupted()
+    threading.Thread(target=_build_live_index, daemon=True).start()
     yield
 
 
@@ -280,3 +281,67 @@ def evidence():
 @app.get("/api/health")
 def health():
     return {"status": "ok", "has_results": (RESULTS / "latest.json").exists()}
+
+
+# ---- live replay: December trips re-streamed minute by minute -----------------
+_LIVE = {"index": None, "building": False}
+_live_lock = threading.Lock()
+LIVE_MINUTES = 31 * 1440  # December: 31 days of minute-of-day slots
+
+
+def _build_live_index():
+    """Index December pickups by minute-of-day once; cached pickle afterwards."""
+    with _live_lock:
+        if _LIVE["index"] is not None or _LIVE["building"]:
+            return
+        _LIVE["building"] = True
+    try:
+        import pickle
+
+        import pandas as pd
+        cache = DATA / "live_dec.pkl"
+        if cache.exists():
+            with cache.open("rb") as fh:
+                _LIVE["index"] = pickle.load(fh)
+            return
+        files = sorted((DATA / "input" / "2025-12").glob("part-*.csv"))
+        frames = [pd.read_csv(f, header=None, usecols=[0, 2], names=["start", "pu"])
+                  for f in files]
+        df = pd.concat(frames, ignore_index=True)
+        starts = pd.to_datetime(df["start"])
+        # true timeline slot: (day of month - 1) * 1440 + minute of day, so the
+        # replay follows the real month (including the Dec 31 New Year spike)
+        slot = ((starts.dt.day - 1) * 1440 + starts.dt.hour * 60 + starts.dt.minute).astype("int32")
+        counts = df.assign(slot=slot).groupby(["slot", "pu"]).size()
+        index = {}
+        for (m, z), c in counts.items():
+            index.setdefault(int(m), {})[str(int(z))] = int(c)
+        assert len(index) > 40000, "live index unexpectedly sparse"
+        with cache.open("wb") as fh:
+            pickle.dump(index, fh, protocol=pickle.HIGHEST_PROTOCOL)
+        _LIVE["index"] = index
+    except Exception as exc:  # noqa: BLE001 - surfaced to the live view
+        _LIVE["error"] = str(exc)[:300]
+    finally:
+        _LIVE["building"] = False
+
+
+@app.get("/api/live/meta")
+def live_meta():
+    built = _LIVE["index"] is not None
+    peak = max((sum(v.values()) for v in _LIVE["index"].values()), default=0) if built else 0
+    return {"built": built, "building": _LIVE["building"], "error": _LIVE.get("error"),
+            "minutes": LIVE_MINUTES, "peak_minute_total": peak,
+            "source": "2025-12 全量出行按原始时间戳回放"}
+
+
+@app.get("/api/live/frame")
+def live_frame(m: int, span: int = Query(1, ge=1, le=60)):
+    if _LIVE["index"] is None:
+        raise HTTPException(503, "实时索引构建中，请稍候（首次约 1 分钟）")
+    counts = {}
+    base = m % LIVE_MINUTES
+    for step in range(span):
+        for z, c in _LIVE["index"].get((base + step) % LIVE_MINUTES, {}).items():
+            counts[z] = counts.get(z, 0) + c
+    return {"m": base, "span": span, "total": sum(counts.values()), "counts": counts}

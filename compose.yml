@@ -1,0 +1,22 @@
+# GeoFlow 一键拉起（服务层）。
+# 用法：docker compose up --build   → http://localhost:8765
+#
+# 范围说明（诚实边界）：本 compose 只容器化 FastAPI + 前端服务层。
+# Hadoop 3.4.2 集群（2 DataNode / 2 NodeManager）设计上跑在宿主机 WSL2
+# （Start-GeoFlow.ps1 / scripts/hadoop.sh start），通过 ./data 卷共享结果，
+# 容器内的 API 只读 data/results 下的报表。集群整体容器化见 docs/（路线图）。
+
+services:
+  api:
+    build: .
+    container_name: geoflow-api
+    ports:
+      - "8765:8765"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8765/api/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
