@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GeoFlow · 城市出行时空分析</title><link rel="stylesheet" href="/static/style.css?v=20260904k"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GeoFlow · 城市出行时空分析</title><link rel="stylesheet" href="/static/style.css?v=20260904l"></head>
 <body>
 <aside class="sidebar">
   <a class="brand" href="/"><span class="brandmark">G</span>GeoFlow<span class="version">LAB</span></a>
@@ -73,11 +73,11 @@
 
     <section id="d3" class="view" hidden>
       <div class="filterbar"><div class="dataset"><span class="dataset-icon">◧</span><div><strong>3D 全景</strong><span>区域多边形底图 · 柱体立于所属区域 · 颜色 = 规模（可叠加 DEM 点云）</span></div></div><div class="filters"><label>月份 <select id="d3-month"><option value="">全年</option></select></label><span class="filter-divider"></span><span id="d3-caption">全年合计 · 单位：千次</span></div></div>
-    <div class="toolbar"><label class="sync"><input type="checkbox" id="d3-layer-dem" checked> DEM 高程点云</label><label class="sync"><input type="checkbox" id="d3-layer-towers" checked> 需求柱体</label><label class="sync"><input type="checkbox" id="d3-layer-flow" checked> OD 交通流</label><span class="filter-divider"></span><label class="sync"><input type="checkbox" id="d3-sync" checked> 方向同步</label><label>预设 <select id="d3-preset"><option value="iso">等角（环视）</option><option value="top">俯视</option><option value="side">平视</option></select></label><label>方位α <input type="range" id="d3-alpha" min="0" max="360" value="50"></label><label>仰角β <input type="range" id="d3-beta" min="0" max="90" value="45"></label><label>距离 <input type="range" id="d3-dist" min="80" max="320" value="160"></label></div>
+    <div class="toolbar"><label class="sync"><input type="checkbox" id="d3-layer-dem" checked> DEM 高程点云</label><label class="sync"><input type="checkbox" id="d3-layer-towers" checked> 需求着色</label><label class="sync"><input type="checkbox" id="d3-layer-flow" checked> OD 交通流</label><span class="filter-divider"></span><label class="sync"><input type="checkbox" id="d3-sync" checked> 方向同步</label><label>预设 <select id="d3-preset"><option value="iso">等角（环视）</option><option value="top">俯视</option><option value="side">平视</option></select></label><label>方位α <input type="range" id="d3-alpha" min="0" max="360" value="50"></label><label>仰角β <input type="range" id="d3-beta" min="0" max="90" value="45"></label><label>距离 <input type="range" id="d3-dist" min="80" max="320" value="160"></label></div>
       <div class="analysis-grid">
         <article class="panel"><div class="panel-heading"><div><h2>城市需求立体映射</h2><p>分区柱体投影 · 可拖动旋转缩放</p></div><span class="tag">MAP3D + BAR</span></div><div id="chart-scatter3d" class="chart tall"></div><div id="d3-leg" class="leg-chips"></div></article>
       </div>
-      <div class="analysis-grid"><article class="panel"><div class="panel-heading"><div><h2>OD 交通流 · 行政区走廊（全量）</h2><p>全区县全量 · 弧线 = 跨区流量 · 颜色 = 出发区 · 节点 = 跨区总量</p></div><span class="tag">FLOW</span></div><div id="chart-flow3d" class="chart tall"></div></article></div>
+      <div class="analysis-grid"><article class="panel"><div class="panel-heading"><div><h2>OD 交通流 · 行政区走廊（全量）</h2><p>全区县全量 · 弧线 = 跨区流量 · 颜色 = 出发区 · 节点 = 跨区总量</p></div><span class="tag">FLOW</span></div><div id="chart-flow3d" class="chart tall"></div><div class="panel-heading" style="margin-top:6px"><div><h2>DEM 高程平面</h2><p>与弧线图同一经纬坐标 · 海=蓝 · 陆=绿 · 高=棕</p></div></div><div id="chart-demmap" class="chart tall"></div></article></div>
       <div class="analysis-grid">
         <article class="panel"><div class="panel-heading"><div><h2>区域 × 小时 3D 矩阵</h2><p>TOP 20 热门区域</p></div></div><div id="chart-bar3d" class="chart tall"></div></article>
         <article class="panel"><div class="panel-heading"><div><h2>星期 × 小时 3D 曲面</h2><p>全年需求地形</p></div></div><div id="chart-surface" class="chart tall"></div></article>
@@ -130,8 +130,8 @@
     </section>
   </div>
 </main>
-<script src="/static/vendor/echarts.min.js?v=20260904k"></script>
-<script src="/static/vendor/echarts-gl.min.js?v=20260904k"></script>
-<script src="/static/app.js?v=20260904k"></script>
+<script src="/static/vendor/echarts.min.js?v=20260904l"></script>
+<script src="/static/vendor/echarts-gl.min.js?v=20260904l"></script>
+<script src="/static/app.js?v=20260904l"></script>
 </body>
 </html>

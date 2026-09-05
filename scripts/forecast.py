@@ -183,10 +183,11 @@ def main():
     })
 
     top_zone = int(zone_agg.loc[zone_agg["actual"].idxmax(), "zone"])
-    curve = test[test["zone"] == top_zone].sort_values("date")[["date", "trips", "pred"]]
+    curve = test[test["zone"] == top_zone].sort_values(["date", "hour"])[["date", "hour", "trips", "pred"]]
     atomic_json(RESULTS / "forecast_curve.json", {
         "zone": top_zone, "name": name_map.get(top_zone),
-        "points": [[str(r["date"].date()), int(r["trips"]), round(float(r["pred"]), 1)]
+        "points": [[(pd.Timestamp(r["date"].date()) + pd.Timedelta(hours=int(r["hour"]))).isoformat(sep="T")[:16],
+                    int(r["trips"]), round(float(r["pred"]), 1)]
                    for _, r in curve.iterrows()],
     })
     atomic_json(ROOT / "evidence" / "forecast.json", report)
