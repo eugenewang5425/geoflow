@@ -72,7 +72,7 @@ function renderDemMap() {
     yAxis: { type: "value", min: demData.bbox[1], max: demData.bbox[3], name: "纬度", nameLocation: "middle", nameGap: 34, axisLabel: { fontSize: 10, margin: 10 } },
     visualMap: { min: 0, max: 280, calculable: true, orient: "horizontal", left: "center", bottom: 0, inRange: { color: ["#bcd6ec", "#b9d9b3", "#a9c9a0", "#c9b791", "#b29a74"] }, text: ["高", "低"], textStyle: { color: "#666" } },
     tooltip: { formatter: function (p2) { return p2.value[0].toFixed(3) + ", " + p2.value[1].toFixed(3) + "<br/>高程 " + p2.value[2] + " m"; } },
-    series: [{ type: "scatter", symbolSize: 3.2, data: data, itemStyle: { color: function (p2) { const e = p2.value[2]; return e <= 1.5 ? "#bcd6ec" : e <= 45 ? "#b9d9b3" : e <= 120 ? "#a9c9a0" : e <= 220 ? "#c9b791" : "#b29a74"; } } }]
+    series: [{ type: "scatter", symbolSize: 3.2, data: data, progressive: 0, animation: false, itemStyle: { color: function (p2) { const e = p2.value[2]; return e <= 1.5 ? "#bcd6ec" : e <= 45 ? "#b9d9b3" : e <= 120 ? "#a9c9a0" : e <= 220 ? "#c9b791" : "#b29a74"; } } }]
   });
 }
 function renderBoroughFlow() {
@@ -137,9 +137,9 @@ async function renderD3() {
   for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const e = demData.grid[j][i]; demPts.push({ value: [demData.lons[i], demData.lats[j], Math.round(e * 0.02 * 100) / 100], itemStyle: { color: e <= 1.5 ? "#cfdcea" : e <= 45 ? "#b9d9b3" : e <= 120 ? "#a9c9a0" : e <= 220 ? "#c9b791" : "#b29a74" } }); }
   const elevOf = (lon, lat) => demElev(demData.lons, demData.lats, demData.grid, nx, ny, lon, lat);
   if (!geo._mapped3) { echarts.registerMap("nyc", geo); geo._mapped3 = true; }
-const zoneRegions = geo.features.map(f => ({ name: f.properties.name, itemStyle: { color: colTrips(valueOf(f.properties.id)) } }));
+  const colTrips = t => { const r = Math.min(1, t / maxv); if (r < 0.25) return "rgb(157,192,234)"; if (r < 0.5) return "rgb(76,125,216)"; if (r < 0.75) return "rgb(139,111,216)"; if (r < 0.92) return "rgb(176,64,154)"; return "rgb(216,88,76)"; };
+  const zoneRegions = geo.features.map(f => ({ name: f.properties.name, itemStyle: { color: colTrips(valueOf(f.properties.id)) } }));
   window.__zoneRegions = zoneRegions;
-    const colTrips = t => { const r = Math.min(1, t / maxv); if (r < 0.25) return "rgb(157,192,234)"; if (r < 0.5) return "rgb(76,125,216)"; if (r < 0.75) return "rgb(139,111,216)"; if (r < 0.92) return "rgb(176,64,154)"; return "rgb(216,88,76)"; };
   try {
     if (!odData) odData = await get("/api/od");
     const towers = geo.features.map(f => { const c = zoneCenter(f); const v = valueOf(f.properties.id); const e = elevOf(c[0], c[1]); return { name: f.properties.name, value: [c[0], c[1], Math.round((e * 0.3 + v / maxv * 55) * 10) / 10], itemStyle: { color: colTrips(v), opacity: 0.82 } }; });

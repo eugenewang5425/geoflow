@@ -2,7 +2,7 @@
 
 Tiles: https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png
 Elevation (terrarium): e = (R*256 + G + B/256) - 32768  (meters, SRTM-based).
-Output: data/results/dem_grid.json (downsampled grid for the 3D dashboard).
+Output: data/results/dem_grid.json (bbox-aligned block-mean grid for the 3D dashboard).
 Attribution: Mapbox / OpenStreetMap contributors (terrain tiles).
 """
 import io
@@ -17,6 +17,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium"
 Z = 11
+TILE = 256
 # NYC metro bounding box
 LON_MIN, LON_MAX = -74.28, -73.62
 LAT_MIN, LAT_MAX = 40.47, 40.95
@@ -30,6 +31,17 @@ def lon_to_x(lon, z):
 def lat_to_y(lat, z):
     rad = math.radians(lat)
     return int((1.0 - math.asinh(math.tan(rad)) / math.pi) / 2.0 * (1 << z))
+
+
+def lon_to_px(lon):
+    """Global Web-Mercator pixel column at zoom Z."""
+    return (lon + 180.0) / 360.0 * (1 << Z) * TILE
+
+
+def lat_to_px(lat):
+    """Global Web-Mercator pixel row at zoom Z (0 at north)."""
+    rad = math.radians(lat)
+    return (1.0 - math.asinh(math.tan(rad)) / math.pi) / 2.0 * (1 << Z) * TILE
 
 
 def decode(img):
@@ -53,23 +65,34 @@ def main():
                 img = Image.open(io.BytesIO(resp.content)).convert("RGB")
                 canvas.paste(img, ((x - x0) * 256, (y - y0) * 256))
     elev = decode(canvas)
-    # downsample
+    # grid cells span the full bbox in degree space; canvas rows run north->south,
+    # so a cell's pixel rect must be derived via Web Mercator, not by uniform stepping
     nx, ny = GRID, GRID
-    step_x = elev.shape[1] // nx
-    step_y = elev.shape[0] // ny
+    lon_edges = [LON_MIN + (LON_MAX - LON_MIN) * k / nx for k in range(nx + 1)]
+    lat_edges = [LAT_MIN + (LAT_MAX - LAT_MIN) * k / ny for k in range(ny + 1)]
+    off_x, off_y = x0 * TILE, y0 * TILE
+
+    def cell_cols(lon_lo, lon_hi):
+        left = min(tile_w - 1, max(0, int(lon_to_px(lon_lo)) - off_x))
+        right = min(tile_w, max(left + 1, int(lon_to_px(lon_hi)) - off_x))
+        return left, right
+
+    def cell_rows(lat_lo, lat_hi):  # north edge -> smaller canvas y
+        top = min(tile_h - 1, max(0, int(lat_to_px(lat_hi)) - off_y))
+        bottom = min(tile_h, max(top + 1, int(lat_to_px(lat_lo)) - off_y))
+        return top, bottom
+
     grid = []
-    for gy in range(ny):
+    for j in range(ny):  # rows follow lats, south -> north
+        top, bottom = cell_rows(lat_edges[j], lat_edges[j + 1])
         row = []
-        for gx in range(nx):
-            v = float(elev[gy * step_y, gx * step_x])
+        for i in range(nx):
+            left, right = cell_cols(lon_edges[i], lon_edges[i + 1])
+            v = float(elev[top:bottom, left:right].mean())
             row.append(round(max(0.0, v), 1))
         grid.append(row)
-    # corner lon/lat of grid cells (linear between tile corner coords)
-    x_scale = (LON_MAX - LON_MIN) / (x1 - x0 + 1)
-    y_scale = (LAT_MAX - LAT_MIN) / (y1 - y0 + 1)
-    lons = [round(LON_MIN + x_scale * (idx + 0.5) / nx, 4) for idx in range(nx)]
-    lats = [round(LAT_MAX - y_scale * (ny - 1 - idx + 0.5) / ny, 4) for idx in range(ny)]
-    grid = list(reversed(grid))
+    lons = [round((lon_edges[i] + lon_edges[i + 1]) / 2, 4) for i in range(nx)]
+    lats = [round((lat_edges[j] + lat_edges[j + 1]) / 2, 4) for j in range(ny)]
     out = {
         "source": "Mapbox terrain-RGB tiles (AWS elevation-tiles-prod, terrarium encoding)",
         "attribution": "© Mapbox © OpenStreetMap contributors",
