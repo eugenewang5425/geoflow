@@ -1,10 +1,13 @@
 """Generate all charts needed by the GeoFlow course report (local YaHei)."""
 import json
+
 import matplotlib
+
 matplotlib.use("Agg")
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
-from pathlib import Path
 
 ROOT = Path(r"D:\项目\云计算")
 OUT = Path(r"C:\Users\eugen\AppData\Local\Temp\geoflow_charts")

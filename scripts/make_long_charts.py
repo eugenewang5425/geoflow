@@ -2,11 +2,14 @@
 6-year x 12-month heatmap.
 """
 import json
+
 import matplotlib
+
 matplotlib.use("Agg")
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
-from pathlib import Path
 
 ROOT = Path(r"D:\项目\云计算")
 OUT = Path(r"C:\Users\eugen\AppData\Local\Temp\geoflow_charts")
@@ -28,7 +31,7 @@ plt.rcParams.update({"font.family": ["Microsoft YaHei", "SimHei"],
 def main():
     d = json.loads((ROOT / "data/long/year_aggregate.json").read_text())
     monthly = d["monthly_totals"]
-    years = sorted(set(r["year"] for r in monthly))
+    years = sorted({r["year"] for r in monthly})
     months = list(range(1, 13))
     colors = {2019: P["blue"], 2020: P["rose"], 2021: P["amber"],
               2022: P["teal"], 2023: P["olive"], 2024: P["body"]}
@@ -44,7 +47,7 @@ def main():
     ax.set_title("NYC 黄车 6 年月度趋势 · 2020 疫情下凹", color=P["ink"], fontweight="bold", pad=8)
     ax.legend(frameon=False, ncol=3, loc="upper right")
     ax.annotate("2020-04 封城", xy=(4, 0.226), xytext=(5, 1.2),
-                arrowprops=dict(arrowstyle="->", color=P["rose"]), color=P["rose"], fontsize=9)
+                arrowprops={"arrowstyle": "->", "color": P["rose"]}, color=P["rose"], fontsize=9)
     fig.tight_layout()
     fig.savefig(OUT / "fig_pandemic_timeline.png", dpi=170, bbox_inches="tight", facecolor="white")
     plt.close(fig)

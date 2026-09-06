@@ -8,13 +8,12 @@ preserves types, column-pruned reads later).
 Output: data/long/parquet/year=YYYY/month=MM/*.parquet
         data/long/manifest.json (counts per month + grand total)
 """
-import sys
 import time
 from pathlib import Path
 
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql.types import TimestampType, DoubleType, IntegerType
+from pyspark.sql.types import DoubleType, IntegerType, TimestampType
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "data" / "long" / "parquet"
@@ -25,14 +24,6 @@ EVIDENCE.mkdir(exist_ok=True)
 YEARS = list(range(2019, 2025))  # 2019..2024 = 6 years = 72 months
 
 BASE = "https://d37ci6vzurychx.cloudfront.net/trip-data"
-
-
-def build_spark():
-    return SparkSession.builder.appName("GeoFlow-Long-Ingest") \
-        .master("local[4]") \
-        .config("spark.driver.memory", "4g") \
-        .config("spark.sql.shuffle.partitions", "32") \
-        .getOrCreate()
 
 
 def build_spark():
@@ -65,7 +56,7 @@ def main():
             target = raw / name
             if not target.exists():
                 rc = subprocess.run(["curl", "-fsSL", "-o", str(target), f"{BASE}/{name}"],
-                                    capture_output=True).returncode
+                                    capture_output=True, check=False).returncode
                 if rc != 0:
                     # second filename form; skip if also 404
                     continue
@@ -79,8 +70,6 @@ def main():
     # Read per-year with explicit schema coercion; mergeSchema=false so we
     # can cast incompatible types (TLC switched PULocationID int32->int64
     # around mid-2021).
-    required = ["tpep_pickup_datetime", "tpep_dropoff_datetime", "PULocationID",
-                 "DOLocationID", "trip_distance", "total_amount"]
     rename = {
         "tpep_pickup_datetime": "pickup", "tpep_dropoff_datetime": "dropoff",
         "lpep_pickup_datetime": "pickup", "lpep_dropoff_datetime": "dropoff",

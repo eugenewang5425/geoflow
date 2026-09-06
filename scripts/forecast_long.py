@@ -8,7 +8,7 @@ which LightGBM handles natively.
 import json
 import sys
 import time
-from datetime import date, datetime
+from datetime import date
 from pathlib import Path
 
 import numpy as np
@@ -127,9 +127,9 @@ def main():
 
     report = {
         "engine": "LightGBM + 6-year long archive (2019-2024 train, 2025 test)",
-        "rows": {"train_2019_2023": int(len(fit_train)),
-                 "val_2024": int(len(val)),
-                 "test_2025": int(len(test))},
+        "rows": {"train_2019_2023": len(fit_train),
+                 "val_2024": len(val),
+                 "test_2025": len(test)},
         "features": feats,
         "metrics": {"model": {"rmse": round(rmse, 2), "mape_pct": round(mape, 2),
                                  "mape_high_demand_pct": round(mape_hi, 2)},
