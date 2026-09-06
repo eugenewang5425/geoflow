@@ -16,6 +16,7 @@ BASE = sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8765"
 
 
 def main():
+    smoke = __import__("os").environ.get("E2E_SMOKE") == "1"
     failures = []
     js_errors = []
     with sync_playwright() as p:
@@ -29,17 +30,18 @@ def main():
 
         page.goto(BASE, wait_until="domcontentloaded")
         page.wait_for_timeout(4500)
-        if page.locator("#kpi-trips").inner_text().strip() in ("", "—"):
-            failures.append("时空总览: KPI 为空")
-        if page.locator("#map path").count() < 200:
-            failures.append("时空总览: 分区地图未渲染")
+        if not smoke:
+            if page.locator("#kpi-trips").inner_text().strip() in ("", "—"):
+                failures.append("时空总览: KPI 为空")
+            if page.locator("#map path").count() < 200:
+                failures.append("时空总览: 分区地图未渲染")
 
         visit("年度趋势")
-        if page.locator("#chart-days canvas").count() == 0:
+        if not smoke and page.locator("#chart-days canvas").count() == 0:
             failures.append("年度趋势: 月×小时热力图无 canvas")
 
         visit("OD 流向")
-        if page.locator("#chart-sankey canvas").count() == 0:
+        if not smoke and page.locator("#chart-sankey canvas").count() == 0:
             failures.append("OD 流向: 桑基图无 canvas")
 
         visit("3D 全景", 6000)
@@ -53,34 +55,37 @@ def main():
             failures.append("3D 全景: colTrips TDZ 回归")
 
         visit("实时回放", 3500)
-        # the view auto-plays on entry; only press the button if it is paused
-        if page.locator("#live-play").inner_text().strip().startswith("▶"):
+        # the view auto-plays on entry; only press the button if it is paused.
+        # In CI smoke mode the replay index cannot build (no data), so we only
+        # assert that the page stays alive without JS errors.
+        if not smoke and page.locator("#live-play").inner_text().strip().startswith("▶"):
             page.locator("#live-play").click()
-        page.wait_for_timeout(5000)
+        page.wait_for_timeout(2500 if smoke else 5000)
         total_1 = page.locator("#live-total").inner_text()
         clock_1 = page.locator("#live-clock").inner_text()
         page.wait_for_timeout(2500)
         total_2 = page.locator("#live-total").inner_text()
         clock_2 = page.locator("#live-clock").inner_text()
-        if total_1 in ("", "—") or total_2 in ("", "—"):
-            failures.append("实时回放: 本分钟出行无数据")
-        if clock_1 == clock_2:
-            failures.append("实时回放: 模拟时钟两次采样相同，回放疑似未运行")
-        if page.locator("#live-map path").count() < 200:
+        if not smoke:
+            if total_1 in ("", "—") or total_2 in ("", "—"):
+                failures.append("实时回放: 本分钟出行无数据")
+            if clock_1 == clock_2:
+                failures.append("实时回放: 模拟时钟两次采样相同，回放疑似未运行")
+        if not smoke and page.locator("#live-map path").count() < 200:
             failures.append("实时回放: 热力地图未渲染")
 
         visit("需求预测", 4000)
-        if page.locator("#chart-fc-curve canvas").count() == 0:
+        if not smoke and page.locator("#chart-fc-curve canvas").count() == 0:
             failures.append("需求预测: 曲线图无 canvas")
 
         visit("实验与作业", 3000)
-        if page.locator("#runs tr").count() == 0:
+        if not smoke and page.locator("#runs tr").count() == 0:
             failures.append("实验与作业: 作业记录为空")
         if "113.9" not in page.locator("#chart-perf-map").inner_text():
             pass  # canvas chart: text check not applicable; numeric spot-check below
 
         visit("系统架构", 2500)
-        if page.locator("#node-console tr").count() < 3:
+        if not smoke and page.locator("#node-console tr").count() < 3:
             failures.append("系统架构: 节点检测台行数不足")
         if "CONSOLE" not in page.content():
             failures.append("系统架构: 检测台面板缺失")
