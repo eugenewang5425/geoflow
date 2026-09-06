@@ -1,0 +1,3148 @@
+{
+  "engine": "Spark 3.5.1 (local[2])",
+  "source": "/mnt/d/项目/云计算/data/long/parquet/kind=T",
+  "generated_at": "2026-09-06T10:21:20Z",
+  "yearly_totals": [
+    {
+      "year": 2019,
+      "trips": 82238131
+    },
+    {
+      "year": 2020,
+      "trips": 23835035
+    },
+    {
+      "year": 2021,
+      "trips": 29749392
+    },
+    {
+      "year": 2022,
+      "trips": 37998331
+    },
+    {
+      "year": 2023,
+      "trips": 36500545
+    },
+    {
+      "year": 2024,
+      "trips": 39309746
+    }
+  ],
+  "monthly_totals": [
+    {
+      "year": 2019,
+      "month": 1,
+      "trips": 7416584,
+      "distance_MM": 21009.8,
+      "amount_MUSD": 114.48,
+      "pct_of_2019": 108.2
+    },
+    {
+      "year": 2019,
+      "month": 2,
+      "trips": 6868335,
+      "distance_MM": 20026.3,
+      "amount_MUSD": 126.63,
+      "pct_of_2019": 100.2
+    },
+    {
+      "year": 2019,
+      "month": 3,
+      "trips": 7688506,
+      "distance_MM": 23204.4,
+      "amount_MUSD": 145.6,
+      "pct_of_2019": 112.2
+    },
+    {
+      "year": 2019,
+      "month": 4,
+      "trips": 7286812,
+      "distance_MM": 22087.9,
+      "amount_MUSD": 139.44,
+      "pct_of_2019": 106.3
+    },
+    {
+      "year": 2019,
+      "month": 5,
+      "trips": 7404098,
+      "distance_MM": 22653.9,
+      "amount_MUSD": 143.79,
+      "pct_of_2019": 108.0
+    },
+    {
+      "year": 2019,
+      "month": 6,
+      "trips": 6779817,
+      "distance_MM": 21033.2,
+      "amount_MUSD": 132.34,
+      "pct_of_2019": 98.9
+    },
+    {
+      "year": 2019,
+      "month": 7,
+      "trips": 6127936,
+      "distance_MM": 19057.9,
+      "amount_MUSD": 118.26,
+      "pct_of_2019": 89.4
+    },
+    {
+      "year": 2019,
+      "month": 8,
+      "trips": 5887350,
+      "distance_MM": 18611.0,
+      "amount_MUSD": 113.51,
+      "pct_of_2019": 85.9
+    },
+    {
+      "year": 2019,
+      "month": 9,
+      "trips": 6377648,
+      "distance_MM": 19704.2,
+      "amount_MUSD": 125.02,
+      "pct_of_2019": 93.1
+    },
+    {
+      "year": 2019,
+      "month": 10,
+      "trips": 7019804,
+      "distance_MM": 21182.0,
+      "amount_MUSD": 136.81,
+      "pct_of_2019": 102.4
+    },
+    {
+      "year": 2019,
+      "month": 11,
+      "trips": 6683705,
+      "distance_MM": 19672.8,
+      "amount_MUSD": 127.91,
+      "pct_of_2019": 97.5
+    },
+    {
+      "year": 2019,
+      "month": 12,
+      "trips": 6697536,
+      "distance_MM": 19981.7,
+      "amount_MUSD": 129.24,
+      "pct_of_2019": 97.7
+    },
+    {
+      "year": 2020,
+      "month": 1,
+      "trips": 6227232,
+      "distance_MM": 18095.8,
+      "amount_MUSD": 114.53,
+      "pct_of_2019": 90.9
+    },
+    {
+      "year": 2020,
+      "month": 2,
+      "trips": 6137195,
+      "distance_MM": 17392.9,
+      "amount_MUSD": 112.74,
+      "pct_of_2019": 89.6
+    },
+    {
+      "year": 2020,
+      "month": 3,
+      "trips": 2924535,
+      "distance_MM": 8454.6,
+      "amount_MUSD": 52.92,
+      "pct_of_2019": 42.7
+    },
+    {
+      "year": 2020,
+      "month": 4,
+      "trips": 226016,
+      "distance_MM": 691.5,
+      "amount_MUSD": 3.68,
+      "pct_of_2019": 3.3
+    },
+    {
+      "year": 2020,
+      "month": 5,
+      "trips": 329187,
+      "distance_MM": 1229.2,
+      "amount_MUSD": 5.98,
+      "pct_of_2019": 4.8
+    },
+    {
+      "year": 2020,
+      "month": 6,
+      "trips": 520405,
+      "distance_MM": 1780.3,
+      "amount_MUSD": 9.66,
+      "pct_of_2019": 7.6
+    },
+    {
+      "year": 2020,
+      "month": 7,
+      "trips": 757853,
+      "distance_MM": 2431.5,
+      "amount_MUSD": 13.96,
+      "pct_of_2019": 11.1
+    },
+    {
+      "year": 2020,
+      "month": 8,
+      "trips": 959431,
+      "distance_MM": 2990.5,
+      "amount_MUSD": 17.47,
+      "pct_of_2019": 14.0
+    },
+    {
+      "year": 2020,
+      "month": 9,
+      "trips": 1282942,
+      "distance_MM": 3613.4,
+      "amount_MUSD": 22.39,
+      "pct_of_2019": 18.7
+    },
+    {
+      "year": 2020,
+      "month": 10,
+      "trips": 1614043,
+      "distance_MM": 4376.1,
+      "amount_MUSD": 27.95,
+      "pct_of_2019": 23.6
+    },
+    {
+      "year": 2020,
+      "month": 11,
+      "trips": 1451073,
+      "distance_MM": 3948.6,
+      "amount_MUSD": 25.02,
+      "pct_of_2019": 21.2
+    },
+    {
+      "year": 2020,
+      "month": 12,
+      "trips": 1405123,
+      "distance_MM": 3789.9,
+      "amount_MUSD": 24.2,
+      "pct_of_2019": 20.5
+    },
+    {
+      "year": 2021,
+      "month": 1,
+      "trips": 1311765,
+      "distance_MM": 3764.0,
+      "amount_MUSD": 22.67,
+      "pct_of_2019": 19.1
+    },
+    {
+      "year": 2021,
+      "month": 2,
+      "trips": 1312216,
+      "distance_MM": 3636.0,
+      "amount_MUSD": 22.8,
+      "pct_of_2019": 19.1
+    },
+    {
+      "year": 2021,
+      "month": 3,
+      "trips": 1849266,
+      "distance_MM": 5211.0,
+      "amount_MUSD": 32.39,
+      "pct_of_2019": 27.0
+    },
+    {
+      "year": 2021,
+      "month": 4,
+      "trips": 2085963,
+      "distance_MM": 6110.3,
+      "amount_MUSD": 37.79,
+      "pct_of_2019": 30.4
+    },
+    {
+      "year": 2021,
+      "month": 5,
+      "trips": 2416559,
+      "distance_MM": 7345.8,
+      "amount_MUSD": 44.97,
+      "pct_of_2019": 35.3
+    },
+    {
+      "year": 2021,
+      "month": 6,
+      "trips": 2737422,
+      "distance_MM": 8486.3,
+      "amount_MUSD": 52.41,
+      "pct_of_2019": 39.9
+    },
+    {
+      "year": 2021,
+      "month": 7,
+      "trips": 2717855,
+      "distance_MM": 8959.3,
+      "amount_MUSD": 53.2,
+      "pct_of_2019": 39.7
+    },
+    {
+      "year": 2021,
+      "month": 8,
+      "trips": 2681702,
+      "distance_MM": 9130.4,
+      "amount_MUSD": 53.2,
+      "pct_of_2019": 39.1
+    },
+    {
+      "year": 2021,
+      "month": 9,
+      "trips": 2838122,
+      "distance_MM": 9470.7,
+      "amount_MUSD": 57.5,
+      "pct_of_2019": 41.4
+    },
+    {
+      "year": 2021,
+      "month": 10,
+      "trips": 3343099,
+      "distance_MM": 10703.1,
+      "amount_MUSD": 66.94,
+      "pct_of_2019": 48.8
+    },
+    {
+      "year": 2021,
+      "month": 11,
+      "trips": 3357382,
+      "distance_MM": 11048.5,
+      "amount_MUSD": 68.57,
+      "pct_of_2019": 49.0
+    },
+    {
+      "year": 2021,
+      "month": 12,
+      "trips": 3098041,
+      "distance_MM": 10460.4,
+      "amount_MUSD": 63.81,
+      "pct_of_2019": 45.2
+    },
+    {
+      "year": 2022,
+      "month": 1,
+      "trips": 2373961,
+      "distance_MM": 7329.1,
+      "amount_MUSD": 44.47
+    },
+    {
+      "year": 2022,
+      "month": 2,
+      "trips": 2876586,
+      "distance_MM": 8830.5,
+      "amount_MUSD": 55.44
+    },
+    {
+      "year": 2022,
+      "month": 3,
+      "trips": 3495085,
+      "distance_MM": 11579.4,
+      "amount_MUSD": 70.87
+    },
+    {
+      "year": 2022,
+      "month": 4,
+      "trips": 3467021,
+      "distance_MM": 11925.7,
+      "amount_MUSD": 72.2
+    },
+    {
+      "year": 2022,
+      "month": 5,
+      "trips": 3449569,
+      "distance_MM": 12461.8,
+      "amount_MUSD": 74.81
+    },
+    {
+      "year": 2022,
+      "month": 6,
+      "trips": 3412751,
+      "distance_MM": 12124.6,
+      "amount_MUSD": 73.31
+    },
+    {
+      "year": 2022,
+      "month": 7,
+      "trips": 3039381,
+      "distance_MM": 10871.5,
+      "amount_MUSD": 63.88
+    },
+    {
+      "year": 2022,
+      "month": 8,
+      "trips": 3011059,
+      "distance_MM": 10862.0,
+      "amount_MUSD": 63.57
+    },
+    {
+      "year": 2022,
+      "month": 9,
+      "trips": 3042043,
+      "distance_MM": 11167.7,
+      "amount_MUSD": 67.5
+    },
+    {
+      "year": 2022,
+      "month": 10,
+      "trips": 3507275,
+      "distance_MM": 12578.2,
+      "amount_MUSD": 76.56
+    },
+    {
+      "year": 2022,
+      "month": 11,
+      "trips": 3092660,
+      "distance_MM": 10938.2,
+      "amount_MUSD": 67.04
+    },
+    {
+      "year": 2022,
+      "month": 12,
+      "trips": 3230940,
+      "distance_MM": 11442.4,
+      "amount_MUSD": 78.38
+    },
+    {
+      "year": 2023,
+      "month": 1,
+      "trips": 2934656,
+      "distance_MM": 9824.0,
+      "amount_MUSD": 78.91
+    },
+    {
+      "year": 2023,
+      "month": 2,
+      "trips": 2791875,
+      "distance_MM": 9197.2,
+      "amount_MUSD": 75.04
+    },
+    {
+      "year": 2023,
+      "month": 3,
+      "trips": 3268273,
+      "distance_MM": 11154.6,
+      "amount_MUSD": 91.01
+    },
+    {
+      "year": 2023,
+      "month": 4,
+      "trips": 3160062,
+      "distance_MM": 11081.5,
+      "amount_MUSD": 89.39
+    },
+    {
+      "year": 2023,
+      "month": 5,
+      "trips": 3373572,
+      "distance_MM": 11925.5,
+      "amount_MUSD": 97.82
+    },
+    {
+      "year": 2023,
+      "month": 6,
+      "trips": 3169495,
+      "distance_MM": 11279.1,
+      "amount_MUSD": 91.65
+    },
+    {
+      "year": 2023,
+      "month": 7,
+      "trips": 2772274,
+      "distance_MM": 9943.7,
+      "amount_MUSD": 79.14
+    },
+    {
+      "year": 2023,
+      "month": 8,
+      "trips": 2685695,
+      "distance_MM": 9719.4,
+      "amount_MUSD": 76.99
+    },
+    {
+      "year": 2023,
+      "month": 9,
+      "trips": 2669264,
+      "distance_MM": 9462.2,
+      "amount_MUSD": 79.42
+    },
+    {
+      "year": 2023,
+      "month": 10,
+      "trips": 3306940,
+      "distance_MM": 11508.4,
+      "amount_MUSD": 97.04
+    },
+    {
+      "year": 2023,
+      "month": 11,
+      "trips": 3148152,
+      "distance_MM": 10602.4,
+      "amount_MUSD": 91.01
+    },
+    {
+      "year": 2023,
+      "month": 12,
+      "trips": 3220287,
+      "distance_MM": 10667.7,
+      "amount_MUSD": 92.35
+    },
+    {
+      "year": 2024,
+      "month": 1,
+      "trips": 2833694,
+      "distance_MM": 9181.9,
+      "amount_MUSD": 76.31
+    },
+    {
+      "year": 2024,
+      "month": 2,
+      "trips": 2870698,
+      "distance_MM": 9110.6,
+      "amount_MUSD": 77.07
+    },
+    {
+      "year": 2024,
+      "month": 3,
+      "trips": 3411554,
+      "distance_MM": 11293.1,
+      "amount_MUSD": 93.4
+    },
+    {
+      "year": 2024,
+      "month": 4,
+      "trips": 3385110,
+      "distance_MM": 11316.0,
+      "amount_MUSD": 93.75
+    },
+    {
+      "year": 2024,
+      "month": 5,
+      "trips": 3582293,
+      "distance_MM": 12096.7,
+      "amount_MUSD": 102.11
+    },
+    {
+      "year": 2024,
+      "month": 6,
+      "trips": 3395196,
+      "distance_MM": 11426.1,
+      "amount_MUSD": 95.53
+    },
+    {
+      "year": 2024,
+      "month": 7,
+      "trips": 2939121,
+      "distance_MM": 10328.5,
+      "amount_MUSD": 83.31
+    },
+    {
+      "year": 2024,
+      "month": 8,
+      "trips": 2831048,
+      "distance_MM": 10145.1,
+      "amount_MUSD": 80.87
+    },
+    {
+      "year": 2024,
+      "month": 9,
+      "trips": 3456262,
+      "distance_MM": 12004.3,
+      "amount_MUSD": 99.82
+    },
+    {
+      "year": 2024,
+      "month": 10,
+      "trips": 3643942,
+      "distance_MM": 12458.9,
+      "amount_MUSD": 104.98
+    },
+    {
+      "year": 2024,
+      "month": 11,
+      "trips": 3478417,
+      "distance_MM": 11440.8,
+      "amount_MUSD": 97.4
+    },
+    {
+      "year": 2024,
+      "month": 12,
+      "trips": 3482411,
+      "distance_MM": 11395.8,
+      "amount_MUSD": 100.59
+    }
+  ],
+  "pandemic_timeline_2019_2021": [
+    {
+      "year": 2019,
+      "month": 1,
+      "trips": 7416584,
+      "distance_MM": 21009.8,
+      "amount_MUSD": 114.48,
+      "pct_of_2019": 108.2
+    },
+    {
+      "year": 2019,
+      "month": 2,
+      "trips": 6868335,
+      "distance_MM": 20026.3,
+      "amount_MUSD": 126.63,
+      "pct_of_2019": 100.2
+    },
+    {
+      "year": 2019,
+      "month": 3,
+      "trips": 7688506,
+      "distance_MM": 23204.4,
+      "amount_MUSD": 145.6,
+      "pct_of_2019": 112.2
+    },
+    {
+      "year": 2019,
+      "month": 4,
+      "trips": 7286812,
+      "distance_MM": 22087.9,
+      "amount_MUSD": 139.44,
+      "pct_of_2019": 106.3
+    },
+    {
+      "year": 2019,
+      "month": 5,
+      "trips": 7404098,
+      "distance_MM": 22653.9,
+      "amount_MUSD": 143.79,
+      "pct_of_2019": 108.0
+    },
+    {
+      "year": 2019,
+      "month": 6,
+      "trips": 6779817,
+      "distance_MM": 21033.2,
+      "amount_MUSD": 132.34,
+      "pct_of_2019": 98.9
+    },
+    {
+      "year": 2019,
+      "month": 7,
+      "trips": 6127936,
+      "distance_MM": 19057.9,
+      "amount_MUSD": 118.26,
+      "pct_of_2019": 89.4
+    },
+    {
+      "year": 2019,
+      "month": 8,
+      "trips": 5887350,
+      "distance_MM": 18611.0,
+      "amount_MUSD": 113.51,
+      "pct_of_2019": 85.9
+    },
+    {
+      "year": 2019,
+      "month": 9,
+      "trips": 6377648,
+      "distance_MM": 19704.2,
+      "amount_MUSD": 125.02,
+      "pct_of_2019": 93.1
+    },
+    {
+      "year": 2019,
+      "month": 10,
+      "trips": 7019804,
+      "distance_MM": 21182.0,
+      "amount_MUSD": 136.81,
+      "pct_of_2019": 102.4
+    },
+    {
+      "year": 2019,
+      "month": 11,
+      "trips": 6683705,
+      "distance_MM": 19672.8,
+      "amount_MUSD": 127.91,
+      "pct_of_2019": 97.5
+    },
+    {
+      "year": 2019,
+      "month": 12,
+      "trips": 6697536,
+      "distance_MM": 19981.7,
+      "amount_MUSD": 129.24,
+      "pct_of_2019": 97.7
+    },
+    {
+      "year": 2020,
+      "month": 1,
+      "trips": 6227232,
+      "distance_MM": 18095.8,
+      "amount_MUSD": 114.53,
+      "pct_of_2019": 90.9
+    },
+    {
+      "year": 2020,
+      "month": 2,
+      "trips": 6137195,
+      "distance_MM": 17392.9,
+      "amount_MUSD": 112.74,
+      "pct_of_2019": 89.6
+    },
+    {
+      "year": 2020,
+      "month": 3,
+      "trips": 2924535,
+      "distance_MM": 8454.6,
+      "amount_MUSD": 52.92,
+      "pct_of_2019": 42.7
+    },
+    {
+      "year": 2020,
+      "month": 4,
+      "trips": 226016,
+      "distance_MM": 691.5,
+      "amount_MUSD": 3.68,
+      "pct_of_2019": 3.3
+    },
+    {
+      "year": 2020,
+      "month": 5,
+      "trips": 329187,
+      "distance_MM": 1229.2,
+      "amount_MUSD": 5.98,
+      "pct_of_2019": 4.8
+    },
+    {
+      "year": 2020,
+      "month": 6,
+      "trips": 520405,
+      "distance_MM": 1780.3,
+      "amount_MUSD": 9.66,
+      "pct_of_2019": 7.6
+    },
+    {
+      "year": 2020,
+      "month": 7,
+      "trips": 757853,
+      "distance_MM": 2431.5,
+      "amount_MUSD": 13.96,
+      "pct_of_2019": 11.1
+    },
+    {
+      "year": 2020,
+      "month": 8,
+      "trips": 959431,
+      "distance_MM": 2990.5,
+      "amount_MUSD": 17.47,
+      "pct_of_2019": 14.0
+    },
+    {
+      "year": 2020,
+      "month": 9,
+      "trips": 1282942,
+      "distance_MM": 3613.4,
+      "amount_MUSD": 22.39,
+      "pct_of_2019": 18.7
+    },
+    {
+      "year": 2020,
+      "month": 10,
+      "trips": 1614043,
+      "distance_MM": 4376.1,
+      "amount_MUSD": 27.95,
+      "pct_of_2019": 23.6
+    },
+    {
+      "year": 2020,
+      "month": 11,
+      "trips": 1451073,
+      "distance_MM": 3948.6,
+      "amount_MUSD": 25.02,
+      "pct_of_2019": 21.2
+    },
+    {
+      "year": 2020,
+      "month": 12,
+      "trips": 1405123,
+      "distance_MM": 3789.9,
+      "amount_MUSD": 24.2,
+      "pct_of_2019": 20.5
+    },
+    {
+      "year": 2021,
+      "month": 1,
+      "trips": 1311765,
+      "distance_MM": 3764.0,
+      "amount_MUSD": 22.67,
+      "pct_of_2019": 19.1
+    },
+    {
+      "year": 2021,
+      "month": 2,
+      "trips": 1312216,
+      "distance_MM": 3636.0,
+      "amount_MUSD": 22.8,
+      "pct_of_2019": 19.1
+    },
+    {
+      "year": 2021,
+      "month": 3,
+      "trips": 1849266,
+      "distance_MM": 5211.0,
+      "amount_MUSD": 32.39,
+      "pct_of_2019": 27.0
+    },
+    {
+      "year": 2021,
+      "month": 4,
+      "trips": 2085963,
+      "distance_MM": 6110.3,
+      "amount_MUSD": 37.79,
+      "pct_of_2019": 30.4
+    },
+    {
+      "year": 2021,
+      "month": 5,
+      "trips": 2416559,
+      "distance_MM": 7345.8,
+      "amount_MUSD": 44.97,
+      "pct_of_2019": 35.3
+    },
+    {
+      "year": 2021,
+      "month": 6,
+      "trips": 2737422,
+      "distance_MM": 8486.3,
+      "amount_MUSD": 52.41,
+      "pct_of_2019": 39.9
+    },
+    {
+      "year": 2021,
+      "month": 7,
+      "trips": 2717855,
+      "distance_MM": 8959.3,
+      "amount_MUSD": 53.2,
+      "pct_of_2019": 39.7
+    },
+    {
+      "year": 2021,
+      "month": 8,
+      "trips": 2681702,
+      "distance_MM": 9130.4,
+      "amount_MUSD": 53.2,
+      "pct_of_2019": 39.1
+    },
+    {
+      "year": 2021,
+      "month": 9,
+      "trips": 2838122,
+      "distance_MM": 9470.7,
+      "amount_MUSD": 57.5,
+      "pct_of_2019": 41.4
+    },
+    {
+      "year": 2021,
+      "month": 10,
+      "trips": 3343099,
+      "distance_MM": 10703.1,
+      "amount_MUSD": 66.94,
+      "pct_of_2019": 48.8
+    },
+    {
+      "year": 2021,
+      "month": 11,
+      "trips": 3357382,
+      "distance_MM": 11048.5,
+      "amount_MUSD": 68.57,
+      "pct_of_2019": 49.0
+    },
+    {
+      "year": 2021,
+      "month": 12,
+      "trips": 3098041,
+      "distance_MM": 10460.4,
+      "amount_MUSD": 63.81,
+      "pct_of_2019": 45.2
+    }
+  ],
+  "by_hour_month": [
+    {
+      "month": 1,
+      "hour": 0,
+      "avg_trips": 586988
+    },
+    {
+      "month": 1,
+      "hour": 1,
+      "avg_trips": 414885
+    },
+    {
+      "month": 1,
+      "hour": 2,
+      "avg_trips": 296097
+    },
+    {
+      "month": 1,
+      "hour": 3,
+      "avg_trips": 202514
+    },
+    {
+      "month": 1,
+      "hour": 4,
+      "avg_trips": 148930
+    },
+    {
+      "month": 1,
+      "hour": 5,
+      "avg_trips": 179130
+    },
+    {
+      "month": 1,
+      "hour": 6,
+      "avg_trips": 429067
+    },
+    {
+      "month": 1,
+      "hour": 7,
+      "avg_trips": 803396
+    },
+    {
+      "month": 1,
+      "hour": 8,
+      "avg_trips": 1044985
+    },
+    {
+      "month": 1,
+      "hour": 9,
+      "avg_trips": 1078007
+    },
+    {
+      "month": 1,
+      "hour": 10,
+      "avg_trips": 1108200
+    },
+    {
+      "month": 1,
+      "hour": 11,
+      "avg_trips": 1172393
+    },
+    {
+      "month": 1,
+      "hour": 12,
+      "avg_trips": 1273349
+    },
+    {
+      "month": 1,
+      "hour": 13,
+      "avg_trips": 1304041
+    },
+    {
+      "month": 1,
+      "hour": 14,
+      "avg_trips": 1399993
+    },
+    {
+      "month": 1,
+      "hour": 15,
+      "avg_trips": 1448276
+    },
+    {
+      "month": 1,
+      "hour": 16,
+      "avg_trips": 1386669
+    },
+    {
+      "month": 1,
+      "hour": 17,
+      "avg_trips": 1512090
+    },
+    {
+      "month": 1,
+      "hour": 18,
+      "avg_trips": 1600540
+    },
+    {
+      "month": 1,
+      "hour": 19,
+      "avg_trips": 1422722
+    },
+    {
+      "month": 1,
+      "hour": 20,
+      "avg_trips": 1224184
+    },
+    {
+      "month": 1,
+      "hour": 21,
+      "avg_trips": 1189254
+    },
+    {
+      "month": 1,
+      "hour": 22,
+      "avg_trips": 1068193
+    },
+    {
+      "month": 1,
+      "hour": 23,
+      "avg_trips": 803989
+    },
+    {
+      "month": 2,
+      "hour": 0,
+      "avg_trips": 596319
+    },
+    {
+      "month": 2,
+      "hour": 1,
+      "avg_trips": 408785
+    },
+    {
+      "month": 2,
+      "hour": 2,
+      "avg_trips": 287884
+    },
+    {
+      "month": 2,
+      "hour": 3,
+      "avg_trips": 195119
+    },
+    {
+      "month": 2,
+      "hour": 4,
+      "avg_trips": 142090
+    },
+    {
+      "month": 2,
+      "hour": 5,
+      "avg_trips": 166002
+    },
+    {
+      "month": 2,
+      "hour": 6,
+      "avg_trips": 407868
+    },
+    {
+      "month": 2,
+      "hour": 7,
+      "avg_trips": 775027
+    },
+    {
+      "month": 2,
+      "hour": 8,
+      "avg_trips": 1017611
+    },
+    {
+      "month": 2,
+      "hour": 9,
+      "avg_trips": 1055744
+    },
+    {
+      "month": 2,
+      "hour": 10,
+      "avg_trips": 1075836
+    },
+    {
+      "month": 2,
+      "hour": 11,
+      "avg_trips": 1134260
+    },
+    {
+      "month": 2,
+      "hour": 12,
+      "avg_trips": 1224957
+    },
+    {
+      "month": 2,
+      "hour": 13,
+      "avg_trips": 1254100
+    },
+    {
+      "month": 2,
+      "hour": 14,
+      "avg_trips": 1340080
+    },
+    {
+      "month": 2,
+      "hour": 15,
+      "avg_trips": 1375293
+    },
+    {
+      "month": 2,
+      "hour": 16,
+      "avg_trips": 1340302
+    },
+    {
+      "month": 2,
+      "hour": 17,
+      "avg_trips": 1495501
+    },
+    {
+      "month": 2,
+      "hour": 18,
+      "avg_trips": 1622125
+    },
+    {
+      "month": 2,
+      "hour": 19,
+      "avg_trips": 1452408
+    },
+    {
+      "month": 2,
+      "hour": 20,
+      "avg_trips": 1251478
+    },
+    {
+      "month": 2,
+      "hour": 21,
+      "avg_trips": 1220209
+    },
+    {
+      "month": 2,
+      "hour": 22,
+      "avg_trips": 1141325
+    },
+    {
+      "month": 2,
+      "hour": 23,
+      "avg_trips": 876582
+    },
+    {
+      "month": 3,
+      "hour": 0,
+      "avg_trips": 614173
+    },
+    {
+      "month": 3,
+      "hour": 1,
+      "avg_trips": 409094
+    },
+    {
+      "month": 3,
+      "hour": 2,
+      "avg_trips": 252987
+    },
+    {
+      "month": 3,
+      "hour": 3,
+      "avg_trips": 199030
+    },
+    {
+      "month": 3,
+      "hour": 4,
+      "avg_trips": 146681
+    },
+    {
+      "month": 3,
+      "hour": 5,
+      "avg_trips": 164500
+    },
+    {
+      "month": 3,
+      "hour": 6,
+      "avg_trips": 401587
+    },
+    {
+      "month": 3,
+      "hour": 7,
+      "avg_trips": 741747
+    },
+    {
+      "month": 3,
+      "hour": 8,
+      "avg_trips": 986039
+    },
+    {
+      "month": 3,
+      "hour": 9,
+      "avg_trips": 1032698
+    },
+    {
+      "month": 3,
+      "hour": 10,
+      "avg_trips": 1068772
+    },
+    {
+      "month": 3,
+      "hour": 11,
+      "avg_trips": 1135795
+    },
+    {
+      "month": 3,
+      "hour": 12,
+      "avg_trips": 1218306
+    },
+    {
+      "month": 3,
+      "hour": 13,
+      "avg_trips": 1243558
+    },
+    {
+      "month": 3,
+      "hour": 14,
+      "avg_trips": 1336008
+    },
+    {
+      "month": 3,
+      "hour": 15,
+      "avg_trips": 1358752
+    },
+    {
+      "month": 3,
+      "hour": 16,
+      "avg_trips": 1329001
+    },
+    {
+      "month": 3,
+      "hour": 17,
+      "avg_trips": 1479055
+    },
+    {
+      "month": 3,
+      "hour": 18,
+      "avg_trips": 1585883
+    },
+    {
+      "month": 3,
+      "hour": 19,
+      "avg_trips": 1440804
+    },
+    {
+      "month": 3,
+      "hour": 20,
+      "avg_trips": 1265388
+    },
+    {
+      "month": 3,
+      "hour": 21,
+      "avg_trips": 1222380
+    },
+    {
+      "month": 3,
+      "hour": 22,
+      "avg_trips": 1126786
+    },
+    {
+      "month": 3,
+      "hour": 23,
+      "avg_trips": 878195
+    },
+    {
+      "month": 4,
+      "hour": 0,
+      "avg_trips": 514944
+    },
+    {
+      "month": 4,
+      "hour": 1,
+      "avg_trips": 335883
+    },
+    {
+      "month": 4,
+      "hour": 2,
+      "avg_trips": 223594
+    },
+    {
+      "month": 4,
+      "hour": 3,
+      "avg_trips": 144093
+    },
+    {
+      "month": 4,
+      "hour": 4,
+      "avg_trips": 108820
+    },
+    {
+      "month": 4,
+      "hour": 5,
+      "avg_trips": 136102
+    },
+    {
+      "month": 4,
+      "hour": 6,
+      "avg_trips": 338028
+    },
+    {
+      "month": 4,
+      "hour": 7,
+      "avg_trips": 625903
+    },
+    {
+      "month": 4,
+      "hour": 8,
+      "avg_trips": 818626
+    },
+    {
+      "month": 4,
+      "hour": 9,
+      "avg_trips": 876055
+    },
+    {
+      "month": 4,
+      "hour": 10,
+      "avg_trips": 932461
+    },
+    {
+      "month": 4,
+      "hour": 11,
+      "avg_trips": 1006480
+    },
+    {
+      "month": 4,
+      "hour": 12,
+      "avg_trips": 1082540
+    },
+    {
+      "month": 4,
+      "hour": 13,
+      "avg_trips": 1100743
+    },
+    {
+      "month": 4,
+      "hour": 14,
+      "avg_trips": 1173205
+    },
+    {
+      "month": 4,
+      "hour": 15,
+      "avg_trips": 1190733
+    },
+    {
+      "month": 4,
+      "hour": 16,
+      "avg_trips": 1164488
+    },
+    {
+      "month": 4,
+      "hour": 17,
+      "avg_trips": 1289673
+    },
+    {
+      "month": 4,
+      "hour": 18,
+      "avg_trips": 1363405
+    },
+    {
+      "month": 4,
+      "hour": 19,
+      "avg_trips": 1211751
+    },
+    {
+      "month": 4,
+      "hour": 20,
+      "avg_trips": 1114882
+    },
+    {
+      "month": 4,
+      "hour": 21,
+      "avg_trips": 1074234
+    },
+    {
+      "month": 4,
+      "hour": 22,
+      "avg_trips": 1005511
+    },
+    {
+      "month": 4,
+      "hour": 23,
+      "avg_trips": 778830
+    },
+    {
+      "month": 5,
+      "hour": 0,
+      "avg_trips": 554879
+    },
+    {
+      "month": 5,
+      "hour": 1,
+      "avg_trips": 352567
+    },
+    {
+      "month": 5,
+      "hour": 2,
+      "avg_trips": 226211
+    },
+    {
+      "month": 5,
+      "hour": 3,
+      "avg_trips": 148258
+    },
+    {
+      "month": 5,
+      "hour": 4,
+      "avg_trips": 116507
+    },
+    {
+      "month": 5,
+      "hour": 5,
+      "avg_trips": 147441
+    },
+    {
+      "month": 5,
+      "hour": 6,
+      "avg_trips": 359397
+    },
+    {
+      "month": 5,
+      "hour": 7,
+      "avg_trips": 668144
+    },
+    {
+      "month": 5,
+      "hour": 8,
+      "avg_trips": 859925
+    },
+    {
+      "month": 5,
+      "hour": 9,
+      "avg_trips": 915179
+    },
+    {
+      "month": 5,
+      "hour": 10,
+      "avg_trips": 969124
+    },
+    {
+      "month": 5,
+      "hour": 11,
+      "avg_trips": 1048737
+    },
+    {
+      "month": 5,
+      "hour": 12,
+      "avg_trips": 1127542
+    },
+    {
+      "month": 5,
+      "hour": 13,
+      "avg_trips": 1152409
+    },
+    {
+      "month": 5,
+      "hour": 14,
+      "avg_trips": 1238772
+    },
+    {
+      "month": 5,
+      "hour": 15,
+      "avg_trips": 1247678
+    },
+    {
+      "month": 5,
+      "hour": 16,
+      "avg_trips": 1210269
+    },
+    {
+      "month": 5,
+      "hour": 17,
+      "avg_trips": 1339697
+    },
+    {
+      "month": 5,
+      "hour": 18,
+      "avg_trips": 1427219
+    },
+    {
+      "month": 5,
+      "hour": 19,
+      "avg_trips": 1288858
+    },
+    {
+      "month": 5,
+      "hour": 20,
+      "avg_trips": 1133079
+    },
+    {
+      "month": 5,
+      "hour": 21,
+      "avg_trips": 1140762
+    },
+    {
+      "month": 5,
+      "hour": 22,
+      "avg_trips": 1054247
+    },
+    {
+      "month": 5,
+      "hour": 23,
+      "avg_trips": 828377
+    },
+    {
+      "month": 6,
+      "hour": 0,
+      "avg_trips": 593405
+    },
+    {
+      "month": 6,
+      "hour": 1,
+      "avg_trips": 397449
+    },
+    {
+      "month": 6,
+      "hour": 2,
+      "avg_trips": 270393
+    },
+    {
+      "month": 6,
+      "hour": 3,
+      "avg_trips": 176896
+    },
+    {
+      "month": 6,
+      "hour": 4,
+      "avg_trips": 130099
+    },
+    {
+      "month": 6,
+      "hour": 5,
+      "avg_trips": 148191
+    },
+    {
+      "month": 6,
+      "hour": 6,
+      "avg_trips": 342407
+    },
+    {
+      "month": 6,
+      "hour": 7,
+      "avg_trips": 604717
+    },
+    {
+      "month": 6,
+      "hour": 8,
+      "avg_trips": 817228
+    },
+    {
+      "month": 6,
+      "hour": 9,
+      "avg_trips": 888316
+    },
+    {
+      "month": 6,
+      "hour": 10,
+      "avg_trips": 948265
+    },
+    {
+      "month": 6,
+      "hour": 11,
+      "avg_trips": 1024919
+    },
+    {
+      "month": 6,
+      "hour": 12,
+      "avg_trips": 1101478
+    },
+    {
+      "month": 6,
+      "hour": 13,
+      "avg_trips": 1132356
+    },
+    {
+      "month": 6,
+      "hour": 14,
+      "avg_trips": 1196824
+    },
+    {
+      "month": 6,
+      "hour": 15,
+      "avg_trips": 1196472
+    },
+    {
+      "month": 6,
+      "hour": 16,
+      "avg_trips": 1165365
+    },
+    {
+      "month": 6,
+      "hour": 17,
+      "avg_trips": 1273217
+    },
+    {
+      "month": 6,
+      "hour": 18,
+      "avg_trips": 1359614
+    },
+    {
+      "month": 6,
+      "hour": 19,
+      "avg_trips": 1233326
+    },
+    {
+      "month": 6,
+      "hour": 20,
+      "avg_trips": 1071915
+    },
+    {
+      "month": 6,
+      "hour": 21,
+      "avg_trips": 1089126
+    },
+    {
+      "month": 6,
+      "hour": 22,
+      "avg_trips": 1023843
+    },
+    {
+      "month": 6,
+      "hour": 23,
+      "avg_trips": 829265
+    },
+    {
+      "month": 7,
+      "hour": 0,
+      "avg_trips": 513250
+    },
+    {
+      "month": 7,
+      "hour": 1,
+      "avg_trips": 345940
+    },
+    {
+      "month": 7,
+      "hour": 2,
+      "avg_trips": 236890
+    },
+    {
+      "month": 7,
+      "hour": 3,
+      "avg_trips": 156644
+    },
+    {
+      "month": 7,
+      "hour": 4,
+      "avg_trips": 114512
+    },
+    {
+      "month": 7,
+      "hour": 5,
+      "avg_trips": 135009
+    },
+    {
+      "month": 7,
+      "hour": 6,
+      "avg_trips": 321235
+    },
+    {
+      "month": 7,
+      "hour": 7,
+      "avg_trips": 532779
+    },
+    {
+      "month": 7,
+      "hour": 8,
+      "avg_trips": 743859
+    },
+    {
+      "month": 7,
+      "hour": 9,
+      "avg_trips": 815869
+    },
+    {
+      "month": 7,
+      "hour": 10,
+      "avg_trips": 871945
+    },
+    {
+      "month": 7,
+      "hour": 11,
+      "avg_trips": 941610
+    },
+    {
+      "month": 7,
+      "hour": 12,
+      "avg_trips": 1028639
+    },
+    {
+      "month": 7,
+      "hour": 13,
+      "avg_trips": 1060447
+    },
+    {
+      "month": 7,
+      "hour": 14,
+      "avg_trips": 1109726
+    },
+    {
+      "month": 7,
+      "hour": 15,
+      "avg_trips": 1113995
+    },
+    {
+      "month": 7,
+      "hour": 16,
+      "avg_trips": 1090937
+    },
+    {
+      "month": 7,
+      "hour": 17,
+      "avg_trips": 1186366
+    },
+    {
+      "month": 7,
+      "hour": 18,
+      "avg_trips": 1266999
+    },
+    {
+      "month": 7,
+      "hour": 19,
+      "avg_trips": 1152173
+    },
+    {
+      "month": 7,
+      "hour": 20,
+      "avg_trips": 996945
+    },
+    {
+      "month": 7,
+      "hour": 21,
+      "avg_trips": 989854
+    },
+    {
+      "month": 7,
+      "hour": 22,
+      "avg_trips": 904514
+    },
+    {
+      "month": 7,
+      "hour": 23,
+      "avg_trips": 724283
+    },
+    {
+      "month": 8,
+      "hour": 0,
+      "avg_trips": 499487
+    },
+    {
+      "month": 8,
+      "hour": 1,
+      "avg_trips": 339977
+    },
+    {
+      "month": 8,
+      "hour": 2,
+      "avg_trips": 232287
+    },
+    {
+      "month": 8,
+      "hour": 3,
+      "avg_trips": 155862
+    },
+    {
+      "month": 8,
+      "hour": 4,
+      "avg_trips": 114694
+    },
+    {
+      "month": 8,
+      "hour": 5,
+      "avg_trips": 132387
+    },
+    {
+      "month": 8,
+      "hour": 6,
+      "avg_trips": 320643
+    },
+    {
+      "month": 8,
+      "hour": 7,
+      "avg_trips": 521822
+    },
+    {
+      "month": 8,
+      "hour": 8,
+      "avg_trips": 730383
+    },
+    {
+      "month": 8,
+      "hour": 9,
+      "avg_trips": 813154
+    },
+    {
+      "month": 8,
+      "hour": 10,
+      "avg_trips": 863408
+    },
+    {
+      "month": 8,
+      "hour": 11,
+      "avg_trips": 923761
+    },
+    {
+      "month": 8,
+      "hour": 12,
+      "avg_trips": 1010949
+    },
+    {
+      "month": 8,
+      "hour": 13,
+      "avg_trips": 1039934
+    },
+    {
+      "month": 8,
+      "hour": 14,
+      "avg_trips": 1088610
+    },
+    {
+      "month": 8,
+      "hour": 15,
+      "avg_trips": 1103344
+    },
+    {
+      "month": 8,
+      "hour": 16,
+      "avg_trips": 1089121
+    },
+    {
+      "month": 8,
+      "hour": 17,
+      "avg_trips": 1184960
+    },
+    {
+      "month": 8,
+      "hour": 18,
+      "avg_trips": 1246477
+    },
+    {
+      "month": 8,
+      "hour": 19,
+      "avg_trips": 1117142
+    },
+    {
+      "month": 8,
+      "hour": 20,
+      "avg_trips": 1002045
+    },
+    {
+      "month": 8,
+      "hour": 21,
+      "avg_trips": 955532
+    },
+    {
+      "month": 8,
+      "hour": 22,
+      "avg_trips": 873318
+    },
+    {
+      "month": 8,
+      "hour": 23,
+      "avg_trips": 696988
+    },
+    {
+      "month": 9,
+      "hour": 0,
+      "avg_trips": 548992
+    },
+    {
+      "month": 9,
+      "hour": 1,
+      "avg_trips": 363194
+    },
+    {
+      "month": 9,
+      "hour": 2,
+      "avg_trips": 247283
+    },
+    {
+      "month": 9,
+      "hour": 3,
+      "avg_trips": 163026
+    },
+    {
+      "month": 9,
+      "hour": 4,
+      "avg_trips": 117712
+    },
+    {
+      "month": 9,
+      "hour": 5,
+      "avg_trips": 138402
+    },
+    {
+      "month": 9,
+      "hour": 6,
+      "avg_trips": 341018
+    },
+    {
+      "month": 9,
+      "hour": 7,
+      "avg_trips": 640108
+    },
+    {
+      "month": 9,
+      "hour": 8,
+      "avg_trips": 808627
+    },
+    {
+      "month": 9,
+      "hour": 9,
+      "avg_trips": 866046
+    },
+    {
+      "month": 9,
+      "hour": 10,
+      "avg_trips": 925585
+    },
+    {
+      "month": 9,
+      "hour": 11,
+      "avg_trips": 993874
+    },
+    {
+      "month": 9,
+      "hour": 12,
+      "avg_trips": 1068062
+    },
+    {
+      "month": 9,
+      "hour": 13,
+      "avg_trips": 1082157
+    },
+    {
+      "month": 9,
+      "hour": 14,
+      "avg_trips": 1159859
+    },
+    {
+      "month": 9,
+      "hour": 15,
+      "avg_trips": 1181992
+    },
+    {
+      "month": 9,
+      "hour": 16,
+      "avg_trips": 1157938
+    },
+    {
+      "month": 9,
+      "hour": 17,
+      "avg_trips": 1284297
+    },
+    {
+      "month": 9,
+      "hour": 18,
+      "avg_trips": 1357677
+    },
+    {
+      "month": 9,
+      "hour": 19,
+      "avg_trips": 1261185
+    },
+    {
+      "month": 9,
+      "hour": 20,
+      "avg_trips": 1131353
+    },
+    {
+      "month": 9,
+      "hour": 21,
+      "avg_trips": 1067970
+    },
+    {
+      "month": 9,
+      "hour": 22,
+      "avg_trips": 977742
+    },
+    {
+      "month": 9,
+      "hour": 23,
+      "avg_trips": 782182
+    },
+    {
+      "month": 10,
+      "hour": 0,
+      "avg_trips": 612151
+    },
+    {
+      "month": 10,
+      "hour": 1,
+      "avg_trips": 406665
+    },
+    {
+      "month": 10,
+      "hour": 2,
+      "avg_trips": 279419
+    },
+    {
+      "month": 10,
+      "hour": 3,
+      "avg_trips": 185517
+    },
+    {
+      "month": 10,
+      "hour": 4,
+      "avg_trips": 131610
+    },
+    {
+      "month": 10,
+      "hour": 5,
+      "avg_trips": 154970
+    },
+    {
+      "month": 10,
+      "hour": 6,
+      "avg_trips": 368889
+    },
+    {
+      "month": 10,
+      "hour": 7,
+      "avg_trips": 721435
+    },
+    {
+      "month": 10,
+      "hour": 8,
+      "avg_trips": 939875
+    },
+    {
+      "month": 10,
+      "hour": 9,
+      "avg_trips": 1006579
+    },
+    {
+      "month": 10,
+      "hour": 10,
+      "avg_trips": 1065674
+    },
+    {
+      "month": 10,
+      "hour": 11,
+      "avg_trips": 1137945
+    },
+    {
+      "month": 10,
+      "hour": 12,
+      "avg_trips": 1216574
+    },
+    {
+      "month": 10,
+      "hour": 13,
+      "avg_trips": 1230644
+    },
+    {
+      "month": 10,
+      "hour": 14,
+      "avg_trips": 1317165
+    },
+    {
+      "month": 10,
+      "hour": 15,
+      "avg_trips": 1346351
+    },
+    {
+      "month": 10,
+      "hour": 16,
+      "avg_trips": 1320477
+    },
+    {
+      "month": 10,
+      "hour": 17,
+      "avg_trips": 1475753
+    },
+    {
+      "month": 10,
+      "hour": 18,
+      "avg_trips": 1564044
+    },
+    {
+      "month": 10,
+      "hour": 19,
+      "avg_trips": 1437544
+    },
+    {
+      "month": 10,
+      "hour": 20,
+      "avg_trips": 1274292
+    },
+    {
+      "month": 10,
+      "hour": 21,
+      "avg_trips": 1233787
+    },
+    {
+      "month": 10,
+      "hour": 22,
+      "avg_trips": 1120554
+    },
+    {
+      "month": 10,
+      "hour": 23,
+      "avg_trips": 887189
+    },
+    {
+      "month": 11,
+      "hour": 0,
+      "avg_trips": 557034
+    },
+    {
+      "month": 11,
+      "hour": 1,
+      "avg_trips": 390888
+    },
+    {
+      "month": 11,
+      "hour": 2,
+      "avg_trips": 249581
+    },
+    {
+      "month": 11,
+      "hour": 3,
+      "avg_trips": 166608
+    },
+    {
+      "month": 11,
+      "hour": 4,
+      "avg_trips": 124151
+    },
+    {
+      "month": 11,
+      "hour": 5,
+      "avg_trips": 148547
+    },
+    {
+      "month": 11,
+      "hour": 6,
+      "avg_trips": 342435
+    },
+    {
+      "month": 11,
+      "hour": 7,
+      "avg_trips": 655198
+    },
+    {
+      "month": 11,
+      "hour": 8,
+      "avg_trips": 859540
+    },
+    {
+      "month": 11,
+      "hour": 9,
+      "avg_trips": 939547
+    },
+    {
+      "month": 11,
+      "hour": 10,
+      "avg_trips": 1013902
+    },
+    {
+      "month": 11,
+      "hour": 11,
+      "avg_trips": 1094388
+    },
+    {
+      "month": 11,
+      "hour": 12,
+      "avg_trips": 1180352
+    },
+    {
+      "month": 11,
+      "hour": 13,
+      "avg_trips": 1212144
+    },
+    {
+      "month": 11,
+      "hour": 14,
+      "avg_trips": 1293902
+    },
+    {
+      "month": 11,
+      "hour": 15,
+      "avg_trips": 1326567
+    },
+    {
+      "month": 11,
+      "hour": 16,
+      "avg_trips": 1283121
+    },
+    {
+      "month": 11,
+      "hour": 17,
+      "avg_trips": 1392039
+    },
+    {
+      "month": 11,
+      "hour": 18,
+      "avg_trips": 1459652
+    },
+    {
+      "month": 11,
+      "hour": 19,
+      "avg_trips": 1321520
+    },
+    {
+      "month": 11,
+      "hour": 20,
+      "avg_trips": 1168854
+    },
+    {
+      "month": 11,
+      "hour": 21,
+      "avg_trips": 1153096
+    },
+    {
+      "month": 11,
+      "hour": 22,
+      "avg_trips": 1062652
+    },
+    {
+      "month": 11,
+      "hour": 23,
+      "avg_trips": 815671
+    },
+    {
+      "month": 12,
+      "hour": 0,
+      "avg_trips": 597703
+    },
+    {
+      "month": 12,
+      "hour": 1,
+      "avg_trips": 384155
+    },
+    {
+      "month": 12,
+      "hour": 2,
+      "avg_trips": 251208
+    },
+    {
+      "month": 12,
+      "hour": 3,
+      "avg_trips": 165268
+    },
+    {
+      "month": 12,
+      "hour": 4,
+      "avg_trips": 123820
+    },
+    {
+      "month": 12,
+      "hour": 5,
+      "avg_trips": 137661
+    },
+    {
+      "month": 12,
+      "hour": 6,
+      "avg_trips": 316713
+    },
+    {
+      "month": 12,
+      "hour": 7,
+      "avg_trips": 601942
+    },
+    {
+      "month": 12,
+      "hour": 8,
+      "avg_trips": 818083
+    },
+    {
+      "month": 12,
+      "hour": 9,
+      "avg_trips": 922343
+    },
+    {
+      "month": 12,
+      "hour": 10,
+      "avg_trips": 1026021
+    },
+    {
+      "month": 12,
+      "hour": 11,
+      "avg_trips": 1121958
+    },
+    {
+      "month": 12,
+      "hour": 12,
+      "avg_trips": 1213450
+    },
+    {
+      "month": 12,
+      "hour": 13,
+      "avg_trips": 1246837
+    },
+    {
+      "month": 12,
+      "hour": 14,
+      "avg_trips": 1322384
+    },
+    {
+      "month": 12,
+      "hour": 15,
+      "avg_trips": 1356921
+    },
+    {
+      "month": 12,
+      "hour": 16,
+      "avg_trips": 1289778
+    },
+    {
+      "month": 12,
+      "hour": 17,
+      "avg_trips": 1363587
+    },
+    {
+      "month": 12,
+      "hour": 18,
+      "avg_trips": 1408991
+    },
+    {
+      "month": 12,
+      "hour": 19,
+      "avg_trips": 1287113
+    },
+    {
+      "month": 12,
+      "hour": 20,
+      "avg_trips": 1153662
+    },
+    {
+      "month": 12,
+      "hour": 21,
+      "avg_trips": 1136672
+    },
+    {
+      "month": 12,
+      "hour": 22,
+      "avg_trips": 1047328
+    },
+    {
+      "month": 12,
+      "hour": 23,
+      "avg_trips": 840740
+    }
+  ],
+  "by_weekday_hour": [
+    {
+      "weekday": 1,
+      "hour": 0,
+      "avg_trips": 1655963
+    },
+    {
+      "weekday": 1,
+      "hour": 1,
+      "avg_trips": 1379156
+    },
+    {
+      "weekday": 1,
+      "hour": 2,
+      "avg_trips": 1003744
+    },
+    {
+      "weekday": 1,
+      "hour": 3,
+      "avg_trips": 714019
+    },
+    {
+      "weekday": 1,
+      "hour": 4,
+      "avg_trips": 418523
+    },
+    {
+      "weekday": 1,
+      "hour": 5,
+      "avg_trips": 206096
+    },
+    {
+      "weekday": 1,
+      "hour": 6,
+      "avg_trips": 292198
+    },
+    {
+      "weekday": 1,
+      "hour": 7,
+      "avg_trips": 437558
+    },
+    {
+      "weekday": 1,
+      "hour": 8,
+      "avg_trips": 663072
+    },
+    {
+      "weekday": 1,
+      "hour": 9,
+      "avg_trips": 1013073
+    },
+    {
+      "weekday": 1,
+      "hour": 10,
+      "avg_trips": 1393111
+    },
+    {
+      "weekday": 1,
+      "hour": 11,
+      "avg_trips": 1634351
+    },
+    {
+      "weekday": 1,
+      "hour": 12,
+      "avg_trips": 1832590
+    },
+    {
+      "weekday": 1,
+      "hour": 13,
+      "avg_trips": 1880510
+    },
+    {
+      "weekday": 1,
+      "hour": 14,
+      "avg_trips": 1926687
+    },
+    {
+      "weekday": 1,
+      "hour": 15,
+      "avg_trips": 1884872
+    },
+    {
+      "weekday": 1,
+      "hour": 16,
+      "avg_trips": 1883724
+    },
+    {
+      "weekday": 1,
+      "hour": 17,
+      "avg_trips": 1907184
+    },
+    {
+      "weekday": 1,
+      "hour": 18,
+      "avg_trips": 1856049
+    },
+    {
+      "weekday": 1,
+      "hour": 19,
+      "avg_trips": 1604212
+    },
+    {
+      "weekday": 1,
+      "hour": 20,
+      "avg_trips": 1439244
+    },
+    {
+      "weekday": 1,
+      "hour": 21,
+      "avg_trips": 1327829
+    },
+    {
+      "weekday": 1,
+      "hour": 22,
+      "avg_trips": 1124149
+    },
+    {
+      "weekday": 1,
+      "hour": 23,
+      "avg_trips": 817857
+    },
+    {
+      "weekday": 2,
+      "hour": 0,
+      "avg_trips": 507200
+    },
+    {
+      "weekday": 2,
+      "hour": 1,
+      "avg_trips": 274372
+    },
+    {
+      "weekday": 2,
+      "hour": 2,
+      "avg_trips": 163594
+    },
+    {
+      "weekday": 2,
+      "hour": 3,
+      "avg_trips": 115032
+    },
+    {
+      "weekday": 2,
+      "hour": 4,
+      "avg_trips": 141071
+    },
+    {
+      "weekday": 2,
+      "hour": 5,
+      "avg_trips": 269937
+    },
+    {
+      "weekday": 2,
+      "hour": 6,
+      "avg_trips": 695695
+    },
+    {
+      "weekday": 2,
+      "hour": 7,
+      "avg_trips": 1255302
+    },
+    {
+      "weekday": 2,
+      "hour": 8,
+      "avg_trips": 1621549
+    },
+    {
+      "weekday": 2,
+      "hour": 9,
+      "avg_trips": 1622532
+    },
+    {
+      "weekday": 2,
+      "hour": 10,
+      "avg_trips": 1618262
+    },
+    {
+      "weekday": 2,
+      "hour": 11,
+      "avg_trips": 1679853
+    },
+    {
+      "weekday": 2,
+      "hour": 12,
+      "avg_trips": 1801953
+    },
+    {
+      "weekday": 2,
+      "hour": 13,
+      "avg_trips": 1853012
+    },
+    {
+      "weekday": 2,
+      "hour": 14,
+      "avg_trips": 2019084
+    },
+    {
+      "weekday": 2,
+      "hour": 15,
+      "avg_trips": 2089867
+    },
+    {
+      "weekday": 2,
+      "hour": 16,
+      "avg_trips": 2012383
+    },
+    {
+      "weekday": 2,
+      "hour": 17,
+      "avg_trips": 2214074
+    },
+    {
+      "weekday": 2,
+      "hour": 18,
+      "avg_trips": 2310716
+    },
+    {
+      "weekday": 2,
+      "hour": 19,
+      "avg_trips": 1987633
+    },
+    {
+      "weekday": 2,
+      "hour": 20,
+      "avg_trips": 1764268
+    },
+    {
+      "weekday": 2,
+      "hour": 21,
+      "avg_trips": 1658124
+    },
+    {
+      "weekday": 2,
+      "hour": 22,
+      "avg_trips": 1343079
+    },
+    {
+      "weekday": 2,
+      "hour": 23,
+      "avg_trips": 883392
+    },
+    {
+      "weekday": 3,
+      "hour": 0,
+      "avg_trips": 519411
+    },
+    {
+      "weekday": 3,
+      "hour": 1,
+      "avg_trips": 262731
+    },
+    {
+      "weekday": 3,
+      "hour": 2,
+      "avg_trips": 147231
+    },
+    {
+      "weekday": 3,
+      "hour": 3,
+      "avg_trips": 98584
+    },
+    {
+      "weekday": 3,
+      "hour": 4,
+      "avg_trips": 119044
+    },
+    {
+      "weekday": 3,
+      "hour": 5,
+      "avg_trips": 267447
+    },
+    {
+      "weekday": 3,
+      "hour": 6,
+      "avg_trips": 743843
+    },
+    {
+      "weekday": 3,
+      "hour": 7,
+      "avg_trips": 1441364
+    },
+    {
+      "weekday": 3,
+      "hour": 8,
+      "avg_trips": 1867878
+    },
+    {
+      "weekday": 3,
+      "hour": 9,
+      "avg_trips": 1862355
+    },
+    {
+      "weekday": 3,
+      "hour": 10,
+      "avg_trips": 1826591
+    },
+    {
+      "weekday": 3,
+      "hour": 11,
+      "avg_trips": 1881836
+    },
+    {
+      "weekday": 3,
+      "hour": 12,
+      "avg_trips": 2000233
+    },
+    {
+      "weekday": 3,
+      "hour": 13,
+      "avg_trips": 2029331
+    },
+    {
+      "weekday": 3,
+      "hour": 14,
+      "avg_trips": 2205518
+    },
+    {
+      "weekday": 3,
+      "hour": 15,
+      "avg_trips": 2254486
+    },
+    {
+      "weekday": 3,
+      "hour": 16,
+      "avg_trips": 2168595
+    },
+    {
+      "weekday": 3,
+      "hour": 17,
+      "avg_trips": 2444280
+    },
+    {
+      "weekday": 3,
+      "hour": 18,
+      "avg_trips": 2655799
+    },
+    {
+      "weekday": 3,
+      "hour": 19,
+      "avg_trips": 2318729
+    },
+    {
+      "weekday": 3,
+      "hour": 20,
+      "avg_trips": 2130447
+    },
+    {
+      "weekday": 3,
+      "hour": 21,
+      "avg_trips": 2120451
+    },
+    {
+      "weekday": 3,
+      "hour": 22,
+      "avg_trips": 1793542
+    },
+    {
+      "weekday": 3,
+      "hour": 23,
+      "avg_trips": 1180418
+    },
+    {
+      "weekday": 4,
+      "hour": 0,
+      "avg_trips": 647832
+    },
+    {
+      "weekday": 4,
+      "hour": 1,
+      "avg_trips": 326883
+    },
+    {
+      "weekday": 4,
+      "hour": 2,
+      "avg_trips": 183991
+    },
+    {
+      "weekday": 4,
+      "hour": 3,
+      "avg_trips": 120601
+    },
+    {
+      "weekday": 4,
+      "hour": 4,
+      "avg_trips": 130598
+    },
+    {
+      "weekday": 4,
+      "hour": 5,
+      "avg_trips": 271839
+    },
+    {
+      "weekday": 4,
+      "hour": 6,
+      "avg_trips": 751733
+    },
+    {
+      "weekday": 4,
+      "hour": 7,
+      "avg_trips": 1468199
+    },
+    {
+      "weekday": 4,
+      "hour": 8,
+      "avg_trips": 1906329
+    },
+    {
+      "weekday": 4,
+      "hour": 9,
+      "avg_trips": 1892769
+    },
+    {
+      "weekday": 4,
+      "hour": 10,
+      "avg_trips": 1863089
+    },
+    {
+      "weekday": 4,
+      "hour": 11,
+      "avg_trips": 1946726
+    },
+    {
+      "weekday": 4,
+      "hour": 12,
+      "avg_trips": 2071057
+    },
+    {
+      "weekday": 4,
+      "hour": 13,
+      "avg_trips": 2100152
+    },
+    {
+      "weekday": 4,
+      "hour": 14,
+      "avg_trips": 2252015
+    },
+    {
+      "weekday": 4,
+      "hour": 15,
+      "avg_trips": 2289945
+    },
+    {
+      "weekday": 4,
+      "hour": 16,
+      "avg_trips": 2209628
+    },
+    {
+      "weekday": 4,
+      "hour": 17,
+      "avg_trips": 2498988
+    },
+    {
+      "weekday": 4,
+      "hour": 18,
+      "avg_trips": 2711008
+    },
+    {
+      "weekday": 4,
+      "hour": 19,
+      "avg_trips": 2441553
+    },
+    {
+      "weekday": 4,
+      "hour": 20,
+      "avg_trips": 2219415
+    },
+    {
+      "weekday": 4,
+      "hour": 21,
+      "avg_trips": 2218038
+    },
+    {
+      "weekday": 4,
+      "hour": 22,
+      "avg_trips": 1963323
+    },
+    {
+      "weekday": 4,
+      "hour": 23,
+      "avg_trips": 1346554
+    },
+    {
+      "weekday": 5,
+      "hour": 0,
+      "avg_trips": 766653
+    },
+    {
+      "weekday": 5,
+      "hour": 1,
+      "avg_trips": 398934
+    },
+    {
+      "weekday": 5,
+      "hour": 2,
+      "avg_trips": 223541
+    },
+    {
+      "weekday": 5,
+      "hour": 3,
+      "avg_trips": 144098
+    },
+    {
+      "weekday": 5,
+      "hour": 4,
+      "avg_trips": 146199
+    },
+    {
+      "weekday": 5,
+      "hour": 5,
+      "avg_trips": 282334
+    },
+    {
+      "weekday": 5,
+      "hour": 6,
+      "avg_trips": 766130
+    },
+    {
+      "weekday": 5,
+      "hour": 7,
+      "avg_trips": 1474496
+    },
+    {
+      "weekday": 5,
+      "hour": 8,
+      "avg_trips": 1901076
+    },
+    {
+      "weekday": 5,
+      "hour": 9,
+      "avg_trips": 1894805
+    },
+    {
+      "weekday": 5,
+      "hour": 10,
+      "avg_trips": 1874225
+    },
+    {
+      "weekday": 5,
+      "hour": 11,
+      "avg_trips": 1947957
+    },
+    {
+      "weekday": 5,
+      "hour": 12,
+      "avg_trips": 2074908
+    },
+    {
+      "weekday": 5,
+      "hour": 13,
+      "avg_trips": 2106340
+    },
+    {
+      "weekday": 5,
+      "hour": 14,
+      "avg_trips": 2282563
+    },
+    {
+      "weekday": 5,
+      "hour": 15,
+      "avg_trips": 2329792
+    },
+    {
+      "weekday": 5,
+      "hour": 16,
+      "avg_trips": 2238252
+    },
+    {
+      "weekday": 5,
+      "hour": 17,
+      "avg_trips": 2528012
+    },
+    {
+      "weekday": 5,
+      "hour": 18,
+      "avg_trips": 2750151
+    },
+    {
+      "weekday": 5,
+      "hour": 19,
+      "avg_trips": 2495923
+    },
+    {
+      "weekday": 5,
+      "hour": 20,
+      "avg_trips": 2283857
+    },
+    {
+      "weekday": 5,
+      "hour": 21,
+      "avg_trips": 2285819
+    },
+    {
+      "weekday": 5,
+      "hour": 22,
+      "avg_trips": 2119310
+    },
+    {
+      "weekday": 5,
+      "hour": 23,
+      "avg_trips": 1644048
+    },
+    {
+      "weekday": 6,
+      "hour": 0,
+      "avg_trips": 1073218
+    },
+    {
+      "weekday": 6,
+      "hour": 1,
+      "avg_trips": 627428
+    },
+    {
+      "weekday": 6,
+      "hour": 2,
+      "avg_trips": 370156
+    },
+    {
+      "weekday": 6,
+      "hour": 3,
+      "avg_trips": 228254
+    },
+    {
+      "weekday": 6,
+      "hour": 4,
+      "avg_trips": 197962
+    },
+    {
+      "weekday": 6,
+      "hour": 5,
+      "avg_trips": 290919
+    },
+    {
+      "weekday": 6,
+      "hour": 6,
+      "avg_trips": 706160
+    },
+    {
+      "weekday": 6,
+      "hour": 7,
+      "avg_trips": 1294797
+    },
+    {
+      "weekday": 6,
+      "hour": 8,
+      "avg_trips": 1670481
+    },
+    {
+      "weekday": 6,
+      "hour": 9,
+      "avg_trips": 1711641
+    },
+    {
+      "weekday": 6,
+      "hour": 10,
+      "avg_trips": 1754334
+    },
+    {
+      "weekday": 6,
+      "hour": 11,
+      "avg_trips": 1857397
+    },
+    {
+      "weekday": 6,
+      "hour": 12,
+      "avg_trips": 1974120
+    },
+    {
+      "weekday": 6,
+      "hour": 13,
+      "avg_trips": 2026969
+    },
+    {
+      "weekday": 6,
+      "hour": 14,
+      "avg_trips": 2233786
+    },
+    {
+      "weekday": 6,
+      "hour": 15,
+      "avg_trips": 2273239
+    },
+    {
+      "weekday": 6,
+      "hour": 16,
+      "avg_trips": 2176114
+    },
+    {
+      "weekday": 6,
+      "hour": 17,
+      "avg_trips": 2444104
+    },
+    {
+      "weekday": 6,
+      "hour": 18,
+      "avg_trips": 2659516
+    },
+    {
+      "weekday": 6,
+      "hour": 19,
+      "avg_trips": 2516773
+    },
+    {
+      "weekday": 6,
+      "hour": 20,
+      "avg_trips": 2061126
+    },
+    {
+      "weekday": 6,
+      "hour": 21,
+      "avg_trips": 2004212
+    },
+    {
+      "weekday": 6,
+      "hour": 22,
+      "avg_trips": 2073803
+    },
+    {
+      "weekday": 6,
+      "hour": 23,
+      "avg_trips": 1935387
+    },
+    {
+      "weekday": 7,
+      "hour": 0,
+      "avg_trips": 1619048
+    },
+    {
+      "weekday": 7,
+      "hour": 1,
+      "avg_trips": 1279978
+    },
+    {
+      "weekday": 7,
+      "hour": 2,
+      "avg_trips": 961577
+    },
+    {
+      "weekday": 7,
+      "hour": 3,
+      "avg_trips": 638247
+    },
+    {
+      "weekday": 7,
+      "hour": 4,
+      "avg_trips": 366229
+    },
+    {
+      "weekday": 7,
+      "hour": 5,
+      "avg_trips": 199770
+    },
+    {
+      "weekday": 7,
+      "hour": 6,
+      "avg_trips": 333528
+    },
+    {
+      "weekday": 7,
+      "hour": 7,
+      "avg_trips": 520502
+    },
+    {
+      "weekday": 7,
+      "hour": 8,
+      "avg_trips": 814396
+    },
+    {
+      "weekday": 7,
+      "hour": 9,
+      "avg_trips": 1212362
+    },
+    {
+      "weekday": 7,
+      "hour": 10,
+      "avg_trips": 1539581
+    },
+    {
+      "weekday": 7,
+      "hour": 11,
+      "avg_trips": 1788000
+    },
+    {
+      "weekday": 7,
+      "hour": 12,
+      "avg_trips": 1991337
+    },
+    {
+      "weekday": 7,
+      "hour": 13,
+      "avg_trips": 2063056
+    },
+    {
+      "weekday": 7,
+      "hour": 14,
+      "avg_trips": 2056875
+    },
+    {
+      "weekday": 7,
+      "hour": 15,
+      "avg_trips": 2124173
+    },
+    {
+      "weekday": 7,
+      "hour": 16,
+      "avg_trips": 2138770
+    },
+    {
+      "weekday": 7,
+      "hour": 17,
+      "avg_trips": 2239593
+    },
+    {
+      "weekday": 7,
+      "hour": 18,
+      "avg_trips": 2319387
+    },
+    {
+      "weekday": 7,
+      "hour": 19,
+      "avg_trips": 2261723
+    },
+    {
+      "weekday": 7,
+      "hour": 20,
+      "avg_trips": 1889720
+    },
+    {
+      "weekday": 7,
+      "hour": 21,
+      "avg_trips": 1858403
+    },
+    {
+      "weekday": 7,
+      "hour": 22,
+      "avg_trips": 1988807
+    },
+    {
+      "weekday": 7,
+      "hour": 23,
+      "avg_trips": 1934635
+    }
+  ],
+  "note": "6-year averages per (month, hour) and (weekday, hour); pandemic timeline shows absolute trips + % of 2019 monthly mean."
+}

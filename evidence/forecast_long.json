@@ -1,0 +1,66 @@
+{
+  "engine": "LightGBM + 6-year long archive (2019-2024 train, 2025 test)",
+  "rows": {
+    "train_2019_2023": 11437872,
+    "val_2024": 2301408,
+    "test_2025": 2295120
+  },
+  "features": [
+    "zone",
+    "hour",
+    "weekday",
+    "month",
+    "is_weekend",
+    "year",
+    "temperature_2m",
+    "apparent_temperature",
+    "precipitation",
+    "snowfall",
+    "wind_speed_10m",
+    "relative_humidity_2m",
+    "cloud_cover",
+    "temperature_2m_max",
+    "temperature_2m_min",
+    "precipitation_sum",
+    "snowfall_sum",
+    "wind_speed_10m_max",
+    "sunshine_duration",
+    "lag_1",
+    "lag_7",
+    "lag7mean"
+  ],
+  "metrics": {
+    "model": {
+      "rmse": 2.44,
+      "mape_pct": 16.23,
+      "mape_high_demand_pct": NaN
+    },
+    "baseline_lag7": {
+      "rmse": 5.31
+    },
+    "model_vs_baseline": {
+      "rmse_improvement_pct": 54.0
+    }
+  },
+  "by_year_test": [
+    {
+      "year": 2025,
+      "cells": 2295120,
+      "rmse": 2.44,
+      "mape_pct": 16.23
+    }
+  ],
+  "feature_importance": {
+    "zone": 11096,
+    "lag7mean": 7620,
+    "hour": 7214,
+    "lag_7": 5726,
+    "weekday": 5652,
+    "lag_1": 4802,
+    "year": 3586,
+    "month": 3473,
+    "is_weekend": 431,
+    "temperature_2m": 0
+  },
+  "note": "The crucial cross-year generalisation test. 2019-2024 includes the COVID dip (2020-04 = 3.3% of 2019 avg). The model is asked to forecast 2025 without ever seeing it."
+}

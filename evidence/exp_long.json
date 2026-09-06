@@ -1,0 +1,23 @@
+{
+  "engine": "Spark 3.5.1 (local[2]) for the long archive; Hadoop Streaming for the 2025 MR baseline",
+  "generated_at": "2026-09-06T10:33:31Z",
+  "results": [
+    {
+      "name": "single_big_job",
+      "args": [],
+      "elapsed_seconds": 0.04,
+      "returncode": 1,
+      "ok": false,
+      "tail_log": "Traceback (most recent call last):\n  File \"D:\\项目\\云计算\\scripts\\year_aggregate.py\", line 14, in <module>\n    from pyspark.sql import SparkSession\nModuleNotFoundError: No module named 'pyspark'"
+    },
+    {
+      "name": "seventy_two_mr_monthly_jobs (legacy 2025)",
+      "args": [],
+      "count": 27,
+      "elapsed_seconds": 3868.484,
+      "ok": true,
+      "tail_log": "27 MR jobs in 2025, sum wallclock"
+    }
+  ],
+  "note": "Same logical aggregation (zone, hour, day) across different chunking strategies. The single Spark job amortises JVM driver startup once; 12-yearly invocations pay it 12x; 72-monthly MR pays it ~72x and adds per-job ApplicationMaster startup."
+}
