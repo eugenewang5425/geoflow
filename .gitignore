@@ -15,3 +15,6 @@ runs_tmp.json
 jobs_tmp.json
 runs2.json
 node_modules/
+runs*.json
+test*.docx
+*.tmp
