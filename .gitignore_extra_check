@@ -1,0 +1,5 @@
+logs/
+data/
+*.pkl
+jobs_tmp.json
+runs_tmp.json
