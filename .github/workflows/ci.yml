@@ -33,7 +33,7 @@ jobs:
           playwright install --with-deps chromium
       - name: Start dashboard (cluster-independent pages)
         run: python -m geoflow serve &
-      - name: End-to-end smoke (data-less checkout: boot + navigate + no JS errors)
+      - name: "End-to-end smoke (data-less checkout, boot + navigate, no JS errors)"
         env:
           E2E_SMOKE: "1"
         run: python scripts/e2e_check.py
