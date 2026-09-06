@@ -5,6 +5,9 @@
 # Hadoop 3.4.2 集群（2 DataNode / 2 NodeManager）设计上跑在宿主机 WSL2
 # （Start-GeoFlow.ps1 / scripts/hadoop.sh start），通过 ./data 卷共享结果，
 # 容器内的 API 只读 data/results 下的报表。集群整体容器化见 docs/（路线图）。
+# name 必须显式指定：目录名“云计算”非 ASCII，compose 无法自动派生项目名。
+
+name: geoflow
 
 services:
   api:
@@ -14,6 +17,7 @@ services:
       - "8765:8765"
     volumes:
       - ./data:/app/data
+      - ./evidence:/app/evidence
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8765/api/health')"]
