@@ -58,7 +58,7 @@ wsl -d Ubuntu-24.04 -- bash scripts/hadoop.sh install
   结果分流到 `data/runs/<run_id>/daily.tsv`，不撑大结果 JSON。
 - **天气特征**：`scripts/fetch_weather.py` 从 Open-Meteo 历史归档 API 获取
   Central Park 2025 逐小时气象（气温/降水/降雪/风/湿度/云量/能见度 + 日级聚合），
-  原始数据与 SIIA-256 记录在 `data/raw/weather_2025_manifest.json`。
+  原始数据与 SHA-256 记录在 `data/raw/weather_2025_manifest.json`。
 - **年度合并**：`scripts/merge_year.py` 将所有月结果合并为 `data/results/year.json`
   （月×小时热力、星期×小时、区域×月矩阵、月度曲线）与 `od_year.json`
   （TOP OD、桑基、机场进出），API：`/api/year`、`/api/od`。
@@ -87,3 +87,60 @@ wsl -d Ubuntu-24.04 -- bash scripts/hadoop.sh install
 - `docs/background.md`：项目背景（前期 VMware 三节点集群实验 → 本项目）
 - `evidence/`：对照实验与精确验证的实测数据
 - `data/runs/<run_id>/`：每次作业的 driver/hadoop 日志、HDFS fsck、History 服务 JSON
+
+## 2026-09 工程扩展（CI · E2E · 性能实验 · 容错演示 · 引擎对比 · 实时回放 · 容器化）
+
+### 性能实验矩阵（「实验与作业」页全部可视化）
+
+- **Map 任务粒度扫描**：把月份重分片为 14/36/72/144 个平衡文件 →
+  29.7 / 48.0 / 65.9 / 113.9 s。重要教训：Hadoop 3 FileInputFormat 对
+  小于块大小(16MB)的文件**忽略** `mapreduce.job.maps` 与 `split.maxsize`
+  提示（streaming 的 `-inputformat CombineFileInputFormat` 亦被忽略），
+  物理重分片才是唯一可靠旋钮（`scripts/perf_experiments.py` + `map_sweep.sh`）。
+- **弱扩展**：12 个月独立作业（348 万→460 万行）耗时 215–265s 基本平坦。
+- **Combiner 开关 × reducers(1/2/4)**：`scripts/experiments.py` 全矩阵，
+  逐键精确比对。
+- **容错演示**：`scripts/fault_demo.py` 作业运行中终止 worker1 的
+  DataNode → map 改读 worker2 副本，作业 75s 成功、集群自愈。
+  （若连 NodeManager 一起杀，AM 重启的全量 JVM 风暴会击穿单机 15GB
+  内存——这正是真多机部署要解决的问题，已如实记录在证据里。）
+- **引擎对比**：`scripts/spark_compare.py`（Spark 3.5.1 local[2]，同一
+  聚合同一 HDFS 输入）：MR 净耗时 32.5s vs Spark 热跑 27.5s（×1.18，
+  暖集群口径；旧记录的 ×7.93 是冷/暖混比的错误口径），有效行
+  3,288,166 与 MR 输出逐行一致。
+
+### 实时回放（「实时回放」页签）
+
+`/api/live/meta|frame`：12 月 430 万出行按原始时间戳建分钟索引，逐分钟
+回放到分区热力地图（×60/×360/×900 变速、暂停、TOP 区域榜）。事件结构
+与 Kafka 消费者一致，替换事件源即成真·流式。
+
+### 节点检测台（「系统架构」页）
+
+DataNode / NodeManager 实时指标（状态、容器、vCore、内存、HDFS 磁盘、
+心跳）+ 集群整体与单节点启停控制（`hadoop.sh start|stop-node`），可现场
+演示单点故障与副本容错。
+
+### CI + E2E + Docker
+
+- `.github/workflows/ci.yml`：push 自动 ruff + pytest + Playwright E2E；
+- `scripts/e2e_check.py`：无头 Chromium 走 7 个页签，断言关键元素与
+  未捕获 JS 错误（WebGL 缺失时断言 2D 降级路径）；
+- `Dockerfile` + `compose.yml`：`docker compose up --build` 一键拉起
+  服务层（Hadoop 集群仍设计在宿主 WSL2，经 ./data 卷共享结果）。
+
+### 预测扩展
+
+- **分位数区间**：q10/q90 LightGBM，12 月测试窗覆盖率 84%（目标 80%），
+  预测曲线图带置信带；
+- **邻域滞后特征消融**：几何邻接(≤800m)邻居同小时滞后均值 → RMSE
+  19.4 vs 19.1（无增益，与自身滞后冗余），主模型不采用——负结果如实
+  记录于 `evidence/forecast.json`。
+
+```powershell
+.venv\Scripts\python.exe scripts/perf_experiments.py   # Map 扫描 + 弱扩展
+.venv\Scripts\python.exe scripts/fault_demo.py         # 容错演示
+.venv\Scripts\python.exe scripts/spark_compare.py      # MR vs Spark
+.venv\Scripts\python.exe scripts/e2e_check.py          # 浏览器 E2E（需 playwright）
+docker compose up --build                               # 服务层容器化
+```
